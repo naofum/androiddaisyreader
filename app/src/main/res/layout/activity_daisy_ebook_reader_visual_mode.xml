@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutVisualMode"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.04"
+        android:scrollbars="none" >
+
+        <TextView
+            android:id="@+id/contents"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/layoutRelativeLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp" >
+
+        <ImageButton
+            android:id="@+id/btnNextSection"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/selector_button"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/next_section"
+            android:src="@raw/media_next_section" />
+
+        <ImageButton
+            android:id="@+id/btnPlay"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/selector_button"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@string/play"
+            android:src="@raw/media_play" />
+
+        <ImageButton
+            android:id="@+id/btnPreviousSection"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/selector_button"
+            android:layout_marginTop="5dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:contentDescription="@string/previous_section"
+            android:src="@raw/media_previous_section" />
+
+        <ImageButton
+            android:id="@+id/btnNextSentence"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/selector_button"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/btnNextSection"
+            android:contentDescription="@string/next_sentence"
+            android:src="@raw/media_next_sentence" />
+
+        <ImageButton
+            android:id="@+id/btnPreviousSentence"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/selector_button"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/btnPreviousSection"
+            android:contentDescription="@string/previous_sentence"
+            android:src="@raw/media_previous_sentence" />
+    </RelativeLayout>
+
+</LinearLayout>

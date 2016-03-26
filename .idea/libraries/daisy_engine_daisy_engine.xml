@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="daisy-engine.daisy-engine">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/daisy-engine/build/libs/daisy-engine.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

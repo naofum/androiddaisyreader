@@ -1,0 +1,328 @@
+<books type="1">
+	<website url="http://www.daisy.org/sample-content">
+		<book link="http://www.daisy.org/samples/202toc-only/light-man.zip">
+			<title>A Light Man (34.4 MB)</title>
+			<author>Henry James</author>
+			<publisher></publisher>
+			<date>June 2009</date>
+		</book>
+		<book link="http://www.daisy.org/samples/3full-text-full-audio/are-you-ready-z3986.zip">
+			<title>Are You Ready? (13 MB)</title>
+			<author>wikiHow</author>
+			<publisher></publisher>
+			<date>April 2009</date>
+		</book>
+		<book link="http://www.daisy.org/samples/202toc-only/mountains-skip.zip">
+			<title>Climbing the Highest Mountain(1.85 MB)</title>
+			<author>Per Sennels</author>
+			<publisher></publisher>
+			<date>May 2003</date>
+		</book>
+		<book link="http://www.daisy.org/samples/3full-text-full-audio/1Brochure-DAISY-Consortium.zip">
+			<title>DAISY Brochure (7 MB)</title>
+			<author>DAISY Consortium</author>
+			<publisher></publisher>
+			<date>October 2009</date>
+		</book>
+		<book link="http://www.daisy.org/samples/202full-text-full-audio/fire-safety.zip">
+			<title>Fire Safety (9.67 MB)</title>
+			<author>Wendy Blaxland - Macmillan Education Aust Pty. Ltd.</author>
+			<publisher></publisher>
+			<date>December 2003</date>
+		</book>
+		<book link="http://www.daisy.org/samples/202full-text-full-audio/gon-ruby-mp3.zip">
+			<title>Gongitsune (9.11 MB)</title>
+			<author>Iwanami Shoten</author>
+			<publisher></publisher>
+			<date>June 2009</date>
+		</book>
+		<book link="http://www.daisy.org/samples/202full-text-full-audio/frontpage-202-complete.zip">
+			<title>Microsoft FrontPage 2003 (575 MB)</title>
+			<author>Jim Byens - Microsoft Press</author>
+			<publisher></publisher>
+			<date>September 2005</date>
+		</book>
+		<book link="http://www.daisy.org/samples/dtbook-xml/great-painters-dtbook-2005-3.zip">
+			<title>Selections from Great Pictures, As Seen and Described by Famous Writers (584 KB)</title>
+			<author>Esther Singleton</author>
+			<publisher></publisher>
+			<date>February 2009</date>
+		</book>
+		<book link="http://www.daisy.org/samples/202full-text-full-audio/valentin-hauy.zip">
+			<title>Valentin Hauy (118 MB)</title>
+			<author>Beatrice Christensen Sköld</author>
+			<publisher></publisher>
+			<date>April 2003</date>
+		</book>
+	</website>
+	<website url="http://www.htctu.net/demos">
+		<book link="http://www.htctu.net/demos/daisy/AliceWonderland.zip">
+			<title>Alice in Wonderland (25 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.htctu.net/demos/daisy/ChristmasStoriesDickens.zip">
+			<title>Christmas Stories by Charles Dickens (20 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.htctu.net/demos/daisy/HoundBaskervilles.zip">
+			<title>Hound of the Baskervilles (50 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.normanet.ne.jp/services/download/daisy.html">
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/gonM.zip">
+			<title>ごんぎつね (15.2 MB)</title>
+			<author></author>
+			<publisher>独立行政法人　福祉医療機構　助成</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/pigs.zip">
+			<title>三匹の子ぶた (7.6 MB)</title>
+			<author></author>
+			<publisher>独立行政法人　福祉医療機構　助成</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/pigsE.zip">
+			<title>The Story of the Three Little Pigs (8.3 MB)</title>
+			<author></author>
+			<publisher>独立行政法人　福祉医療機構　助成</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/match.zip">
+			<title>マッチ売りの少女 (8.8 MB)</title>
+			<author></author>
+			<publisher>独立行政法人　福祉医療機構　助成</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/matchPRR.zip">
+			<title>マッチ売りの少女（総ルビ） (8.8 MB)</title>
+			<author></author>
+			<publisher>独立行政法人　福祉医療機構　助成</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/matchE.zip">
+			<title>The Little Match Girl (8.8 MB)</title>
+			<author></author>
+			<publisher>独立行政法人　福祉医療機構　助成</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/genkiM2.zip">
+			<title>元気と幸せのおすそわけ (157 MB)</title>
+			<author></author>
+			<publisher>国立大学法人富山大学人間発達科学部森田研究室　森田信一氏　提供</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/Dog-aM.zip">
+			<title>盲導犬の健康管理 (41.8 MB)</title>
+			<author></author>
+			<publisher>国立身体障害者リハビリテーションセンター研究所　水越美奈氏　提供</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/Dog-bM.zip">
+			<title>ほじょけんのけんこうかんり (47.9 MB)</title>
+			<author></author>
+			<publisher>国立身体障害者リハビリテーションセンター研究所　水越美奈氏　提供</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/wdaisy.zip">
+			<title>DAISYってなんだろう？ (21 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/bcake.zip">
+			<title>バースデーケーキができたよ (4.3 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/hyaku.zip">
+			<title>百人一首 (20 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/jido.zip">
+			<title>児童の権利に関する条約 (40.8 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/OhayoOyasumi_JapaneseP.zip">
+			<title>布の絵本「おはよう　おやすみ」 (10.8 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Shirokuma_JapaneseP.zip">
+			<title>しろくまフロートくんのおねがい (18.7 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Kurokuma_JapaneseP.zip">
+			<title>くろくまくんとさけ (16.4 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Nezumi_JapaneseP.zip">
+			<title>目黒区子ども条例のえほん「すごいよねずみくん」 (32.8 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Carlos_JapaneseP.zip">
+			<title>ええぞ、カルロス (14 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://onyakunakama.com/modules/d3downloads/">
+		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&cid=5&lid=22">
+			<title>こだまでしょうか (15.2 MB)</title>
+			<author>金子みすず</author>
+			<publisher>文京音訳なかまの会</publisher>
+			<date></date>
+		</book>
+		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&cid=6&lid=48">
+			<title>飴玉　改訂版 (15.2 MB)</title>
+			<author>新美南吉</author>
+			<publisher>文京音訳なかまの会</publisher>
+			<date></date>
+		</book>
+		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&cid=6&lid=45">
+			<title>蛙 (4.5 MB)</title>
+			<author>林芙美子</author>
+			<publisher>文京音訳なかまの会</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="https://www.barifuri.jp/portal/page/daisy.html">
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_asahikawa.zip">
+			<title>旭川の観光地情報 (8.2 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_hokkaido.zip">
+			<title>北海道の観光地情報 (0.7 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_sendai.zip">
+			<title>仙台の観光地情報 (15.4 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_hukushima.zip">
+			<title>福島の観光地情報 (37.1 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_tokyo.zip">
+			<title>東京の観光地情報 (19 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_kanagawa.zip">
+			<title>神奈川の観光地情報 (24.8 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_izu.zip">
+			<title>伊豆の観光地情報 (20.5 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_iseshima.zip">
+			<title>伊勢志摩の観光地情報 (19.2 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_tottori.zip">
+			<title>鳥取の観光地情報 (9.5 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_shimane.zip">
+			<title>島根の観光地情報 (17.2 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_kure.zip">
+			<title>呉の観光地情報 (7.7 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_niihama.zip">
+			<title>新居浜の観光地情報 (4.6 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_hukuoka.zip">
+			<title>福岡の観光地情報 (20.4 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_ureshino.zip">
+			<title>嬉野の観光地情報 (5.2 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_okinawa.zip">
+			<title>沖縄の観光地情報 (24.2 MB)</title>
+			<author></author>
+			<publisher>日本バリアフリー観光推進機構</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.nhk.or.jp/pr/daisy/">
+		<book link="http://www.nhk.or.jp/pr/daisy/bangumi.zip">
+			<title>ＮＨＫ音声版番組時刻表 (78.7 MB)</title>
+			<author></author>
+			<publisher>NHK</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.iccb.jp/mmd/sample/">
+		<book link="http://www.iccb.jp/uploads/singoki.zip">
+			<title>おとがするしんごうき (10 MB)</title>
+			<author></author>
+			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.iccb.jp/uploads/karurosu.zip">
+			<title>ええぞ、カルロス (10.7 MB)</title>
+			<author></author>
+			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.iccb.jp/uploads/okurimono.zip">
+			<title>おばあちゃんからのおくりもの (18 MB)</title>
+			<author></author>
+			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
+			<date></date>
+		</book>
+	</website>
+</books>

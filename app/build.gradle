@@ -1,0 +1,36 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+    defaultConfig {
+        applicationId 'com.github.naofum.androiddaisyreader'
+        minSdkVersion 9
+        targetSdkVersion 22
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    productFlavors {
+    }
+}
+
+repositories {
+    maven {
+        url "https://mint.splunk.com/gradle/"
+    }
+}
+
+dependencies {
+    compile 'com.google.guava:guava:14.0.1'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.android.support:support-v4:22.0.+'
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    compile 'com.splunk.mint:mint:5.0.0'
+    compile 'org.jsoup:jsoup:1.6.1'
+    compile project(':daisy-engine')
+}
