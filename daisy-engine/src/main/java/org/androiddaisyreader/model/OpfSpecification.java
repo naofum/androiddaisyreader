@@ -119,7 +119,7 @@ public class OpfSpecification extends DefaultHandler {
     private XmlModel getXmlModelBySmilHref(String smilHref) {
         XmlModel result = null;
         for (XmlModel model : listModel) {
-            if (model.getSmilHref().contains(smilHref)) {
+            if (model.getSmilHref() != null && model.getSmilHref().contains(smilHref)) {
                 result = model;
                 break;
             }
@@ -214,16 +214,17 @@ public class OpfSpecification extends DefaultHandler {
 
     public static DaisyBook readFromStream(InputStream contents, String encoding,
             BookContext bookContext) throws IOException {
-        InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
+//        InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
         OpfSpecification specification = new OpfSpecification(bookContext);
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);
-            saxParser.parse(Smil.getInputSource(contents2));
+            saxParser.parse(Smil.getInputSource(contents));
             contents.close();
             return specification.build();
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new IOException("Couldn't parse the opf contents.", e);
         }
     }

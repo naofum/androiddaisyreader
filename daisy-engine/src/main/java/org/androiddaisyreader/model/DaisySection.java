@@ -132,6 +132,10 @@ public class DaisySection extends Section {
         }
 
         public Builder setHref(String href) {
+            if (href == null) {
+                newInstance.href = "#";
+                return this;
+            }
             if (newInstance.isSmilHrefValid(href)) {
                 newInstance.href = href;
                 return this;

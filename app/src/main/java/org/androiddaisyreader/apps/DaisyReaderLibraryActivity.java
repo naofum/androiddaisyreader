@@ -12,6 +12,7 @@ import org.androiddaisyreader.service.DaisyEbookReaderService;
 import org.androiddaisyreader.utils.Constants;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -21,6 +22,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.github.naofum.androiddaisyreader.R;
 
 /**
@@ -32,6 +36,7 @@ import com.github.naofum.androiddaisyreader.R;
 
 public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
 
+    private IntentController mIntentController;
     private long mLastPressTime = 0;
     private boolean mIsExit = true;
     private static final int BYTE_VALUE = 1024;
@@ -40,6 +45,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
+        mIntentController = new IntentController(this);
 
         // set listener for view
         findViewById(R.id.btnRecentBooks).setOnClickListener(this);
@@ -56,6 +62,43 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         Intent serviceIntent = new Intent(DaisyReaderLibraryActivity.this,
                 DaisyEbookReaderService.class);
         startService(serviceIntent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        int order = 1;
+        SubMenu subMenu = menu.addSubMenu(0, Constants.SUBMENU_MENU, order++, R.string.menu_title);
+        subMenu.add(0, Constants.SUBMENU_SETTINGS, order++, R.string.submenu_settings).setIcon(
+                R.raw.settings);
+        subMenu.add(0, Constants.SUBMENU_ABOUT, order++, R.string.submenu_about);
+
+        MenuItem subMenuItem = subMenu.getItem();
+        subMenuItem.setIcon(R.raw.ic_menu_32x32);
+        subMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        return true;
+    }
+
+    /**
+     * Event Handling for Individual menu item selected Identify single menu
+     * item by it's id
+     * */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // go to settings
+            case Constants.SUBMENU_SETTINGS:
+                mIntentController.pushToDaisyReaderSettingIntent();
+                return true;
+            case Constants.SUBMENU_ABOUT:
+                new AlertDialog.Builder(DaisyReaderLibraryActivity.this)
+                        .setTitle(R.string.submenu_about)
+                        .setMessage(getText(R.string.app_name) + "\nVersion: 1.0" + "\nLicense: GPLv3")
+                        .setPositiveButton("OK", null)
+                        .show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**

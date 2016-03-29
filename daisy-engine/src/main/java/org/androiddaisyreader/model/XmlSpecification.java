@@ -26,7 +26,8 @@ public class XmlSpecification extends DefaultHandler {
     }
 
     private enum Element {
-        H1, H2, H3, H4, H5, H6, SENT, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6;
+        H1, H2, H3, H4, H5, H6, SENT, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6,
+        SPAN, CONVERTITLE, DOCTITLE;
         @Override
         public String toString() {
             return this.name().toLowerCase();
@@ -74,10 +75,15 @@ public class XmlSpecification extends DefaultHandler {
         case H4:
         case H5:
         case H6:
+        case CONVERTITLE:
+//        case DOCTITLE:
             buffer.setLength(0);
             addSmilHref(attributes);
             break;
         case SENT:
+            handleStartOfSend(attributes);
+            break;
+        case SPAN:
             handleStartOfSend(attributes);
             break;
         default:
@@ -98,6 +104,9 @@ public class XmlSpecification extends DefaultHandler {
     private void addSmilHref(Attributes attributes) {
         String smilHref = getSmilHref(attributes);
         model.setSmilHref(smilHref);
+        if (model != null && model.getId() == null) {
+            model.setId(getId(attributes));
+        }
     }
 
     private void handleStartOfSend(Attributes attributes) {

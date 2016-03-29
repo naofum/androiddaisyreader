@@ -1,5 +1,5 @@
 <books type="1">
-	<website url="http://www.daisy.org/sample-content">
+	<website url="http://www.daisy.org/sample-content" name="DAISY コンソーシアム">
 		<book link="http://www.daisy.org/samples/202toc-only/light-man.zip">
 			<title>A Light Man (34.4 MB)</title>
 			<author>Henry James</author>
@@ -55,7 +55,7 @@
 			<date>April 2003</date>
 		</book>
 	</website>
-	<website url="http://www.htctu.net/demos">
+	<website url="http://www.htctu.net/demos" name="The High Tech Center Training Unit">
 		<book link="http://www.htctu.net/demos/daisy/AliceWonderland.zip">
 			<title>Alice in Wonderland (25 MB)</title>
 			<author></author>
@@ -75,7 +75,7 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.normanet.ne.jp/services/download/daisy.html">
+	<website url="http://www.normanet.ne.jp/services/download/daisy.html" name="DAISY ファクトリー">
 		<book link="http://www.normanet.ne.jp/services/download/daisybook/gonM.zip">
 			<title>ごんぎつね (15.2 MB)</title>
 			<author></author>
@@ -185,27 +185,27 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://onyakunakama.com/modules/d3downloads/">
-		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&cid=5&lid=22">
+	<website url="http://onyakunakama.com/modules/d3downloads/" name="文京音訳なかまの会">
+		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&amp;cid=5&amp;lid=22">
 			<title>こだまでしょうか (15.2 MB)</title>
 			<author>金子みすず</author>
 			<publisher>文京音訳なかまの会</publisher>
 			<date></date>
 		</book>
-		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&cid=6&lid=48">
+		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&amp;cid=6&amp;lid=48">
 			<title>飴玉　改訂版 (15.2 MB)</title>
 			<author>新美南吉</author>
 			<publisher>文京音訳なかまの会</publisher>
 			<date></date>
 		</book>
-		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&cid=6&lid=45">
+		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&amp;cid=6&amp;lid=45">
 			<title>蛙 (4.5 MB)</title>
 			<author>林芙美子</author>
 			<publisher>文京音訳なかまの会</publisher>
 			<date></date>
 		</book>
 	</website>
-	<website url="https://www.barifuri.jp/portal/page/daisy.html">
+	<website url="https://www.barifuri.jp/portal/page/daisy.html" name="日本バリアフリー旅行情報">
 		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_asahikawa.zip">
 			<title>旭川の観光地情報 (8.2 MB)</title>
 			<author></author>
@@ -297,7 +297,7 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.nhk.or.jp/pr/daisy/">
+	<website url="http://www.nhk.or.jp/pr/daisy/" name="NHK">
 		<book link="http://www.nhk.or.jp/pr/daisy/bangumi.zip">
 			<title>ＮＨＫ音声版番組時刻表 (78.7 MB)</title>
 			<author></author>
@@ -305,7 +305,7 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.iccb.jp/mmd/sample/">
+	<website url="http://www.iccb.jp/mmd/sample/" name="日本ライトハウス情報文化センター">
 		<book link="http://www.iccb.jp/uploads/singoki.zip">
 			<title>おとがするしんごうき (10 MB)</title>
 			<author></author>
@@ -322,6 +322,82 @@
 			<title>おばあちゃんからのおくりもの (18 MB)</title>
 			<author></author>
 			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://rits-daisy.com/" name="Rits-DAISY 立命館大学DAISY研究会">
+		<book link="http://rits-daisy.com/daisy/j01.zip">
+			<title>かちかち山 (45 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j02.zip">
+			<title>一寸法師 (62 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j03.zip">
+			<title>ねずみの嫁入り (17 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j04.zip">
+			<title>花咲かじいさん (26 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j05.zip">
+			<title>よだかの星 (57 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j06.zip">
+			<title>京都が大好きになったデウィ (38 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j07.zip">
+			<title>二匹のかえる (11 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j08.zip">
+			<title>赤いろうそく (17 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.gsk.org/naradaisy/daisy/09daisy/" name="特定非営利活動法人 NaD">
+		<book link="https://s3-ap-northeast-1.amazonaws.com/nadownclouds3/%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E5%9B%B3%E6%9B%B8/kimikimi_kaitei.zip">
+			<title>NPO EDGE発行　品川裕香著「キミはキミのままでいい」DAISY版 (10.6 MB)</title>
+			<author></author>
+			<publisher>特定非営利活動法人 NaD</publisher>
+			<date></date>
+		</book>
+		<book link="https://s3-ap-northeast-1.amazonaws.com/nadownclouds3/%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E5%9B%B3%E6%9B%B8/gakko_EasyReader.zip">
+			<title>学校コワイ (23.8 MB)</title>
+			<author></author>
+			<publisher>特定非営利活動法人 NaD</publisher>
+			<date></date>
+		</book>
+		<book link="https://s3-ap-northeast-1.amazonaws.com/nadownclouds3/%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E5%9B%B3%E6%9B%B8/gyozaMR2016.zip">
+			<title>ぎょうざ (2.7 MB)</title>
+			<author></author>
+			<publisher>特定非営利活動法人 NaD</publisher>
+			<date></date>
+		</book>
+		<book link="https://s3-ap-northeast-1.amazonaws.com/nadownclouds3/%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E5%9B%B3%E6%9B%B8/hikingclubMR2016.zip">
+			<title>ハイキングクラブ (4.5 MB)</title>
+			<author></author>
+			<publisher>特定非営利活動法人 NaD</publisher>
 			<date></date>
 		</book>
 	</website>

@@ -698,7 +698,9 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 listId = new ArrayList<String>();
                 while (temp.hasNext()) {
                     Section n = (Section) temp.next();
-                    listId.add(splitHref(n.getHref())[1]);
+                    if (splitHref(n.getHref()).length > 1) {
+                        listId.add(splitHref(n.getHref())[1]);
+                    }
                 }
             }
 

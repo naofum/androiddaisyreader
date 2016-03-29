@@ -10,8 +10,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.androiddaisyreader.adapter.DaisyBookAdapter;
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
@@ -285,7 +287,18 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             try {
                 java.net.URL url = new java.net.URL(link);
                 URLConnection conection = url.openConnection();
+                conection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:45.0) Gecko/20100101 Firefox/45.0");
+                conection.setRequestProperty("Accept", "text/html");
+                conection.setRequestProperty("Accept-Language", "jp");
+                conection.setRequestProperty("Accept-Encoding", "deflate");
                 conection.connect();
+                Map headers = conection.getHeaderFields();
+                Iterator headerIt = headers.keySet().iterator();
+                String header = null;
+                while(headerIt.hasNext()){
+                    String headerKey = (String)headerIt.next();
+                    header += headerKey + "：" + headers.get(headerKey) + "\r\n";
+                }
                 long startTime = System.currentTimeMillis();
                 // this will be useful so that you can show a tipical 0-100%
                 // progress bar
@@ -295,6 +308,9 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 // Output stream
                 String splitString[] = link.split("/");
                 mName = splitString[splitString.length - 1];
+                if (mName.indexOf("?") > -1) {
+                    mName = mName.substring(mName.indexOf("?")).replaceAll("&", "_").replaceAll("=", "") + ".zip";
+                }
                 OutputStream output = new FileOutputStream(PATH + mName);
                 byte data[] = new byte[BYTE_VALUE];
                 long total = 0;
@@ -374,7 +390,11 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 if (result) {
                     DaisyBook daisyBook = new DaisyBook();
                     String path = PATH + mName;
-                    daisyBook = DaisyBookUtil.getDaisy202Book(path);
+                    if (DaisyBookUtil.findDaisyFormat(path) == Constants.DAISY_202_FORMAT) {
+                        daisyBook = DaisyBookUtil.getDaisy202Book(path);
+                    } else {
+                        daisyBook = DaisyBookUtil.getDaisy30Book(path);
+                    }
 
                     DaisyBookInfo daisyBookInfo = new DaisyBookInfo();
                     daisyBookInfo.setAuthor(daisyBook.getAuthor());

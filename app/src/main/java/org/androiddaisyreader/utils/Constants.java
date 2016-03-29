@@ -139,6 +139,8 @@ public class Constants {
     public static final int SUBMENU_SEARCH = 6;
     /** Id item menu setting of sub menu */
     public static final int SUBMENU_SETTINGS = 7;
+    /** Id item menu about of sub menu */
+    public static final int SUBMENU_ABOUT = 8;
 
     // All message on simple mode activity.
     /** Id of message "simple mode" to speak by tts on simple mode */
@@ -174,6 +176,7 @@ public class Constants {
     public static final String ATT_BOOKS = "books";
     public static final String ATT_WEBSITE = "website";
     public static final String ATT_URL = "url";
+    public static final String ATT_NAME = "name";
     public static final String ATT_BOOK = "book";
     public static final String ATT_LINK = "link";
     public static final String ATT_PATH = "path";

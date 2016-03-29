@@ -95,5 +95,6 @@
     <string name="submenu_simple_mode">シンプルモード</string>
     <string name="submenu_bookmarks">ブックマーク</string>
     <string name="submenu_settings">設定</string>
+    <string name="submenu_about">アプリについて</string>
 	<string name="copyright">© 2013 DaisyBook Reader. All Rights Reserved.\n© 2014-2016 naofum</string>
 </resources>
