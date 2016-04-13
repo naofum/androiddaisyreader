@@ -289,7 +289,7 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 URLConnection conection = url.openConnection();
                 conection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; rv:45.0) Gecko/20100101 Firefox/45.0");
                 conection.setRequestProperty("Accept", "text/html");
-                conection.setRequestProperty("Accept-Language", "jp");
+                conection.setRequestProperty("Accept-Language", "ja");
                 conection.setRequestProperty("Accept-Encoding", "deflate");
                 conection.connect();
                 Map headers = conection.getHeaderFields();

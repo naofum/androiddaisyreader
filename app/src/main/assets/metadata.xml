@@ -185,6 +185,38 @@
 			<date></date>
 		</book>
 	</website>
+	<website url="http://www.normanet.ne.jp/~atdo/download.html" name="特定非営利活動法人　支援技術開発機構">
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/tsunami_urakawa_jp.zip">
+			<title>津波から身を守る (9.8 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/en/UrakawaTsunami_EN_mp3.zip">
+			<title>How to protect yourself from a Tsunami (9.2 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/mailin_mp3.zip">
+			<title>DAISYと私　マイ・リン・ホルトの場合 (9 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/wasurehendeP.zip">
+			<title>１．１７忘れへんで　防災教育副読本（中学校編） (63.6 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/kataruP.zip">
+			<title>DAISYを語る (20.2 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+	</website>
 	<website url="http://onyakunakama.com/modules/d3downloads/" name="文京音訳なかまの会">
 		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&amp;cid=5&amp;lid=22">
 			<title>こだまでしょうか (15.2 MB)</title>
@@ -398,6 +430,260 @@
 			<title>ハイキングクラブ (4.5 MB)</title>
 			<author></author>
 			<publisher>特定非営利活動法人 NaD</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.dinf.ne.jp/doc/daisy/jdc/" name="日本DAISYコンソーシアム">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/kids.zip">
+			<title>よくわかる原子力（キッズページ） (71.5 MB)</title>
+			<author>原子力教育を考える会</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/wedge.zip">
+			<title>小中学生の生存率99.8%は奇跡じゃない (10.2 MB)</title>
+			<author>片田敏孝 月刊「ＷＥＤＧＥ」2011年5月号</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/tosuido.zip">
+			<title>水道水をくみ置く際の留意事項について　第36報 (2.1 MB)</title>
+			<author>東京都水道局</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien6.zip">
+			<title>生活支援ニュース第6号 (18.9 MB)</title>
+			<author>厚生労働省</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien5.zip">
+			<title>生活支援ニュース第5号 (8.6 MB)</title>
+			<author>厚生労働省</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien4.zip">
+			<title>生活支援ニュース第4号 (18.5 MB)</title>
+			<author>厚生労働省</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien3.zip">
+			<title>生活支援ニュース第3号 (13.5 MB)</title>
+			<author>厚生労働省</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien2.zip">
+			<title>生活支援ニュース第2号 (13.8 MB)</title>
+			<author>厚生労働省</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien1.zip">
+			<title>生活支援ニュース第1号 (9.9 MB)</title>
+			<author>厚生労働省</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/gensiryoku.zip">
+			<title>生活と原子力・原発 (84.2 MB)</title>
+			<author>武田邦彦</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/inamura.zip">
+			<title>津波だ！いなむらの火をけすな (18.8 MB)</title>
+			<author>桜井信夫/財団法人都市防災研究所</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/toto.zip">
+			<title>TOTO断水・給水制限・停電時のトイレ使用について (5.6 MB)</title>
+			<author>TOTO株式会社</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part5.zip">
+			<title>放射線被ばくに関する基礎知識第5報 (1.5 MB)</title>
+			<author>独立行政法人 放射線医学総合研究所</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part4.zip">
+			<title>放射線被ばくに関する基礎知識第4報 (0.9 MB)</title>
+			<author>独立行政法人 放射線医学総合研究所</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part3.zip">
+			<title>放射線被ばくに関する基礎知識第3報 (0.8 MB)</title>
+			<author>独立行政法人 放射線医学総合研究所</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part2.zip">
+			<title>放射線被ばくに関する基礎知識第2報 (1.7 MB)</title>
+			<author>独立行政法人 放射線医学総合研究所</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part1.zip">
+			<title>東北地方太平洋沖地震に伴い発生した原子力発電所被害に関する放射能分野の基礎知識（第1報） (22 MB)</title>
+			<author>独立行政法人 放射線医学総合研究所</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/BasicFacts6.zip">
+			<title>Basic Facts- No.6 (6.5 MB)</title>
+			<author>National Institute of Radiological Sciences</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/BasicFacts4.zip">
+			<title>Basic facts about radiation exposure Part 4 (4.7 MB)</title>
+			<author>National Institute of Radiological Sciences</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/BasicFacts1.zip">
+			<title>Basic Facts regarding radiation exposure resulting from the nuclear plant accident caused by "tohoku" area earthquake (4 MB)</title>
+			<author>National Institute of Radiological Sciences</author>
+			<publisher>日本DAISYコンソーシアム</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://virginrose.com/daisy/index.html" name="米沢ICT協働会">
+		<book link="http://baishi.sakura.ne.jp/daisyup/2011guide02_rubi_ok.zip">
+			<title>障がい（児）者の福祉ガイド　ふりがな付き (30 MB)</title>
+			<author></author>
+			<publisher>米沢市福祉事務所</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2011guide02_rubi_no.zip">
+			<title>障がい（児）者の福祉ガイド　ふりがな無し (27.9 MB)</title>
+			<author></author>
+			<publisher>米沢市福祉事務所</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2011_12_beiyo_rubi.zip">
+			<title>米陽（べいよう）今昔物語（話者：穏やかで、やさしい女性の声）ふりがな付き (10.3 MB)</title>
+			<author></author>
+			<publisher>（広報誌版）米沢市企画調整部秘書広報課</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2011_12_beiyo.zip">
+			<title>米陽（べいよう）今昔物語（話者：穏やかで、やさしい女性の声）ふりがな無し (10.2 MB)</title>
+			<author></author>
+			<publisher>（広報誌版）米沢市企画調整部秘書広報課</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2011beiyo_rubi.zip">
+			<title>米陽（べいよう）今昔物語（話者：明るく元気のいい女性の声）ふりがな付き (10.3 MB)</title>
+			<author></author>
+			<publisher>（広報誌版）米沢市企画調整部秘書広報課</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2011beiyo.zip">
+			<title>米陽（べいよう）今昔物語（話者：明るく元気のいい女性の声）ふりがな無し (10.2 MB)</title>
+			<author></author>
+			<publisher>（広報誌版）米沢市企画調整部秘書広報課</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2012_03sanpo_rubi.zip">
+			<title>時の散歩　ふりがな付き (10.7 MB)</title>
+			<author></author>
+			<publisher>（広報誌版）米沢市企画調整部秘書広報課</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2012_03sanpo.zip">
+			<title>時の散歩　ふりがな無し (14.4 MB)</title>
+			<author></author>
+			<publisher>（広報誌版）米沢市企画調整部秘書広報課</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2012princess_rubi.zip">
+			<title>小公女(プリンセス)セーラ（話者Ａ：収録時間：2時間36分24秒）ふりがな付き (53.1 MB)</title>
+			<author></author>
+			<publisher>米沢ICT協働会</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2012princess.zip">
+			<title>小公女(プリンセス)セーラ（話者Ａ：収録時間：2時間36分24秒）ふりがな無し (53.1 MB)</title>
+			<author></author>
+			<publisher>米沢ICT協働会</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2012princess_zun_rubi.zip">
+			<title>小公女(プリンセス)セーラ（話者Ｂ：収録時間：2時間50分）ふりがな付き (55.9 MB)</title>
+			<author></author>
+			<publisher>米沢ICT協働会</publisher>
+			<date></date>
+		</book>
+		<book link="http://baishi.sakura.ne.jp/daisyup/2012princess_zun.zip">
+			<title>小公女(プリンセス)セーラ（話者Ｂ：収録時間：2時間50分）ふりがな無し (55.8 MB)</title>
+			<author></author>
+			<publisher>米沢ICT協働会</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.willcom.jp/daisy-shiso/diarypro/diary.cgi" name="デイジー宍粟">
+		<book link="http://www.willcom.jp/daisy-shiso/zip/305.zip">
+			<title>「声のたより」3月号　（第305号） (48.5 MB)</title>
+			<author>ふきのとう山崎</author>
+			<publisher>デイジー宍粟</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/304.zip">
+			<title>「声のたより」2月号　（第304号） (50.7 MB)</title>
+			<author>ふきのとう山崎</author>
+			<publisher>デイジー宍粟</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/303.zip">
+			<title>「声のたより」1月号　（第303号） (50.7 MB)</title>
+			<author>ふきのとう山崎</author>
+			<publisher>デイジー宍粟</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.city.kanuma.tochigi.jp/13,0,148.html" name="鹿沼市　広報かぬま">
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201603.zip">
+			<title>広報かぬま音声版2016年3月号 (37.5 MB)</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201602.zip">
+			<title>広報かぬま音声版2016年2月号 (38.4 MB)</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201601.zip">
+			<title>広報かぬま音声版2016年1月号 (41.9 MB)</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201512.zip">
+			<title>広報かぬま音声版2015年12月号 (41.0 MB)</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201511.zip">
+			<title>広報かぬま音声版2015年11月号 (46.5 MB)</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201510.zip">
+			<title>広報かぬま音声版2015年10月号 (43.6 MB)</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
 	</website>
