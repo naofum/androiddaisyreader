@@ -36,9 +36,9 @@ public class ExtractTimingValues {
 
     private static String getTrimmedValue(String elementName, Attributes attributes) {
         String rawValue = ParserUtilities.getValueForName(elementName, attributes);
-        if (rawValue == null) {
-            rawValue = "0";
-        }
+//        if (rawValue == null) {
+//            rawValue = "0";
+//        }
         return rawValue.replace("npt=", "").replace("s", "");
     }
 
