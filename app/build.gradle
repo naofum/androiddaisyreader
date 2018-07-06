@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.1'
     defaultConfig {
         applicationId 'com.github.naofum.androiddaisyreader'
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 28
         multiDexEnabled true
     }
     buildTypes {
@@ -19,16 +19,18 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url "https://maven.google.com"
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+        google()
     }
 }
 
 dependencies {
     implementation 'com.google.guava:guava:25.1-android'
-    implementation 'com.android.support:support-v4:27.0.+'
-    implementation 'com.android.support:appcompat-v7:27.0.+'
+    implementation 'com.android.support:support-v4:28.0.+'
+    implementation 'com.android.support:appcompat-v7:28.0.+'
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     implementation project(':daisy-engine')
 }
