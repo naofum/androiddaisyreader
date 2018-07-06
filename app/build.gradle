@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId 'com.github.naofum.androiddaisyreader'
-        minSdkVersion 9
-        targetSdkVersion 22
+        minSdkVersion 14
+        targetSdkVersion 27
         multiDexEnabled true
     }
     buildTypes {
@@ -21,16 +21,14 @@ android {
 
 repositories {
     maven {
-        url "https://mint.splunk.com/gradle/"
+        url "https://maven.google.com"
     }
 }
 
 dependencies {
-    compile 'com.google.guava:guava:14.0.1'
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
-    compile 'com.android.support:support-v4:22.0.+'
-    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
-    compile 'com.splunk.mint:mint:5.0.0'
-    compile 'org.jsoup:jsoup:1.6.1'
-    compile project(':daisy-engine')
+    implementation 'com.google.guava:guava:25.1-android'
+    implementation 'com.android.support:support-v4:27.0.+'
+    implementation 'com.android.support:appcompat-v7:27.0.+'
+    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    implementation project(':daisy-engine')
 }

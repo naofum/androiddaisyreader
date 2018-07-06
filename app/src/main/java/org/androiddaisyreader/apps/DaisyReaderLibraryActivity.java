@@ -14,17 +14,19 @@ import org.androiddaisyreader.utils.Constants;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.SubMenu;
 import com.github.naofum.androiddaisyreader.R;
 
 /**
@@ -90,9 +92,16 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
                 mIntentController.pushToDaisyReaderSettingIntent();
                 return true;
             case Constants.SUBMENU_ABOUT:
+                String version = "";
+                try {
+                    PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+                    version = pInfo.versionName;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
                 new AlertDialog.Builder(DaisyReaderLibraryActivity.this)
                         .setTitle(R.string.submenu_about)
-                        .setMessage(getText(R.string.app_name) + "\nVersion: 1.0" + "\nLicense: GPLv3")
+                        .setMessage(getText(R.string.app_name) + "\nVersion: " + version + "\nLicense: GPLv3")
                         .setPositiveButton("OK", null)
                         .show();
                 return true;

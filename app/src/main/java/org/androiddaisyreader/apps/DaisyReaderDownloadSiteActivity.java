@@ -16,12 +16,12 @@ import org.w3c.dom.NodeList;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.actionbarsherlock.view.MenuItem;
 import com.github.naofum.androiddaisyreader.R;
 
 import javax.xml.parsers.DocumentBuilder;

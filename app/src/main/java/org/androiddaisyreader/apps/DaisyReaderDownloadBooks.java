@@ -23,7 +23,6 @@ import org.androiddaisyreader.model.DaisyBookInfo;
 import org.androiddaisyreader.player.IntentController;
 import org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper;
 import org.androiddaisyreader.utils.Constants;
-import org.androiddaisyreader.utils.Countly;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -42,13 +41,13 @@ import android.os.StatFs;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.actionbarsherlock.view.MenuItem;
 import com.github.naofum.androiddaisyreader.R;
 
 /**
@@ -348,13 +347,13 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 results.put("URL", link);
                 results.put("FileSize", Integer.toString(count));
                 results.put("DurationIn(ms)", timeTaken);
-                Countly.sharedInstance().recordEvent(Constants.RECORD_BOOK_DOWNLOAD_COMPLETED, results, 1);
+//                Countly.sharedInstance().recordEvent(Constants.RECORD_BOOK_DOWNLOAD_COMPLETED, results, 1);
                 result = true;
             } catch (Exception e) {
             	HashMap<String, String> results = new HashMap<String, String> ();
             	results.put("URL", link);
             	results.put("Exception", e.getMessage());
-            	Countly.sharedInstance().recordEvent(Constants.RECORD_BOOK_DOWNLOAD_FAILED, results, 1);
+//            	Countly.sharedInstance().recordEvent(Constants.RECORD_BOOK_DOWNLOAD_FAILED, results, 1);
                 result = false;
                 mTask.cancel(true);
                 mProgressDialog.dismiss();

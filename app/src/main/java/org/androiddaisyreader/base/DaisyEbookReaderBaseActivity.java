@@ -7,7 +7,6 @@ import org.androiddaisyreader.apps.PrivateException;
 import org.androiddaisyreader.model.CurrentInformation;
 import org.androiddaisyreader.sqlite.SQLiteCurrentInformationHelper;
 import org.androiddaisyreader.utils.Constants;
-import org.androiddaisyreader.utils.Countly;
 
 import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
@@ -26,9 +25,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
-
-import com.actionbarsherlock.app.SherlockActivity;
-import com.splunk.mint.Mint;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * 
@@ -36,7 +33,7 @@ import com.splunk.mint.Mint;
  * @date Jul 19, 2013
  */
 
-public class DaisyEbookReaderBaseActivity extends SherlockActivity implements OnClickListener,
+public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements OnClickListener,
         TextToSpeech.OnInitListener {
     protected TextToSpeech mTts;
     private static final long DOUBLE_PRESS_INTERVAL = 1000;
@@ -49,16 +46,6 @@ public class DaisyEbookReaderBaseActivity extends SherlockActivity implements On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        /**
-         * You should use cloud.count.ly instead of YOUR_SERVER for the line
-         * below if you are using Countly Cloud service
-         */
-        Countly.sharedInstance()
-                .init(this, Constants.COUNTLY_URL_SERVER, Constants.COUNTLY_APP_KEY);
-
-        // start the session
-        Mint.initAndStartSession(getApplicationContext(), Constants.BUGSENSE_API_KEY);
 
         // initial TTS
         startTts();
@@ -274,12 +261,10 @@ public class DaisyEbookReaderBaseActivity extends SherlockActivity implements On
     @Override
     protected void onStart() {
         super.onStart();
-        Countly.sharedInstance().onStart();
     }
 
     @Override
     protected void onStop() {
-        Countly.sharedInstance().onStop();
         super.onStop();
     }
 }
