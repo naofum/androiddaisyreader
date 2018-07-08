@@ -6,9 +6,11 @@ import org.androiddaisyreader.utils.Constants;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.System;
 import android.text.Editable;
@@ -31,6 +33,9 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.github.naofum.androiddaisyreader.R;
+
+import net.rdrei.android.dirchooser.DirectoryChooserActivity;
+import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 /**
  * This activity is setting. It have some functions such as: change text color,
@@ -104,6 +109,8 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
         settingCurrentBookmark();
         // setting night mode
         settingNightmode();
+        // setting storage root
+        settingStorageRoot();
     }
 
     @Override
@@ -253,6 +260,32 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
         });
     }
 
+    /**
+     * Setting storage root
+     */
+    private void settingStorageRoot() {
+        final TextView storage = (TextView) findViewById(R.id.textView10);
+        String storageRoot = mPreferences.getString(Constants.STORAGE_ROOT, Environment.getExternalStorageDirectory().getAbsolutePath());
+        Constants.folderRoot = storageRoot;
+        final TextView description = (TextView) findViewById(R.id.textView11);
+        description.setText(Constants.folderRoot);
+        storage.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                final Intent chooserIntent = new Intent(getApplication(), DirectoryChooserActivity.class);
+                final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+                        .newDirectoryName("DirChooserSample")
+                        .initialDirectory(Constants.folderRoot)
+                        .allowReadOnlyDirectory(true)
+                        .allowNewDirectoryNameModification(true)
+                        .build();
+                chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+                startActivityForResult(chooserIntent, Constants.REQUEST_DIRECTORY);
+            }
+        });
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -275,6 +308,24 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
             ex.writeLogException();
         }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.REQUEST_DIRECTORY) {
+            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+                mEditor.putString(Constants.STORAGE_ROOT, data
+                        .getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
+                mEditor.commit();
+                Constants.folderRoot = data
+                        .getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
+                final TextView description = (TextView) findViewById(R.id.textView11);
+                description.setText(Constants.folderRoot);
+            } else {
+                // Nothing selected
+            }
+        }
     }
 
     /**

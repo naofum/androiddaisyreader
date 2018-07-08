@@ -6,6 +6,8 @@
 
 package org.androiddaisyreader.utils;
 
+import android.os.Environment;
+
 /**
  * The Class Constants.
  */
@@ -18,6 +20,8 @@ public class Constants {
     public static final String COUNTLY_URL_SERVER = "https://cloud.count.ly";
     /** The Constant MY_DATA_CHECK_CODE. */
     public static final int MY_DATA_CHECK_CODE = 1234;
+    /** The Constant REQUEST_DIRECTORY. */
+    public static final int REQUEST_DIRECTORY = 5678;
     /**
      * This key will help you to get value of number recent books from
      * SharedPreferences
@@ -86,6 +90,8 @@ public class Constants {
     public static final String HIGHLIGHT_COLOR = "highlightColor";
     /** This key will help you to get value of night mode from SharedPreferences */
     public static final String NIGHT_MODE = "nightMode";
+    /** storage root */
+    public static final String STORAGE_ROOT = "storageRoot";
     /** File ncc of daisy book format 2.02 not cap */
     public static final String FILE_NCC_NAME_NOT_CAPS = "ncc.html";
     /** File ncc of daisy book format 2.02 with cap */
@@ -141,6 +147,8 @@ public class Constants {
     public static final int SUBMENU_SETTINGS = 7;
     /** Id item menu about of sub menu */
     public static final int SUBMENU_ABOUT = 8;
+    /** Id item menu storage of sub menu */
+    public static final int SUBMENU_STORAGE = 9;
 
     // All message on simple mode activity.
     /** Id of message "simple mode" to speak by tts on simple mode */
@@ -198,6 +206,8 @@ public class Constants {
     public static final String FOLDER_NAME = "dataDaisyBooks";
     /** the full path of folder contains metadata.xml, metadata_scanbook.xml */
     public static String folderContainMetadata = "";
+    /** the full path of root folder for storage*/
+    public static String folderRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
     /** The Constant DAISY_TEMP_MP3. */
     public static final String DAISY_TEMP_MP3 = "daisyTemp.mp3";
     /** If device connected by wifi, the value is 1 */
