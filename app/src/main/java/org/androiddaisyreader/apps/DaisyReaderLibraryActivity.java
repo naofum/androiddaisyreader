@@ -54,8 +54,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         findViewById(R.id.btnScanBooks).setOnClickListener(this);
         findViewById(R.id.btnDownloadBooks).setOnClickListener(this);
 
-        Constants.folderContainMetadata = Environment.getExternalStorageDirectory().toString()
-                + "/" + Constants.FOLDER_NAME + "/";
+// 20180710
+//        Constants.folderContainMetadata = Environment.getExternalStorageDirectory().toString()
+//                + "/" + Constants.FOLDER_NAME + "/";
         createFolderContainXml();
         deleteCurrentInformation();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -246,8 +247,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
     protected void onResume() {
         super.onResume();
         speakText(getString(R.string.title_activity_daisy_reader_library));
-        Constants.folderContainMetadata = Environment.getExternalStorageDirectory().toString()
-                + "/" + Constants.FOLDER_NAME + "/";
+// 20180710
+//        Constants.folderContainMetadata = Environment.getExternalStorageDirectory().toString()
+//                + "/" + Constants.FOLDER_NAME + "/";
         createFolderContainXml();
         deleteCurrentInformation();
     }

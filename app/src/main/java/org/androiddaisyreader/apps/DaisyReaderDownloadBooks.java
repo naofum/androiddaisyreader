@@ -188,7 +188,8 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             conection.connect();
             int lenghtOfFile = conection.getContentLength();
 
-            StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+//            StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+            StatFs statFs = new StatFs(Constants.folderRoot); // 20180710
             long blockSize = statFs.getBlockSize();
             long freeSize = statFs.getFreeBlocks() * blockSize;
 
@@ -210,7 +211,8 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
      */
     private boolean checkFolderIsExist() {
         boolean result = false;
-        File folder = new File(PATH);
+        String path = ("".equals(Constants.folderRoot) ? PATH : Constants.folderRoot+ Constants.FOLDER_DOWNLOADED + "/"); // 20180710
+        File folder = new File(path);
         result = folder.exists();
         if (!result) {
             result = folder.mkdir();
@@ -310,12 +312,13 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 if (mName.indexOf("?") > -1) {
                     mName = mName.substring(mName.indexOf("?")).replaceAll("&", "_").replaceAll("=", "") + ".zip";
                 }
-                OutputStream output = new FileOutputStream(PATH + mName);
+                String path = ("".equals(Constants.folderRoot) ? PATH : Constants.folderRoot+ Constants.FOLDER_DOWNLOADED + "/"); // 20180710
+                OutputStream output = new FileOutputStream(path + mName);
                 byte data[] = new byte[BYTE_VALUE];
                 long total = 0;
                 while ((count = input.read(data)) != -1) {
                     if (isCancelled()) {
-                        File file = new File(PATH + mName);
+                        File file = new File(path + mName);
                         if (file.delete()) {
                             Log.i("Delete", "Deleted temporary file, " + mName);
                         } else {
@@ -388,7 +391,8 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             try {
                 if (result) {
                     DaisyBook daisyBook = new DaisyBook();
-                    String path = PATH + mName;
+                    String path = ("".equals(Constants.folderRoot) ? PATH : Constants.folderRoot+ Constants.FOLDER_DOWNLOADED + "/") + mName; // 20180710
+//                    String path = PATH + mName;
                     if (DaisyBookUtil.findDaisyFormat(path) == Constants.DAISY_202_FORMAT) {
                         daisyBook = DaisyBookUtil.getDaisy202Book(path);
                     } else {

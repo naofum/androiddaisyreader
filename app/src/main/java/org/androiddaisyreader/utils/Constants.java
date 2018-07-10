@@ -12,12 +12,6 @@ import android.os.Environment;
  * The Class Constants.
  */
 public class Constants {
-    /** This key will help you apply bugsense to project */
-    public static final String BUGSENSE_API_KEY = "cce2daf9";
-    /** This key will help you apply countly to project */
-    public static final String COUNTLY_APP_KEY = "2800770d5272cf399fab991fa3688dcb330fa1ce";
-    /** Server of count ly */
-    public static final String COUNTLY_URL_SERVER = "https://cloud.count.ly";
     /** The Constant MY_DATA_CHECK_CODE. */
     public static final int MY_DATA_CHECK_CODE = 1234;
     /** The Constant REQUEST_DIRECTORY. */
@@ -147,8 +141,6 @@ public class Constants {
     public static final int SUBMENU_SETTINGS = 7;
     /** Id item menu about of sub menu */
     public static final int SUBMENU_ABOUT = 8;
-    /** Id item menu storage of sub menu */
-    public static final int SUBMENU_STORAGE = 9;
 
     // All message on simple mode activity.
     /** Id of message "simple mode" to speak by tts on simple mode */
@@ -207,7 +199,7 @@ public class Constants {
     /** the full path of folder contains metadata.xml, metadata_scanbook.xml */
     public static String folderContainMetadata = "";
     /** the full path of root folder for storage*/
-    public static String folderRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
+    public static String folderRoot = "";
     /** The Constant DAISY_TEMP_MP3. */
     public static final String DAISY_TEMP_MP3 = "daisyTemp.mp3";
     /** If device connected by wifi, the value is 1 */

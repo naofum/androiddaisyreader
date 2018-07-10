@@ -120,14 +120,6 @@
                 <data android:scheme="file" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name="org.openUDID.OpenUDIDService"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="org.openUDID.GETUDID" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>

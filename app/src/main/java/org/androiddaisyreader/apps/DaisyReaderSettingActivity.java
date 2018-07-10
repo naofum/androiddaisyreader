@@ -265,8 +265,8 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
      */
     private void settingStorageRoot() {
         final TextView storage = (TextView) findViewById(R.id.textView10);
-        String storageRoot = mPreferences.getString(Constants.STORAGE_ROOT, Environment.getExternalStorageDirectory().getAbsolutePath());
-        Constants.folderRoot = storageRoot;
+        Constants.folderRoot = mPreferences.getString(Constants.STORAGE_ROOT, Environment.getExternalStorageDirectory().getAbsolutePath());
+        Constants.folderContainMetadata = Constants.folderRoot + "/" + Constants.FOLDER_NAME + "/";
         final TextView description = (TextView) findViewById(R.id.textView11);
         description.setText(Constants.folderRoot);
         storage.setOnClickListener(new OnClickListener() {
@@ -320,6 +320,7 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
                 mEditor.commit();
                 Constants.folderRoot = data
                         .getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
+                Constants.folderContainMetadata = Constants.folderRoot + "/" + Constants.FOLDER_NAME + "/";
                 final TextView description = (TextView) findViewById(R.id.textView11);
                 description.setText(Constants.folderRoot);
             } else {

@@ -12,12 +12,17 @@ import org.androiddaisyreader.model.DaisyBook;
 import org.androiddaisyreader.model.DaisyBookInfo;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
+
+import android.Manifest;
 import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 
 /**
  * The Class DaisyEbookReaderService.
@@ -61,7 +66,14 @@ public class DaisyEbookReaderService extends IntentService {
                 if (isSDPresent) {
                     String localPath = Constants.folderContainMetadata
                             + Constants.META_DATA_SCAN_BOOK_FILE_NAME;
-                    mMetaData.writeDataToXmlFile(getData(), localPath);
+                    if (Build.VERSION.SDK_INT >= 23) { // Build.VERSION_CODES.M
+                        if (ContextCompat.checkSelfPermission(
+                                getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                            mMetaData.writeDataToXmlFile(getData(), localPath);
+                        }
+                    } else {
+                        mMetaData.writeDataToXmlFile(getData(), localPath);
+                    }
                     mEditor.putBoolean(Constants.SERVICE_DONE, true);
                     mEditor.commit();
                     stopSelf();
@@ -81,6 +93,7 @@ public class DaisyEbookReaderService extends IntentService {
      */
     private List<DaisyBookInfo> getData() {
         ArrayList<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
+        mCurrentDirectory = new File(Constants.folderRoot); // 20180710
         File[] files = mCurrentDirectory.listFiles();
         try {
             if (files != null) {
@@ -132,7 +145,7 @@ public class DaisyEbookReaderService extends IntentService {
     /**
      * Gets the data from daisy30 book.
      * 
-     * @param daisy30 the daisy30
+     * @param daisybook the daisy30
      * @param result the result
      * @return the data from daisy book
      */

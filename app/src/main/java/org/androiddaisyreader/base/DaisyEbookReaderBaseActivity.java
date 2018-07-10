@@ -18,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -54,7 +55,7 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
         // initial TTS
         startTts();
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23) { // Build.VERSION_CODES.M
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED
@@ -69,6 +70,12 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
             }
         }
 
+        SharedPreferences mPreferences = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        Constants.folderRoot = mPreferences.getString(Constants.STORAGE_ROOT,
+                Environment.getExternalStorageDirectory().getAbsolutePath());
+        Constants.folderContainMetadata = Constants.folderRoot
+                + "/" + Constants.FOLDER_NAME + "/";
     }
 
     @Override
@@ -87,6 +94,10 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
             layoutpars.screenBrightness = valueScreen / (float) numberToConvert;
             // apply attribute changes to this window
             window.setAttributes(layoutpars);
+            Constants.folderRoot = mPreferences.getString(Constants.STORAGE_ROOT,
+                    Environment.getExternalStorageDirectory().getAbsolutePath());
+            Constants.folderContainMetadata = Constants.folderRoot
+                    + "/" + Constants.FOLDER_NAME + "/";
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, getApplicationContext());
             ex.writeLogException();
