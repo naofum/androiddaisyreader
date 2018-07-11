@@ -184,6 +184,18 @@
 			<publisher></publisher>
 			<date></date>
 		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/nukada1.zip">
+			<title>額田のたっさい（標準語テキスト版） (10.9 MB)</title>
+			<author></author>
+			<publisher>茨城県立図書館</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.normanet.ne.jp/services/download/daisybook/nukada2.zip">
+			<title>額田のたっさい（方言テキスト版） (11.1 MB)</title>
+			<author></author>
+			<publisher>茨城県立図書館</publisher>
+			<date></date>
+		</book>
 	</website>
 	<website url="http://www.normanet.ne.jp/~atdo/download.html" name="特定非営利活動法人　支援技術開発機構">
 		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/tsunami_urakawa_jp.zip">
@@ -402,6 +414,78 @@
 		</book>
 		<book link="http://rits-daisy.com/daisy/j08.zip">
 			<title>赤いろうそく (17 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j23.zip">
+			<title>くろくまくんとさけ (17 MB)</title>
+			<author></author>
+			<publisher>にほんごの会くれよん</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j24.zip">
+			<title>しろくまフロートくんのおねがい (20 MB)</title>
+			<author></author>
+			<publisher>にほんごの会くれよん</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j25.zip">
+			<title>布の絵本「おはよう おやすみ」 (11 MB)</title>
+			<author></author>
+			<publisher>にほんごの会くれよん</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j26.zip">
+			<title>目黒区子ども条例のえほん「すごい よねずみくん」 (34 MB)</title>
+			<author></author>
+			<publisher>にほんごの会くれよん</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j27.zip">
+			<title>ええぞ、カルロス (15 MB)</title>
+			<author></author>
+			<publisher>にほんごの会くれよん</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j28.zip">
+			<title>桶に落ちた蜂 (14 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j29.zip">
+			<title>金岡の馬 (10 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j30.zip">
+			<title>琴聞き橋 (10 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j31.zip">
+			<title>仙翁草 (11 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j32.zip">
+			<title>二本足で立った蛙 (16 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j33.zip">
+			<title>二本足で立った蛙 関西弁 (18 MB)</title>
+			<author></author>
+			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
+			<date></date>
+		</book>
+		<book link="http://rits-daisy.com/daisy/j34.zip">
+			<title>二本足で立った蛙 京ことば (20 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
@@ -630,64 +714,46 @@
 		</book>
 	</website>
 	<website url="http://www.willcom.jp/daisy-shiso/diarypro/diary.cgi" name="デイジー宍粟">
-		<book link="http://www.willcom.jp/daisy-shiso/zip/305.zip">
-			<title>「声のたより」3月号　（第305号） (48.5 MB)</title>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/331.zip">
+			<title>「声のたより」5月号 （第331） (48.8 MB)</title>
 			<author>ふきのとう山崎</author>
 			<publisher>デイジー宍粟</publisher>
 			<date></date>
 		</book>
 		<book link="http://www.willcom.jp/daisy-shiso/zip/304.zip">
-			<title>「声のたより」2月号　（第304号） (50.7 MB)</title>
-			<author>ふきのとう山崎</author>
-			<publisher>デイジー宍粟</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.willcom.jp/daisy-shiso/zip/303.zip">
-			<title>「声のたより」1月号　（第303号） (50.7 MB)</title>
+			<title>「声のたより」4月号 （第330） (92.1 MB)</title>
 			<author>ふきのとう山崎</author>
 			<publisher>デイジー宍粟</publisher>
 			<date></date>
 		</book>
 	</website>
 	<website url="http://www.city.kanuma.tochigi.jp/13,0,148.html" name="鹿沼市　広報かぬま">
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201603.zip">
-			<title>広報かぬま音声版2016年3月号 (37.5 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201807.zip">
+			<title>広報かぬま音声版2018年7月号 (41.7 MB)</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201602.zip">
-			<title>広報かぬま音声版2016年2月号 (38.4 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201806.zip">
+			<title>広報かぬま音声版2018年6月号 (41.6 MB)</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201601.zip">
-			<title>広報かぬま音声版2016年1月号 (41.9 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201805.zip">
+			<title>広報かぬま音声版2018年5月号 (43.8 MB)</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201512.zip">
-			<title>広報かぬま音声版2015年12月号 (41.0 MB)</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201511.zip">
-			<title>広報かぬま音声版2015年11月号 (46.5 MB)</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201510.zip">
-			<title>広報かぬま音声版2015年10月号 (43.6 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201804.zip">
+			<title>広報かぬま音声版2018年4月号 (39.8 MB)</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
 	</website>
-	<website url="http://bible.salterrae.net/kougo/daisy/ 1" name="DAISY版 口語訳音声データ (新約聖書1954年版)">
+	<website url="http://bible.salterrae.net/kougo/daisy/" name="DAISY版 口語訳音声データ (新約聖書1954年版)">
     <book link="http://bible.salterrae.net/kougo/daisy/kougo_40.zip">
         <title>マタイによる福音書 (157分21秒)</title>
         <author></author>
