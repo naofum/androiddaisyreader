@@ -58,10 +58,13 @@ public class Smil10Specification extends DefaultHandler {
      * @return The parts discovered in the contents.
      */
     public static Part[] getParts(BookContext context, InputStream contents) {
+        // for Shift_JIS support
         InputStream contents2 = contents;
         try {
-            String encoding = obtainEncodingStringFromInputStream(contents);
-            contents2 = XmlUtilities.convertEncoding(contents, encoding);
+            if (contents != null) {
+                String encoding = obtainEncodingStringFromInputStream(contents);
+                contents2 = XmlUtilities.convertEncoding(contents, encoding);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
