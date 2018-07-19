@@ -49,6 +49,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.github.naofum.androiddaisyreader.R;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 /**
  * The Class DaisyReaderDownloadBooks.
@@ -351,12 +352,22 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 results.put("FileSize", Integer.toString(count));
                 results.put("DurationIn(ms)", timeTaken);
 //                Countly.sharedInstance().recordEvent(Constants.RECORD_BOOK_DOWNLOAD_COMPLETED, results, 1);
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, link);
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mName);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "zip");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                 result = true;
             } catch (Exception e) {
             	HashMap<String, String> results = new HashMap<String, String> ();
             	results.put("URL", link);
             	results.put("Exception", e.getMessage());
 //            	Countly.sharedInstance().recordEvent(Constants.RECORD_BOOK_DOWNLOAD_FAILED, results, 1);
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, link);
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, mName);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, e.getMessage());
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                 result = false;
                 mTask.cancel(true);
                 mProgressDialog.dismiss();

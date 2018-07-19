@@ -34,7 +34,7 @@ public class ZippedBookContext implements BookContext {
         Enumeration<? extends ZipEntry> e = zipContents.entries();
         while (e.hasMoreElements()) {
             entry = (ZipEntry) e.nextElement();
-            System.out.println("Checking: " + entry);
+//            System.out.println("Checking: " + entry);
 
             // Note: we're blindly stripping off any folder prefix and
             // assuming that each filename in the zip file is unique. These

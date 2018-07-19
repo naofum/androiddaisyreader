@@ -32,6 +32,8 @@ import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 /**
  * 
  * @author LogiGear
@@ -46,11 +48,16 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     private static long lastPressTime;
     private static int lastPositionClick = -1;
     private static boolean mHasDoubleClicked = false;
+    protected FirebaseAnalytics mFirebaseAnalytics;
+
 
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         // initial TTS
         startTts();
