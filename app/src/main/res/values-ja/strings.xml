@@ -97,5 +97,7 @@
     <string name="submenu_settings">設定</string>
     <string name="submenu_storage">ストレージ</string>
     <string name="submenu_about">アプリについて</string>
-	<string name="copyright">© 2013 DaisyBook Reader. All Rights Reserved.\n© 2014-2018 naofum</string>
+    <string name="submenu_google_play">Google Playを表示</string>
+    <string name="submenu_contact">お問い合わせ</string>
+	<string name="copyright">© 2013 DaisyBook Reader. All Rights Reserved.\n© 2014-2019 naofum</string>
 </resources>

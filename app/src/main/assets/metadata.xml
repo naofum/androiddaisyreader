@@ -197,7 +197,7 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.normanet.ne.jp/~atdo/download.html" name="特定非営利活動法人　支援技術開発機構">
+	<!-- website url="http://www.normanet.ne.jp/~atdo/download.html" name="特定非営利活動法人　支援技術開発機構">
 		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/tsunami_urakawa_jp.zip">
 			<title>津波から身を守る (9.8 MB)</title>
 			<author></author>
@@ -228,8 +228,72 @@
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
+	</website -->
+	<website url="https://atdo.website/download/" name="特定非営利活動法人　支援技術開発機構">
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/tsunami_urakawa_jp.zip">
+			<title>津波から身を守る (9.8 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/en/UrakawaTsunami_EN_mp3.zip">
+			<title>How to protect yourself from a Tsunami (9.2 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/mailin_mp3.zip">
+			<title>DAISYと私　マイ・リン・ホルトの場合 (9 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/wasurehendeP.zip">
+			<title>１．１７忘れへんで　防災教育副読本（中学校編） (63.6 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/kataruP.zip">
+			<title>DAISYを語る (20.2 MB)</title>
+			<author></author>
+			<publisher>支援技術開発機構</publisher>
+			<date></date>
+		</book>
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/2012princess.zip">
+			<title>プリンセス・小公女セーラ (53.1 MB)</title>
+			<author></author>
+			<publisher>米沢ICT協働会</publisher>
+			<date></date>
+		</book>
 	</website>
-	<website url="http://onyakunakama.com/modules/d3downloads/" name="文京音訳なかまの会">
+	<website url="https://saccessnet.com/multimediadaisy/chattybooks_sample/" name="サイエンス・アクセシビリティ・ネット">
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/Rashomon_MultimediaDaisy.zip">
+			<title>羅生門</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/PeterRabbit_MultimediaDAISY.zip">
+			<title>ピーターラビット（英語）</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/Math_MultimediaDAISY.zip">
+			<title>数学と理科の例</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/DAISY-comic_MultimediaDAISY">
+			<title>コミック『読むことが苦手な児童・生徒の学びのために』</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+	</website>
+	<!-- website url="http://onyakunakama.com/modules/d3downloads/" name="文京音訳なかまの会">
 		<book link="http://onyakunakama.com/modules/d3downloads/index.php?page=visit&amp;cid=5&amp;lid=22">
 			<title>こだまでしょうか (15.2 MB)</title>
 			<author>金子みすず</author>
@@ -248,7 +312,7 @@
 			<publisher>文京音訳なかまの会</publisher>
 			<date></date>
 		</book>
-	</website>
+	</website -->
 	<website url="https://www.barifuri.jp/portal/page/daisy.html" name="日本バリアフリー旅行情報">
 		<book link="https://www.barifuri.jp/portal/system/daisy/daisy_asahikawa.zip">
 			<title>旭川の観光地情報 (8.2 MB)</title>
@@ -341,15 +405,15 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.nhk.or.jp/pr/daisy/" name="NHK">
+	<!-- website url="http://www.nhk.or.jp/pr/daisy/" name="NHK">
 		<book link="http://www.nhk.or.jp/pr/daisy/bangumi.zip">
 			<title>ＮＨＫ音声版番組時刻表 (78.7 MB)</title>
 			<author></author>
 			<publisher>NHK</publisher>
 			<date></date>
 		</book>
-	</website>
-	<website url="http://www.iccb.jp/mmd/sample/" name="日本ライトハウス情報文化センター">
+	</website -->
+	<!-- website url="http://www.iccb.jp/mmd/sample/" name="日本ライトハウス情報文化センター">
 		<book link="http://www.iccb.jp/uploads/singoki.zip">
 			<title>おとがするしんごうき (10 MB)</title>
 			<author></author>
@@ -368,7 +432,7 @@
 			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
 			<date></date>
 		</book>
-	</website>
+	</website -->
 	<website url="http://rits-daisy.com/" name="Rits-DAISY 立命館大学DAISY研究会">
 		<book link="http://rits-daisy.com/daisy/j01.zip">
 			<title>かちかち山 (45 MB)</title>
@@ -639,7 +703,7 @@
 			<date></date>
 		</book>
 	</website>
-	<website url="http://virginrose.com/daisy/index.html" name="米沢ICT協働会">
+	<!-- website url="http://virginrose.com/daisy/index.html" name="米沢ICT協働会">
 		<book link="http://baishi.sakura.ne.jp/daisyup/2011guide02_rubi_ok.zip">
 			<title>障がい（児）者の福祉ガイド　ふりがな付き (30 MB)</title>
 			<author></author>
@@ -712,42 +776,76 @@
 			<publisher>米沢ICT協働会</publisher>
 			<date></date>
 		</book>
+	</website -->
+	<website url="http://www.city.mitaka.tokyo.jp/c_service/002/002190.html" name="三鷹市">
+		<book link="http://www.city.mitaka.tokyo.jp/daisy/20190505.zip">
+			<title>広報みたか（2019年5月5日号） (31MB)</title>
+			<author></author>
+			<publisher>三鷹市</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://www.city.katsushika.lg.jp/information/kouho/1005537/index.html" name="葛飾区">
+		<book link="http://www.city.katsushika.lg.jp/_res/projects/default_project/_page_/001/020/148/0305daisy.zip">
+			<title>広報かつしか（2019年3月5日号） (50.7MB)</title>
+			<author></author>
+			<publisher>三鷹市</publisher>
+			<date></date>
+		</book>
 	</website>
 	<website url="http://www.willcom.jp/daisy-shiso/diarypro/diary.cgi" name="デイジー宍粟">
-		<book link="http://www.willcom.jp/daisy-shiso/zip/331.zip">
-			<title>「声のたより」5月号 （第331） (48.8 MB)</title>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/342.zip">
+			<title>「声のたより」4月号 （第342）</title>
 			<author>ふきのとう山崎</author>
 			<publisher>デイジー宍粟</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.willcom.jp/daisy-shiso/zip/304.zip">
-			<title>「声のたより」4月号 （第330） (92.1 MB)</title>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/341.zip">
+			<title>「声のたより」3月号 （第341）</title>
+			<author>ふきのとう山崎</author>
+			<publisher>デイジー宍粟</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/340.zip">
+			<title>「声のたより」2月号 （第340）</title>
+			<author>ふきのとう山崎</author>
+			<publisher>デイジー宍粟</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.willcom.jp/daisy-shiso/zip/339.zip">
+			<title>「声のたより」1月号 （第339）</title>
 			<author>ふきのとう山崎</author>
 			<publisher>デイジー宍粟</publisher>
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.city.kanuma.tochigi.jp/13,0,148.html" name="鹿沼市　広報かぬま">
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201807.zip">
-			<title>広報かぬま音声版2018年7月号 (41.7 MB)</title>
+	<website url="https://www.city.kanuma.tochigi.jp/0338/info-0000002430-0.html" name="鹿沼市　広報かぬま">
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201905.zip">
+			<title>広報かぬま音声版2019年5月号</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201806.zip">
-			<title>広報かぬま音声版2018年6月号 (41.6 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201904.zip">
+			<title>広報かぬま音声版2019年4月号</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201805.zip">
-			<title>広報かぬま音声版2018年5月号 (43.8 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201903.zip">
+			<title>広報かぬま音声版2019年3月号</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201804.zip">
-			<title>広報かぬま音声版2018年4月号 (39.8 MB)</title>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201902.zip">
+			<title>広報かぬま音声版2019年2月号</title>
+			<author></author>
+			<publisher>鹿沼市</publisher>
+			<date></date>
+		</book>
+		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201901.zip">
+			<title>広報かぬま音声版2019年1月号</title>
 			<author></author>
 			<publisher>鹿沼市</publisher>
 			<date></date>

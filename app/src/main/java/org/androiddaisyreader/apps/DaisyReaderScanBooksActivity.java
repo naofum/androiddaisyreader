@@ -1,6 +1,7 @@
 package org.androiddaisyreader.apps;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -220,12 +221,13 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
         @Override
         protected List<DaisyBookInfo> doInBackground(Void... params) {
             ArrayList<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
+            InputStream databaseInputStream = null;
             try {
                 while (!mPreferences.getBoolean(Constants.SERVICE_DONE, false)) {
                     Thread.sleep(TIMESLEEP);
                 }
                 if (mPreferences.getBoolean(Constants.SERVICE_DONE, false)) {
-                    InputStream databaseInputStream = new FileInputStream(
+                    databaseInputStream = new FileInputStream(
                             Constants.folderContainMetadata
                                     + Constants.META_DATA_SCAN_BOOK_FILE_NAME);
                     NodeList nList = mMetadata.readDataScanFromXmlFile(databaseInputStream);
@@ -253,6 +255,14 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
             } catch (Exception e) {
                 PrivateException ex = new PrivateException(e, getApplicationContext());
                 ex.writeLogException();
+            } finally {
+                try {
+                    if (databaseInputStream != null) {
+                        databaseInputStream.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
             }
             return filesResult;
         }

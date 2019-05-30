@@ -64,7 +64,12 @@ public class ExtractTimingValues {
      */
     private static double getTrimmedValueForDaisy30(String elementName, Attributes attributes) {
         String rawValue = ParserUtilities.getValueForName(elementName, attributes);
+        rawValue = rawValue.replace("s", "");
         String[] splitRawValue = rawValue.split(":");
+        if (splitRawValue.length == 1) {
+            rawValue = "0:" + rawValue;
+            splitRawValue = rawValue.split(":");
+        }
         if (splitRawValue.length == 2) {
             rawValue = "0:" + rawValue;
             splitRawValue = rawValue.split(":");

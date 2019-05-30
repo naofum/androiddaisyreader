@@ -1,32 +1,34 @@
 package org.androiddaisyreader.model;
 
-import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
-import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class OpfSpecification extends DefaultHandler {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
+import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
+
+public class OpfSpecification3 extends DefaultHandler {
     private Element current;
     // private Stack<Daisy30Section.Builder> headingStack = new
     // Stack<Daisy30Section.Builder>();
     private Map<String, String> manifestItem = new HashMap<String, String>();
     // TODO 20120124 (jharty):replace with something that doesn't use Vector
     private StringBuilder buffer = new StringBuilder();
-    private List<XmlModel> listModel;
+    private List<XmlModel> listModel = new ArrayList<XmlModel>();
+    private List<XmlModel> allModel = new ArrayList<XmlModel>();
     private DaisyBook.Builder bookBuilder = new DaisyBook.Builder();
     private BookContext bookContext;
 
-    public OpfSpecification(BookContext bookContext) {
+    public OpfSpecification3(BookContext bookContext) {
         this.bookContext = bookContext;
     }
 
@@ -84,11 +86,16 @@ public class OpfSpecification extends DefaultHandler {
 
     private void handleItemOfHeading(Attributes attributes) {
         String href = getHref(attributes);
-        if (href.endsWith("xml") && bookBuilder != null) {
+        if (href.endsWith("xhtml") && bookBuilder != null) {
             InputStream contents = null;
             try {
                 contents = bookContext.getResource(href);
-                listModel = XmlSpecification.readFromStream(contents);
+                listModel = XmlSpecification3.readFromStream(contents);
+                // set model-overlay id to smilHref temporary
+                for (XmlModel model : listModel) {
+                    model.setSmilHref(getId(attributes));
+                }
+                allModel.addAll(listModel);
             } catch (IOException e) {
 
             } finally {
@@ -100,15 +107,32 @@ public class OpfSpecification extends DefaultHandler {
                     //
                 }
             }
+            manifestItem.put(getId(attributes) + "_ref", getMediaOverlay(attributes));
         }
         manifestItem.put(getId(attributes), getHref(attributes));
     }
 
     private void handleStartOfSpine(Attributes attributes) {
         // Create the new header
-        String smilHref = manifestItem.get(getIdRef(attributes));
-        XmlModel model = getXmlModelBySmilHref(smilHref);
+        XmlModel model = getXmlModelBySmilHref(getIdRef(attributes));
+        String smilId = manifestItem.get(getIdRef(attributes) + "_ref");
+        String smilHref = manifestItem.get(smilId);
+        model.setSmilHref(smilHref + "#" + model.getId());
         attachSectionToParent(model);
+
+//        for (XmlModel model : listModel) {
+//            String id = model.getSmilHref();
+//            if (id != null && id.equals(getIdRef(attributes))) {
+//                String mediaOverlay = manifestItem.get(id + "_ref");
+//                String smilHref = manifestItem.get(mediaOverlay);
+//                XmlModel tmp = new XmlModel();
+//                tmp.setId(model.getId());
+//                tmp.setLevel(model.getLevel());
+//                tmp.setText(model.getText());
+//                tmp.setSmilHref(smilHref + "#" + model.getId());
+//                attachSectionToParent(tmp);
+//            }
+//        }
     }
 
     private void attachSectionToParent(XmlModel model) {
@@ -126,8 +150,9 @@ public class OpfSpecification extends DefaultHandler {
 
     private XmlModel getXmlModelBySmilHref(String smilHref) {
         XmlModel result = null;
-        for (XmlModel model : listModel) {
-            if (model.getSmilHref() != null && model.getSmilHref().contains(smilHref)) {
+        for (XmlModel model : allModel) {
+//            if (model.getSmilHref() != null && model.getSmilHref().contains(smilHref)) {
+            if (model.getSmilHref() != null && model.getSmilHref().equals(smilHref)) {
                 result = model;
                 break;
             }
@@ -145,6 +170,10 @@ public class OpfSpecification extends DefaultHandler {
 
     private String getIdRef(Attributes attributes) {
         return ParserUtilities.getValueForName("idref", attributes);
+    }
+
+    private String getMediaOverlay(Attributes attributes) {
+        return ParserUtilities.getValueForName("media-overlay", attributes);
     }
 
     private void handleMetadata(String tagName) {
@@ -223,7 +252,7 @@ public class OpfSpecification extends DefaultHandler {
     public static DaisyBook readFromStream(InputStream contents, String encoding,
             BookContext bookContext) throws IOException {
 //        InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
-        OpfSpecification specification = new OpfSpecification(bookContext);
+        OpfSpecification3 specification = new OpfSpecification3(bookContext);
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);

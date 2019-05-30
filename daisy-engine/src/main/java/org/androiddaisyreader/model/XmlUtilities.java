@@ -91,6 +91,7 @@ public final class XmlUtilities {
             encoding = extractEncoding(line);
         }
         bis.reset();
+//        dis.close();
         return encoding;
     }
 
@@ -114,16 +115,25 @@ public final class XmlUtilities {
         StringBuilder sb = new StringBuilder();
         String line;
         if (encoding.equalsIgnoreCase("shift_jis")) {
+            BufferedReader in = null;
             try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(contents, "Shift_JIS"));
+                in = new BufferedReader(new InputStreamReader(contents, "Shift_JIS"));
                 while ((line = in.readLine()) != null) {
                     line = line.replaceAll("=\"shift_jis\"", "=\"utf-8\"");
                     line = line.replaceAll("=\"Shift_JIS\"", "=\"utf-8\"");
                     sb.append(line);
                 }
-                in.close();
+//                in.close();
             } catch (IOException e) {
                 throw new IOException("Couldn't convert the ncc.html contents to utf-8.", e);
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
             }
             return new ByteArrayInputStream(sb.toString().getBytes("utf-8"));
         }

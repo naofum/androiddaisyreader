@@ -1,7 +1,9 @@
 package org.androiddaisyreader.model;
 
-import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
-import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,24 +12,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
+import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
+import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
 
-public class XmlSpecification extends DefaultHandler {
+public class XmlSpecification3 extends DefaultHandler {
     private XmlModel model;
     private List<XmlModel> listModel = new ArrayList<XmlModel>();
     private static final int NUM_LEVELS_AVAILABLE_IN_DAISY202 = 6;
     private Element current;
     private StringBuilder buffer = new StringBuilder();
 
-    public XmlSpecification() {
+    public XmlSpecification3() {
     }
 
     private enum Element {
         H1, H2, H3, H4, H5, H6, SENT, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6,
-        SPAN, CONVERTITLE, DOCTITLE;
+        SPAN, CONVERTITLE, DOCTITLE, BODY;
         @Override
         public String toString() {
             return this.name().toLowerCase();
@@ -51,6 +51,7 @@ public class XmlSpecification extends DefaultHandler {
         levelMap.put(Element.LEVEL4, 4);
         levelMap.put(Element.LEVEL5, 5);
         levelMap.put(Element.LEVEL6, 6);
+        levelMap.put(Element.BODY, 1);
     }
 
     @Override
@@ -67,6 +68,7 @@ public class XmlSpecification extends DefaultHandler {
         case LEVEL4:
         case LEVEL5:
         case LEVEL6:
+        case BODY:
             handleStartOfHeading(current, attributes);
             break;
         case H1:
@@ -103,8 +105,8 @@ public class XmlSpecification extends DefaultHandler {
 
     private void addSmilHref(Attributes attributes) {
         String smilHref = getSmilHref(attributes);
-        model.setSmilHref(smilHref);
         if (model != null && model.getId() == null) {
+            model.setSmilHref(smilHref);
             model.setId(getId(attributes));
         }
     }
@@ -146,6 +148,7 @@ public class XmlSpecification extends DefaultHandler {
         case H4:
         case H5:
         case H6:
+        case SPAN:
             addText();
             break;
         case LEVEL1:
@@ -161,10 +164,12 @@ public class XmlSpecification extends DefaultHandler {
     }
 
     private void addText() {
-        if (model.getText() == null) {
-            model.setText(buffer.toString());
+        if (model != null) {
+            if (model.getText() == null) {
+                model.setText(buffer.toString());
+            }
+            listModel.add(model);
         }
-        listModel.add(model);
     }
 
     private List<XmlModel> build() {
@@ -182,7 +187,7 @@ public class XmlSpecification extends DefaultHandler {
             throws IOException {
         InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
 
-        XmlSpecification specification = new XmlSpecification();
+        XmlSpecification3 specification = new XmlSpecification3();
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);

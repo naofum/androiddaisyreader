@@ -34,7 +34,7 @@ public class TempFileForAudioContentProvider {
      * @return true if it is, else false.
      */
     boolean doesContentNeedUnzipping() {
-        return context.getBaseUri().endsWith(".zip");
+        return context.getBaseUri().endsWith(".zip") || context.getBaseUri().endsWith(".epub");
     }
 
     /**
@@ -64,6 +64,7 @@ public class TempFileForAudioContentProvider {
         // delete file has just create if the space is not enough, before return
         // null.
         tempFile.delete();
+        in.close();
         return null;
     }
 

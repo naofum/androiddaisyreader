@@ -31,14 +31,19 @@ public class DaisySection extends Section {
      * @param isDaisyFormat202 the is daisy format202 otherwise is daisy format
      * @return the parts
      */
-    public Part[] getParts(boolean isDaisyFormat202) {
+    public Part[] getParts(boolean isDaisyFormat202, String path) {
         try {
             if (isDaisyFormat202) {
                 return Smil10Specification.getParts(bookContext,
                         bookContext.getResource(getSmilFilename()));
             } else {
-                return Smil30Specification.getParts(bookContext,
-                        bookContext.getResource(getSmilFilename()));
+                if (path.endsWith("epub")) {
+                    return Smil31Specification.getParts(bookContext,
+                            bookContext.getResource(getSmilFilename()));
+                } else {
+                    return Smil30Specification.getParts(bookContext,
+                            bookContext.getResource(getSmilFilename()));
+                }
             }
         } catch (IOException e) {
             // TODO 20120301 jharty: refactor once I've sorted out the custom

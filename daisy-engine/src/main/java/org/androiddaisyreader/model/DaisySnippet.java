@@ -56,14 +56,23 @@ public class DaisySnippet extends Snippet {
         String[] elements = parseCompositeReference(compositeReference);
         String uri = elements[0];
         this.id = elements[1];
+        InputStream contents = null;
         try {
-            InputStream contents = context.getResource(uri);
+            contents = context.getResource(uri);
             String encoding = obtainEncodingStringFromInputStream(contents);
             doc = Jsoup.parse(contents, encoding, context.getBaseUri());
         } catch (IOException ioe) {
             // TODO 20120214 (jharty): we need to consider more appropriate
             // error reporting.
             throw new RuntimeException("TODO fix me", ioe);
+        } finally {
+            try {
+                if (contents != null) {
+                    contents.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package org.androiddaisyreader.base;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.androiddaisyreader.model.DaisyBook;
 import org.androiddaisyreader.model.DaisySection;
 import org.androiddaisyreader.model.NccSpecification;
 import org.androiddaisyreader.model.OpfSpecification;
+import org.androiddaisyreader.model.OpfSpecification3;
 import org.androiddaisyreader.model.Part;
 import org.androiddaisyreader.model.Section;
 import org.androiddaisyreader.utils.Constants;
@@ -34,8 +36,8 @@ public class DaisyEbookReaderBaseMode {
      * @throws PrivateException
      */
     public DaisyBook openBook202() throws PrivateException {
+        InputStream contents = null;
         try {
-            InputStream contents;
             BookContext mBookContext = getBookContext(mPath);
             contents = mBookContext.getResource(Constants.FILE_NCC_NAME_NOT_CAPS);
             DaisyBook book = NccSpecification.readFromStream(contents);
@@ -43,6 +45,14 @@ public class DaisyEbookReaderBaseMode {
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext, mPath);
             throw ex;
+        } finally {
+            try {
+                if (contents != null) {
+                    contents.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
     }
 
@@ -53,17 +63,30 @@ public class DaisyEbookReaderBaseMode {
      */
     public DaisyBook openBook30() throws PrivateException {
 
+        InputStream contents = null;
         try {
-            InputStream contents;
             String path = getPathExactlyDaisy30(mPath);
             String opfName = getOpfFileName(mPath);
             BookContext bookContext = getBookContext(path);
             contents = bookContext.getResource(opfName);
-            DaisyBook book = OpfSpecification.readFromStream(contents, bookContext);
+            DaisyBook book = null;
+            if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                book = OpfSpecification3.readFromStream(contents, bookContext);
+            } else {
+                book = OpfSpecification.readFromStream(contents, bookContext);
+            }
             return book;
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext, mPath);
             throw ex;
+        } finally {
+            try {
+                if (contents != null) {
+                    contents.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
     }
 
@@ -108,7 +131,7 @@ public class DaisyEbookReaderBaseMode {
      */
     public String getPathExactlyDaisy30(String path) {
         String result = null;
-        if (path.endsWith(Constants.SUFFIX_ZIP_FILE)) {
+        if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
             result = path;
         } else {
             result = path + File.separator + DaisyBookUtil.getOpfFileName(path);
@@ -137,7 +160,7 @@ public class DaisyEbookReaderBaseMode {
             bookContext = getBookContext(path);
             currentSection = new DaisySection.Builder().setHref(section.getHref())
                     .setContext(bookContext).build();
-            parts = currentSection.getParts(isFormat202);
+            parts = currentSection.getParts(isFormat202, path);
             return parts;
         } catch (PrivateException e) {
             PrivateException ex = new PrivateException(e, mContext, path);
@@ -162,10 +185,21 @@ public class DaisyEbookReaderBaseMode {
         boolean isCurrentPart = false;
         try {
             Part[] tempParts = getPartsFromSection(section, path, isFormat30);
+            if (path.endsWith("epub")) {
+                return tempParts;
+            }
             List<Part> listPart = new ArrayList<Part>();
             for (Part part : tempParts) {
                 if (part.getId().equals(listId.get(positionSection - 1))) {
                     isCurrentPart = true;
+                } else if (part.getSnippets().get(0).getId().equals(listId.get(positionSection - 1))) {
+                    //epub
+                    isCurrentPart = true;
+//                    if (section.getHref().contains("/")) {
+//                        String dir = section.getHref().substring(0, section.getHref().lastIndexOf("/") + 1);
+//                        String fname = part.getAudioElements().get(0).getAudioFilename();
+//                        part.getAudioElements().get(0).setAudioFileName(dir + fname);
+//                    }
                 }
                 if (isCurrentPart) {
                     if (listId.size() == positionSection) {
@@ -187,7 +221,7 @@ public class DaisyEbookReaderBaseMode {
 
     private String getOpfFileName(String path) {
         String result = null;
-        if (path.endsWith(Constants.SUFFIX_ZIP_FILE)) {
+        if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
             result = DaisyBookUtil.getOpfFileNameInZipFolder(path);
         } else {
             result = DaisyBookUtil.getOpfFileName(path);

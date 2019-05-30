@@ -27,7 +27,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="jsoup-1.6.1-sources" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="jsoup-1.6.1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: jsoup-1.6.1-sources" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: jsoup-1.6.1" level="project" />
   </component>
 </module>

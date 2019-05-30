@@ -67,6 +67,14 @@ public class Smil10Specification extends DefaultHandler {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+//            try {
+//                if (contents != null) {
+//                    contents.close();
+//                }
+//            } catch (IOException e) {
+//                //
+//            }
         }
 
         Smil10Specification smil = new Smil10Specification(context);
@@ -74,13 +82,28 @@ public class Smil10Specification extends DefaultHandler {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(smil);
             saxParser.parse(Smil.getInputSource(contents2));
-            contents.close();
-            return smil.getParts();
+//            contents.close();
         } catch (SAXException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                if (contents != null) {
+                    contents.close();
+                }
+            } catch (IOException e) {
+                //
+            }
+//            try {
+//                if (contents2 != null) {
+//                    contents2.close();
+//                }
+//            } catch (IOException e) {
+//                //
+//            }
         }
+        return smil.getParts();
     }
 
     /**
@@ -190,8 +213,9 @@ public class Smil10Specification extends DefaultHandler {
         // the filename has changed (which means the contents are no longer
         // valid).
         if (doc == null || !uri.equalsIgnoreCase(currentContentsFilename)) {
+            InputStream contents = null;
             try {
-                InputStream contents = context.getResource(uri);
+                contents = context.getResource(uri);
                 String encoding = obtainEncodingStringFromInputStream(contents);
                 doc = Jsoup.parse(contents, encoding, context.getBaseUri());
                 currentContentsFilename = uri;
@@ -199,6 +223,14 @@ public class Smil10Specification extends DefaultHandler {
                 // TODO 20120214 (jharty): we need to consider more appropriate
                 // error reporting.
                 throw new RuntimeException("TODO fix me", ioe);
+            } finally {
+                try {
+                    if (contents != null) {
+                        contents.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
             }
         }
 

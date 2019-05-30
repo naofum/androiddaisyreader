@@ -96,6 +96,8 @@ public class Constants {
     public static final String SUFFIX_AUDIO_TEMP_FILE = ".mp3";
     /** The suffix of audio zip file */
     public static final String SUFFIX_ZIP_FILE = ".zip";
+    /** The suffix of epub file */
+    public static final String SUFFIX_EPUB_FILE = ".epub";
     /**
      * This key will help you to get value of link website from
      * SharedPreferences
@@ -141,6 +143,10 @@ public class Constants {
     public static final int SUBMENU_SETTINGS = 7;
     /** Id item menu about of sub menu */
     public static final int SUBMENU_ABOUT = 8;
+    /** Id item menu contact of sub menu */
+    public static final int SUBMENU_GOOGLE_PLAY = 9;
+    /** Id item menu contact of sub menu */
+    public static final int SUBMENU_CONTACT = 10;
 
     // All message on simple mode activity.
     /** Id of message "simple mode" to speak by tts on simple mode */

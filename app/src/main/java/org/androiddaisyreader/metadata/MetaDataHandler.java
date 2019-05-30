@@ -171,7 +171,12 @@ public class MetaDataHandler extends Activity {
             }
 
         } catch (IOException e) {
-            PrivateException ex = new PrivateException(e, getApplicationContext());
+            PrivateException ex = null;
+            if (getApplicationContext() == null) {
+                ex = new PrivateException("IOException");
+            } else {
+                ex = new PrivateException(e, getApplicationContext());
+            }
             ex.writeLogException();
         } catch (ParserConfigurationException pce) {
             PrivateException ex = new PrivateException(pce, getApplicationContext());

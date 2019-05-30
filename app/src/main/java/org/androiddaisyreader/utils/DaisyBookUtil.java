@@ -3,6 +3,7 @@ package org.androiddaisyreader.utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -17,12 +18,14 @@ import org.androiddaisyreader.model.DaisyBookInfo;
 import org.androiddaisyreader.model.FileSystemContext;
 import org.androiddaisyreader.model.NccSpecification;
 import org.androiddaisyreader.model.OpfSpecification;
+import org.androiddaisyreader.model.OpfSpecification3;
 import org.androiddaisyreader.model.ZippedBookContext;
 import org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -122,7 +125,7 @@ public class DaisyBookUtil {
             result = false;
         }
         String fileName = getOpfFileName(folder.getAbsolutePath());
-        if (folder.getAbsolutePath().endsWith(Constants.SUFFIX_ZIP_FILE)) {
+        if (folder.getAbsolutePath().endsWith(Constants.SUFFIX_ZIP_FILE) || folder.getAbsolutePath().endsWith(Constants.SUFFIX_EPUB_FILE)) {
             fileName = getOpfFileNameInZipFolder(folder.getAbsolutePath());
         }
         if (fileName != null) {
@@ -138,21 +141,36 @@ public class DaisyBookUtil {
      */
     private static boolean zipFileContainsDaisy202Book(String filename) {
         ZipEntry entry;
+        ZipFile zipContents = null;
+        boolean found = false;
         try {
-            ZipFile zipContents = new ZipFile(filename);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // N for Nougat
+                zipContents = new ZipFile(filename, Charset.forName("ISO-8859-1"));
+            } else {
+                zipContents = new ZipFile(filename);
+            }
             Enumeration<? extends ZipEntry> e = zipContents.entries();
             while (e.hasMoreElements()) {
                 entry = (ZipEntry) e.nextElement();
                 if (entry.getName().contains(Constants.FILE_NCC_NAME_NOT_CAPS)
                         || entry.getName().contains(Constants.FILE_NCC_NAME_CAPS)) {
-                    return true;
+                    found = true;
+                    break;
                 }
             }
-            zipContents.close();
+//            zipContents.close();
         } catch (IOException e) {
             Log.d("IOException", e.getMessage());
+        } finally {
+            try {
+                if (zipContents != null) {
+                    zipContents.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
-        return false;
+        return found;
     }
 
     /**
@@ -164,13 +182,19 @@ public class DaisyBookUtil {
     public static String getOpfFileNameInZipFolder(String path) {
         String result = "";
         ZipEntry entry;
+        ZipFile zipContents = null;
         try {
-            ZipFile zipContents = new ZipFile(path);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // N for Nougat
+                zipContents = new ZipFile(path, Charset.forName("ISO-8859-1"));
+            } else {
+                zipContents = new ZipFile(path);
+            }
             Enumeration<? extends ZipEntry> e = zipContents.entries();
             while (e.hasMoreElements()) {
                 entry = (ZipEntry) e.nextElement();
                 if (entry.getName().endsWith(".opf")) {
                     result = entry.getName();
+                    break;
                 }
             }
             zipContents.close();
@@ -218,7 +242,7 @@ public class DaisyBookUtil {
             bookContext = new FileSystemContext(directory.getParent());
         }
         directory = null;
-        if (filename.endsWith(Constants.SUFFIX_ZIP_FILE)) {
+        if (filename.endsWith(Constants.SUFFIX_ZIP_FILE) || filename.endsWith(Constants.SUFFIX_EPUB_FILE)) {
             bookContext = new ZippedBookContext(filename);
         } else {
             directory = new File(filename);
@@ -235,14 +259,20 @@ public class DaisyBookUtil {
      * @return Daisy202Book
      */
     public static DaisyBook getDaisy202Book(String path) throws IOException {
-        InputStream contents;
+        InputStream contents = null;
         DaisyBook book = null;
-        BookContext bookContext = openBook(path);
-        contents = bookContext.getResource(Constants.FILE_NCC_NAME_NOT_CAPS);
-        if (contents == null) {
-            return null;
+        try {
+            BookContext bookContext = openBook(path);
+            contents = bookContext.getResource(Constants.FILE_NCC_NAME_NOT_CAPS);
+            if (contents == null) {
+                return null;
+            }
+            book = NccSpecification.readFromStream(contents);
+        } finally {
+            if (contents != null) {
+                contents.close();
+            }
         }
-        book = NccSpecification.readFromStream(contents);
         return book;
     }
 
@@ -258,18 +288,27 @@ public class DaisyBookUtil {
         DaisyBook book = null;
         String filename = "";
         BookContext bookContext = null;
-        if (path.endsWith(Constants.SUFFIX_ZIP_FILE)) {
-            bookContext = openBook(path);
-            contents = bookContext.getResource(getOpfFileNameInZipFolder(path));
-        } else {
-            filename = path + File.separator + getOpfFileName(path);
-            bookContext = openBook(filename);
-            contents = bookContext.getResource(getOpfFileName(path));
+        try {
+            if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                bookContext = openBook(path);
+                contents = bookContext.getResource(getOpfFileNameInZipFolder(path));
+            } else {
+                filename = path + File.separator + getOpfFileName(path);
+                bookContext = openBook(filename);
+                contents = bookContext.getResource(getOpfFileName(path));
+            }
+            if (contents != null) {
+                if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                    book = OpfSpecification3.readFromStream(contents, bookContext);
+                } else {
+                    book = OpfSpecification.readFromStream(contents, bookContext);
+                }
+            }
+        } finally {
+            if (contents != null) {
+                contents.close();
+            }
         }
-        if (contents == null) {
-            return null;
-        }
-        book = OpfSpecification.readFromStream(contents, bookContext);
         return book;
     }
 

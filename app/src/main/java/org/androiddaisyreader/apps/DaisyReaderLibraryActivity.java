@@ -17,6 +17,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
@@ -64,7 +66,11 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         getSupportActionBar().setTitle(R.string.title_activity_daisy_reader_library);
         Intent serviceIntent = new Intent(DaisyReaderLibraryActivity.this,
                 DaisyEbookReaderService.class);
-        startService(serviceIntent);
+        if (Build.VERSION.SDK_INT >= 26) { // Build.VERSION_CODES.O
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
     }
 
     @Override
@@ -73,6 +79,8 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         SubMenu subMenu = menu.addSubMenu(0, Constants.SUBMENU_MENU, order++, R.string.menu_title);
         subMenu.add(0, Constants.SUBMENU_SETTINGS, order++, R.string.submenu_settings).setIcon(
                 R.raw.settings);
+        subMenu.add(0, Constants.SUBMENU_GOOGLE_PLAY, order++, R.string.submenu_google_play);
+        subMenu.add(0, Constants.SUBMENU_CONTACT, order++, R.string.submenu_contact);
         subMenu.add(0, Constants.SUBMENU_ABOUT, order++, R.string.submenu_about);
 
         MenuItem subMenuItem = subMenu.getItem();
@@ -91,6 +99,22 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
             // go to settings
             case Constants.SUBMENU_SETTINGS:
                 mIntentController.pushToDaisyReaderSettingIntent();
+                return true;
+            case Constants.SUBMENU_GOOGLE_PLAY:
+                Intent googlePlayIntent = new Intent(Intent.ACTION_VIEW);
+                googlePlayIntent.setData(Uri.parse(
+                        "https://play.google.com/store/apps/details?id=com.github.naofum.androiddaisyreader"));
+                googlePlayIntent.setPackage("com.android.vending");
+                startActivity(googlePlayIntent);
+                return true;
+            case Constants.SUBMENU_CONTACT:
+                Intent contactIntent = new Intent();
+                contactIntent.setAction(Intent.ACTION_SENDTO);
+                contactIntent.setType("text/plain");
+                contactIntent.setData(Uri.parse("mailto:naofum@gmail.com"));
+                contactIntent.putExtra(Intent.EXTRA_SUBJECT, "Android DAISY Reader");
+                contactIntent.putExtra(Intent.EXTRA_TEXT, "こんにちは。\nこちらにお問い合わせの内容を記入してください。\n");
+                startActivity(Intent.createChooser(contactIntent, null));
                 return true;
             case Constants.SUBMENU_ABOUT:
                 String version = "";
@@ -150,14 +174,29 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
                 out = new FileOutputStream(Constants.folderContainMetadata
                         + Constants.META_DATA_FILE_NAME);
                 copyFile(in, out);
-                in.close();
+//                in.close();
                 in = null;
                 out.flush();
-                out.close();
+//                out.close();
                 out = null;
             } catch (Exception e) {
                 PrivateException ex = new PrivateException(e, DaisyReaderLibraryActivity.this);
                 ex.writeLogException();
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
             }
         }
     }

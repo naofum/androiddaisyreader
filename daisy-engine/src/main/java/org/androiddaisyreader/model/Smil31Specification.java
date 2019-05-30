@@ -1,6 +1,11 @@
 package org.androiddaisyreader.model;
 
-import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,14 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
+import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
 
-public class Smil30Specification extends DefaultHandler {
+public class Smil31Specification extends DefaultHandler {
     private Element current;
     private Part.Builder partBuilder;
     private List<Part> parts = new ArrayList<Part>();
@@ -34,11 +34,11 @@ public class Smil30Specification extends DefaultHandler {
 
     /**
      * Create an object representing a SMIL version 1.0 Specification.
-     * 
+     *
      * @param context the BookContext used to locate references to files in the
      *            SMIL file.
      */
-    private Smil30Specification(BookContext context) {
+    private Smil31Specification(BookContext context) {
         this.context = context;
     }
 
@@ -71,7 +71,7 @@ public class Smil30Specification extends DefaultHandler {
 //            }
         }
 
-        Smil30Specification smil = new Smil30Specification(context);
+        Smil31Specification smil = new Smil31Specification(context);
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(smil);
@@ -177,7 +177,7 @@ public class Smil30Specification extends DefaultHandler {
         newPart();
         String id = ParserUtilities.getValueForName("id", attributes);
         partBuilder.setId(id);
-        if (getClass(attributes) != null && getClass(attributes).equals("prodnote")) {
+        if (getClass(attributes) != null && getClass(attributes).equals("sentence")) {
             isProdNote = true;
         }
     }
@@ -226,16 +226,18 @@ public class Smil30Specification extends DefaultHandler {
                 }
             }
         }
-        if (!isProdNote) {
-            if (textProdNote != null) {
-                doc.getElementById(idPrevious).appendText(" " + textProdNote);
-                textProdNote = null;
-            }
-            idPrevious = id;
-            partBuilder.addSnippet(new DaisySnippet(doc, id));
-        } else {
-            textProdNote = doc.getElementById(id).text();
-        }
+//        if (!isProdNote) {
+//            if (textProdNote != null) {
+//                doc.getElementById(idPrevious).appendText(" " + textProdNote);
+//                textProdNote = null;
+//            }
+//            idPrevious = id;
+//            partBuilder.addSnippet(new DaisySnippet(doc, id));
+//        } else {
+//            textProdNote = doc.getElementById(id).text();
+//        }
+        textProdNote = doc.getElementById(id).text();
+        partBuilder.addSnippet(new DaisySnippet(doc, id));
     }
 
     private void recordUnhandledElement(Element element, Attributes attributes) {

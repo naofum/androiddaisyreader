@@ -1,6 +1,7 @@
 package org.androiddaisyreader.apps;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,8 +101,9 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
 //        listWebsite.add(website);
 
         NodeList nList = null;
+        InputStream databaseInputStream = null;
         try {
-            InputStream databaseInputStream = new FileInputStream(Constants.folderContainMetadata
+            databaseInputStream = new FileInputStream(Constants.folderContainMetadata
                     + Constants.META_DATA_FILE_NAME);
             MetaDataHandler metadata = new MetaDataHandler();
 
@@ -123,6 +125,14 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyReaderDownloadSiteActivity.this);
             ex.writeLogException();
+        } finally {
+            try {
+                if (databaseInputStream != null) {
+                    databaseInputStream.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
     }
 

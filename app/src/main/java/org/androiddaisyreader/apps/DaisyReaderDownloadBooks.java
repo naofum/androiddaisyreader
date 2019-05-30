@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
@@ -117,8 +118,9 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
      * Wirte data to sqlite from metadata
      */
     private void createDownloadData() {
+        InputStream databaseInputStream = null;
         try {
-            InputStream databaseInputStream = new FileInputStream(Constants.folderContainMetadata
+            databaseInputStream = new FileInputStream(Constants.folderContainMetadata
                     + Constants.META_DATA_FILE_NAME);
             MetaDataHandler metadata = new MetaDataHandler();
             NodeList nList = metadata.readDataDownloadFromXmlFile(databaseInputStream, mLink);
@@ -144,6 +146,14 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyReaderDownloadBooks.this);
             ex.writeLogException();
+        } finally {
+            try {
+                if (databaseInputStream != null) {
+                    databaseInputStream.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
     }
 
@@ -286,6 +296,8 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             int count;
             boolean result = false;
             String link = params[0];
+            InputStream input = null;
+            OutputStream output = null;
             try {
                 java.net.URL url = new java.net.URL(link);
                 URLConnection conection = url.openConnection();
@@ -306,7 +318,7 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 // progress bar
                 int lenghtOfFile = conection.getContentLength();
                 // download the file
-                InputStream input = new BufferedInputStream(url.openStream(), SIZE);
+                input = new BufferedInputStream(url.openStream(), SIZE);
                 // Output stream
                 String splitString[] = link.split("/");
                 mName = splitString[splitString.length - 1];
@@ -314,7 +326,7 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                     mName = mName.substring(mName.indexOf("?")).replaceAll("&", "_").replaceAll("=", "") + ".zip";
                 }
                 String path = ("".equals(Constants.folderRoot) ? PATH : Constants.folderRoot+ Constants.FOLDER_DOWNLOADED + "/"); // 20180710
-                OutputStream output = new FileOutputStream(path + mName);
+                output = new FileOutputStream(path + mName);
                 byte data[] = new byte[BYTE_VALUE];
                 long total = 0;
                 while ((count = input.read(data)) != -1) {
@@ -343,8 +355,8 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 // flushing output
                 output.flush();
                 // closing streams
-                output.close();
-                input.close();
+//                output.close();
+//                input.close();
                 
                 // Record the book download completed successfully 
                 HashMap<String, String> results = new HashMap<String, String> ();
@@ -381,6 +393,21 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                         ex.showDialogDowloadException(intent);
                     }
                 });
+            } finally {
+                try {
+                    if (input != null) {
+                        input.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
+                try {
+                    if (output != null) {
+                        output.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
             }
             return result;
         }

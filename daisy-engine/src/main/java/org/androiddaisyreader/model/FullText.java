@@ -33,20 +33,27 @@ public class FullText {
      */
     StringBuilder getContentsOfHTMLFile(File fileToReadFrom) throws FileNotFoundException,
             IOException {
-        File file = fileToReadFrom;
+        BufferedReader reader =null;
         StringBuilder fileContents = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),
-                Charset.forName("UTF-8")));
-        String line;
+        try {
+            File file = fileToReadFrom;
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),
+                    Charset.forName("UTF-8")));
+            String line;
 
-        while ((line = reader.readLine()) != null) {
-            fileContents.append(line);
-            fileContents.append('\n');
+            while ((line = reader.readLine()) != null) {
+                fileContents.append(line);
+                fileContents.append('\n');
+            }
+
+            file = null;
+//            reader.close();
+//            reader = null;
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
-
-        file = null;
-        reader.close();
-        reader = null;
         return fileContents;
     }
 

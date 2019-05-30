@@ -15,6 +15,8 @@ import org.androiddaisyreader.utils.DaisyBookUtil;
 
 import android.Manifest;
 import android.app.IntentService;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,7 +24,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+
+import com.github.naofum.androiddaisyreader.R;
 
 /**
  * The Class DaisyEbookReaderService.
@@ -59,6 +64,26 @@ public class DaisyEbookReaderService extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // API 26
+            String channelId = "ReaderService";
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
+                    .setContentTitle(getString(R.string.title_activity_daisy_reader_scan_book))
+                    .setContentText("")
+                    .setSmallIcon(R.drawable.media_play)
+                    .setChannelId(channelId);
+
+            CharSequence name = getString(R.string.title_activity_daisy_reader_scan_book);
+            String description = "";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+            startForeground(1, builder.build());
+        }
         Runnable r = new Runnable() {
             public void run() {
                 Boolean isSDPresent = Environment.getExternalStorageState().equals(
@@ -100,13 +125,14 @@ public class DaisyEbookReaderService extends IntentService {
                 int lengthOfFile = files.length;
                 for (int i = 0; i < lengthOfFile; i++) {
                     List<String> listResult = DaisyBookUtil.getDaisyBook(files[i], false);
+
                     for (String result : listResult) {
                         try {
                             File daisyPath = new File(result);
                             DaisyBookInfo daisyBook;
                             DaisyBook mBook202 = null;
                             // Check zip files.
-                            if (!daisyPath.getAbsolutePath().endsWith(Constants.SUFFIX_ZIP_FILE)) {
+                            if (!daisyPath.getAbsolutePath().endsWith(Constants.SUFFIX_ZIP_FILE) && !daisyPath.getAbsolutePath().endsWith(Constants.SUFFIX_EPUB_FILE)) {
                                 if (DaisyBookUtil.getNccFileName(daisyPath) != null) {
                                     // We think we have a DAISY 2.02 book as
                                     // these include an NCC file.

@@ -1,0 +1,7 @@
+/.gradle/
+/bin/
+/gen/
+/build/
+/private/
+/.idea/
+/app/build/
