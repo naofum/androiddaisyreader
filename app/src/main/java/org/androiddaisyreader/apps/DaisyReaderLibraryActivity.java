@@ -8,12 +8,15 @@ import java.io.OutputStream;
 
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
 import org.androiddaisyreader.player.IntentController;
+import org.androiddaisyreader.receiver.DaisyEbookReaderReceiver;
 import org.androiddaisyreader.service.DaisyEbookReaderService;
 import org.androiddaisyreader.utils.Constants;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -22,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -44,6 +48,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
     private long mLastPressTime = 0;
     private boolean mIsExit = true;
     private static final int BYTE_VALUE = 1024;
+
+    private LocalBroadcastManager broadcastManager;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +78,13 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         } else {
             startService(serviceIntent);
         }
+
+        broadcastManager = LocalBroadcastManager.getInstance(getApplication());
+        broadcastReceiver = new DaisyEbookReaderReceiver();
+        broadcastManager.registerReceiver(broadcastReceiver, new IntentFilter("android.intent.action.MEDIA_SCANNER_FINISHED"));
+        broadcastManager.registerReceiver(broadcastReceiver, new IntentFilter("android.intent.action.MEDIA_SCANNER_STARTED"));
+        broadcastManager.registerReceiver(broadcastReceiver, new IntentFilter("android.intent.action.MEDIA_SCANNER_SCAN_FILE"));
+
     }
 
     @Override
@@ -165,7 +179,8 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
      **/
     private void copyFileFromAssets() {
         File file = new File(Constants.folderContainMetadata + Constants.META_DATA_FILE_NAME);
-        if (!file.exists()) {
+//        if (!file.exists()) {
+        if (true) {
             AssetManager assetManager = getAssets();
             InputStream in = null;
             OutputStream out = null;
@@ -306,6 +321,11 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyReaderLibraryActivity.this);
             ex.writeLogException();
+        }
+
+        if (broadcastReceiver != null) {
+            broadcastManager = LocalBroadcastManager.getInstance(getApplication());
+            broadcastManager.unregisterReceiver(broadcastReceiver);
         }
 
     }

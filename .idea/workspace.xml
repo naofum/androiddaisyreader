@@ -6,55 +6,19 @@
     </shared>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="daisy" />
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="receiver" />
     <option name="TOOL_WINDOW_LOG_LEVEL" value="info" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="No Filters" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2fe8952-e970-4a55-9ca8-87b3ff492d9c" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/values/ic_launcher_background.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/assets/metadata.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/assets/metadata.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderDownloadBooks.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderDownloadBooks.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderDownloadSiteActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderDownloadSiteActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderLibraryActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderLibraryActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderScanBooksActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderScanBooksActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/base/DaisyEbookReaderBaseMode.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/base/DaisyEbookReaderBaseMode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/player/TempFileForAudioContentProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/player/TempFileForAudioContentProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/receiver/DaisyEbookReaderReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/receiver/DaisyEbookReaderReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/service/DaisyEbookReaderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/service/DaisyEbookReaderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/Constants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/DaisyBookUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/DaisyBookUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/daisy-engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/daisy-engine.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/DaisySection.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/DaisySection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/DaisySnippet.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/DaisySnippet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/ExtractTimingValues.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/ExtractTimingValues.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/FullText.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/FullText.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/NccSpecification.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/NccSpecification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/OpfSpecification.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/OpfSpecification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/Smil10Specification.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/Smil10Specification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/Smil30Specification.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/Smil30Specification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/XmlSpecification.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/XmlSpecification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/XmlUtilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/XmlUtilities.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
     </list>
     <ignored path="DaisyBookLister.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -85,11 +49,29 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="39" selection-start-line="39" selection-end-line="39" />
+            <state relative-caret-position="170">
+              <caret line="12" column="25" selection-start-line="12" selection-start-column="25" selection-end-line="12" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/assets/metadata.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="379" selection-start-line="379" selection-end-line="379" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1360">
+              <caret line="80" column="56" selection-start-line="80" selection-start-column="56" selection-end-line="80" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -97,8 +79,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderLibraryActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="106" column="64" selection-start-line="106" selection-start-column="64" selection-end-line="106" selection-end-column="64" />
+            <state relative-caret-position="85">
+              <caret line="180" column="62" selection-start-line="180" selection-start-column="62" selection-end-line="180" selection-end-column="62" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -106,33 +88,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
-              <caret line="80" column="56" selection-start-line="80" selection-start-column="56" selection-end-line="80" selection-end-column="56" />
+              <caret line="118" selection-start-line="118" selection-end-line="118" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/Constants.java">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/PrivateException.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2414">
-              <caret line="146" column="47" selection-start-line="146" selection-start-column="47" selection-end-line="146" selection-end-column="47" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/DaisySection.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="629">
-              <caret line="40" selection-start-line="40" selection-end-line="40" />
-              <folding>
-                <element signature="e#1749#1750#0" expanded="true" />
-                <element signature="e#1777#1778#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="1343">
+              <caret line="101" selection-start-line="101" selection-end-line="101" />
             </state>
           </provider>
         </entry>
@@ -179,8 +148,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>manifest</find>
-      <find>smil</find>
       <find>tion3</find>
       <find>setsm</find>
       <find>levelmap</find>
@@ -209,6 +176,8 @@
       <find>textprodnote</find>
       <find>addtext</find>
       <find>onnext</find>
+      <find>meta</find>
+      <find>metada</find>
     </findStrings>
     <dirStrings>
       <dir>C:\Users\tie608400\AndroidStudioProjects\androiddaisyreader\app</dir>
@@ -245,7 +214,6 @@
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" />
         <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/receiver/DaisyEbookReaderReceiver.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderDownloadSiteActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderDownloadBooks.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderScanBooksActivity.java" />
@@ -271,10 +239,11 @@
         <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/base/DaisyEbookReaderBaseMode.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/Constants.java" />
-        <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
-        <option value="$PROJECT_DIR$/app/build.gradle" />
-        <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderLibraryActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java" />
+        <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderLibraryActivity.java" />
+        <option value="$PROJECT_DIR$/app/build.gradle" />
       </list>
     </option>
   </component>
@@ -297,6 +266,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="ProjectPane" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="AndroidView">
         <subPane>
           <expand>
@@ -307,42 +279,40 @@
             <path>
               <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
               <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
+              <item name="manifests" type="f94875db:AndroidManifestsGroupNode" />
+            </path>
+            <path>
+              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
+              <item name="app" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+            </path>
+            <path>
+              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
+              <item name="app" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="androiddaisyreader" type="cbb59c9e:AndroidPsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
+              <item name="app" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="androiddaisyreader" type="cbb59c9e:AndroidPsiDirectoryNode" />
+              <item name="apps" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
+              <item name="app" type="feadf853:AndroidModuleNode" />
+              <item name="assets" type="edd41e36:AndroidSourceTypeNode" />
             </path>
             <path>
               <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
               <item name="app" type="feadf853:AndroidModuleNode" />
               <item name="res" type="d4f16f75:AndroidResFolderNode" />
-              <item name="values" type="ddeffd01:AndroidResFolderTypeNode" />
             </path>
             <path>
               <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
               <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
-              <item name="values" type="ddeffd01:AndroidResFolderTypeNode" />
-              <item name="strings" type="c431d0b8:AndroidResGroupNode" />
-            </path>
-            <path>
-              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
-              <item name="daisy-engine" type="e9137016:NonAndroidModuleNode" />
-            </path>
-            <path>
-              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
-              <item name="daisy-engine" type="e9137016:NonAndroidModuleNode" />
-              <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
-            </path>
-            <path>
-              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
-              <item name="daisy-engine" type="e9137016:NonAndroidModuleNode" />
-              <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
-              <item name="androiddaisyreader" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
-              <item name="daisy-engine" type="e9137016:NonAndroidModuleNode" />
-              <item name="java" type="f7eae187:NonAndroidSourceTypeNode" />
-              <item name="androiddaisyreader" type="462c0819:PsiDirectoryNode" />
-              <item name="model" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="edd41e36:AndroidSourceTypeNode" />
             </path>
             <path>
               <item name="androiddaisyreader" type="1abcf292:AndroidViewProjectNode" />
@@ -352,9 +322,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="ProjectPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -370,7 +337,7 @@
     <property name="android.project.structure.proportion" value="0.15" />
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1531206734574" />
-    <property name="device.picker.selection" value="002532317403" />
+    <property name="device.picker.selection" value="d150d37c" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../coloring" />
     <property name="recentsLimit" value="5" />
     <property name="settings.editor.selected.configurable" value="gradle.compiler" />
@@ -747,6 +714,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1040" height="744" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49717513" visible="true" weight="0.2510204" />
       <window_info id="Structure" order="1" weight="0.25" />
@@ -765,9 +733,9 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3289689" />
       <window_info anchor="bottom" id="Android Profiler" order="7" />
-      <window_info anchor="bottom" id="Logcat" order="8" sideWeight="0.4989796" visible="true" weight="0.46153846" />
+      <window_info anchor="bottom" id="Logcat" order="8" sideWeight="0.4989796" weight="0.4893617" />
       <window_info anchor="bottom" id="Android Monitor" order="9" weight="0.32879046" />
-      <window_info anchor="bottom" id="Build" order="10" sideWeight="0.4989796" weight="0.3371522" />
+      <window_info anchor="bottom" id="Build" order="10" sideWeight="0.4989796" visible="true" weight="0.3371522" />
       <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50102043" side_tool="true" weight="0.42062193" />
       <window_info anchor="bottom" id="Version Control" order="12" weight="0.32900432" />
       <window_info anchor="bottom" id="Gradle Console" order="13" side_tool="true" />
@@ -812,12 +780,6 @@
           <line>2</line>
           <properties />
           <option name="timeStamp" value="20" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java</url>
-          <line>173</line>
-          <properties />
-          <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/base/DaisyEbookReaderBaseMode.java</url>
@@ -1101,6 +1063,12 @@
           <properties />
           <option name="timeStamp" value="130" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java</url>
+          <line>174</line>
+          <properties />
+          <option name="timeStamp" value="131" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/adapter/WebsiteAdapter.java</url>
           <option name="timeStamp" value="18" />
@@ -1109,31 +1077,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/AppData/Local/Android/sdk/sources/android-27/android/os/AsyncTask.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="442" column="53" lean-forward="true" selection-start-line="442" selection-start-column="53" selection-end-line="442" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderRecentBooksActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="205" selection-start-line="205" selection-end-line="205" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Android/sdk/sources/android-27/android/content/ContextWrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="115" selection-start-line="115" selection-end-line="115" />
-          <folding>
-            <element signature="e#18745#18746#0" expanded="true" />
-            <element signature="e#18795#18796#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/base/DaisyEbookReaderBaseActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="106">
@@ -1438,36 +1381,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="51" selection-start-line="3" selection-start-column="51" selection-end-line="3" selection-end-column="51" />
-          <folding>
-            <marker date="1559220829836" expanded="false" signature="791:809" ph="&quot;DaisyBook Reader&quot;" />
-            <marker date="1559220829836" expanded="false" signature="1133:1151" ph="&quot;DaisyBook Reader&quot;" />
-            <marker date="1559220829836" expanded="false" signature="1671:1714" ph="&quot;Select which mode of player to use&quot;" />
-            <marker date="1559220829836" expanded="false" signature="2030:2085" ph="&quot;Simple Mode&quot;" />
-            <marker date="1559220829836" expanded="false" signature="2401:2456" ph="&quot;Table Of Contents&quot;" />
-            <marker date="1559220829836" expanded="false" signature="2772:2827" ph="&quot;Visual Mode&quot;" />
-            <marker date="1559220829836" expanded="false" signature="3135:3180" ph="&quot;Settings&quot;" />
-            <marker date="1559220829836" expanded="false" signature="3489:3535" ph="&quot;Bookmarks&quot;" />
-            <marker date="1559220829836" expanded="false" signature="3847:3869" ph="&quot;Recent Books&quot;" />
-            <marker date="1559220829836" expanded="false" signature="4179:4199" ph="&quot;Scan Books&quot;" />
-            <marker date="1559220829836" expanded="false" signature="4505:4529" ph="&quot;Download Books&quot;" />
-            <marker date="1559220829836" expanded="false" signature="4842:4866" ph="&quot;Download Sites&quot;" />
-            <marker date="1559220829836" expanded="false" signature="5339:5365" ph="&quot;Downloaded Books&quot;" />
-          </folding>
-        </state>
-      </provider>
-      <provider editor-type-id="android-manifest" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="39" selection-start-line="39" selection-end-line="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/utils/Constants.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2414">
@@ -1483,6 +1396,20 @@
             <element signature="e#1749#1750#0" expanded="true" />
             <element signature="e#1777#1778#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1360">
+          <caret line="80" column="56" selection-start-line="80" selection-start-column="56" selection-end-line="80" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/PrivateException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1343">
+          <caret line="101" selection-start-line="101" selection-end-line="101" />
         </state>
       </provider>
     </entry>
@@ -1516,20 +1443,57 @@
     <entry file="file://$PROJECT_DIR$/daisy-engine/src/main/java/org/androiddaisyreader/model/DaisySnippet.java">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret lean-forward="true" />
+          <folding>
+            <marker date="1567175101572" expanded="false" signature="791:809" ph="&quot;DaisyBook Reader&quot;" />
+            <marker date="1567175101572" expanded="false" signature="1177:1195" ph="&quot;DaisyBook Reader&quot;" />
+            <marker date="1567175101572" expanded="false" signature="1715:1758" ph="&quot;Select which mode of player to use&quot;" />
+            <marker date="1567175101572" expanded="false" signature="2074:2129" ph="&quot;Simple Mode&quot;" />
+            <marker date="1567175101572" expanded="false" signature="2445:2500" ph="&quot;Table Of Contents&quot;" />
+            <marker date="1567175101572" expanded="false" signature="2816:2871" ph="&quot;Visual Mode&quot;" />
+            <marker date="1567175101572" expanded="false" signature="3179:3224" ph="&quot;Settings&quot;" />
+            <marker date="1567175101572" expanded="false" signature="3533:3579" ph="&quot;Bookmarks&quot;" />
+            <marker date="1567175101572" expanded="false" signature="3891:3913" ph="&quot;Recent Books&quot;" />
+            <marker date="1567175101572" expanded="false" signature="4223:4243" ph="&quot;Scan Books&quot;" />
+            <marker date="1567175101572" expanded="false" signature="4549:4573" ph="&quot;Download Books&quot;" />
+            <marker date="1567175101572" expanded="false" signature="4886:4910" ph="&quot;Download Sites&quot;" />
+            <marker date="1567175101572" expanded="false" signature="5383:5409" ph="&quot;Downloaded Books&quot;" />
+          </folding>
+        </state>
+      </provider>
+      <provider editor-type-id="android-manifest" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/metadata/MetaDataHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="118" selection-start-line="118" selection-end-line="118" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/assets/metadata.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="379" selection-start-line="379" selection-end-line="379" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/org/androiddaisyreader/apps/DaisyReaderLibraryActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="106" column="64" selection-start-line="106" selection-start-column="64" selection-end-line="106" selection-end-column="64" />
+        <state relative-caret-position="85">
+          <caret line="180" column="62" selection-start-line="180" selection-start-column="62" selection-end-line="180" selection-end-column="62" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/values-ja/strings.xml">
+    <entry file="file://$PROJECT_DIR$/app/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="80" column="56" selection-start-line="80" selection-start-column="56" selection-end-line="80" selection-end-column="56" />
+        <state relative-caret-position="170">
+          <caret line="12" column="25" selection-start-line="12" selection-start-column="25" selection-end-line="12" selection-end-column="25" />
         </state>
       </provider>
     </entry>

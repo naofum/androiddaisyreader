@@ -24,6 +24,7 @@ import org.w3c.dom.NodeList;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.util.Log;
 
 @SuppressLint("NewApi")
 public class MetaDataHandler extends Activity {
@@ -171,13 +172,14 @@ public class MetaDataHandler extends Activity {
             }
 
         } catch (IOException e) {
-            PrivateException ex = null;
-            if (getApplicationContext() == null) {
-                ex = new PrivateException("IOException");
-            } else {
-                ex = new PrivateException(e, getApplicationContext());
-            }
-            ex.writeLogException();
+            Log.i(this.getClass().toString(), e.toString());
+//            PrivateException ex = null;
+//            if (getApplicationContext() == null) {
+//                ex = new PrivateException("IOException");
+//            } else {
+//                ex = new PrivateException(e, getApplicationContext());
+//            }
+//            ex.writeLogException();
         } catch (ParserConfigurationException pce) {
             PrivateException ex = new PrivateException(pce, getApplicationContext());
             ex.writeLogException();

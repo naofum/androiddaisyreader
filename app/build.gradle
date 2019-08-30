@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 //apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId 'com.github.naofum.androiddaisyreader'
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 28
         multiDexEnabled true
-        versionCode 11
-        versionName "1.11"
+        versionCode 14
+        versionName "1.14"
     }
     buildTypes {
         release {
