@@ -54,7 +54,7 @@
     <string name="title_activity_daisy_reader_setting">設定</string>
     <string name="title_activity_daisy_reader_bookmark">ブックマーク</string>
     <string name="title_activity_daisy_reader_recent_book">最近開いた本</string>
-    <string name="title_activity_daisy_reader_scan_book">SD カードのスキャン</string>
+    <string name="title_activity_daisy_reader_scan_book">メディアのスキャン</string>
     <string name="test_fontsize">ABCDEF</string>
     <string name="toggle_turn_on">オン</string>
     <string name="toggle_turn_off">オフ</string>
@@ -99,5 +99,4 @@
     <string name="submenu_about">アプリについて</string>
     <string name="submenu_google_play">Google Playを表示</string>
     <string name="submenu_contact">お問い合わせ</string>
-	<string name="copyright">© 2013 DaisyBook Reader. All Rights Reserved.\n© 2014-2019 naofum</string>
 </resources>

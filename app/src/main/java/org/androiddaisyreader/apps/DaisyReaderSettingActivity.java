@@ -266,7 +266,8 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
     private void settingStorageRoot() {
         final TextView storage = (TextView) findViewById(R.id.textView10);
         Constants.folderRoot = mPreferences.getString(Constants.STORAGE_ROOT, Environment.getExternalStorageDirectory().getAbsolutePath());
-        Constants.folderContainMetadata = Constants.folderRoot + "/" + Constants.FOLDER_NAME + "/";
+//        Constants.folderContainMetadata = Constants.folderRoot + "/" + Constants.FOLDER_NAME + "/";
+        Constants.folderContainMetadata = getFilesDir().getAbsolutePath() + "/";
         final TextView description = (TextView) findViewById(R.id.textView11);
         description.setText(Constants.folderRoot);
         storage.setOnClickListener(new OnClickListener() {
@@ -301,8 +302,10 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
     @Override
     protected void onDestroy() {
         try {
-            mTts.stop();
-            mTts.shutdown();
+            if (mTts != null) {
+                mTts.stop();
+            }
+//            mTts.shutdown();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyReaderSettingActivity.this);
             ex.writeLogException();
@@ -320,7 +323,8 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
                 mEditor.commit();
                 Constants.folderRoot = data
                         .getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
-                Constants.folderContainMetadata = Constants.folderRoot + "/" + Constants.FOLDER_NAME + "/";
+//                Constants.folderContainMetadata = Constants.folderRoot + "/" + Constants.FOLDER_NAME + "/";
+                Constants.folderContainMetadata = getFilesDir().getAbsolutePath() + "/";
                 final TextView description = (TextView) findViewById(R.id.textView11);
                 description.setText(Constants.folderRoot);
             } else {

@@ -13,12 +13,14 @@ import org.androiddaisyreader.model.CurrentInformation;
 import org.androiddaisyreader.model.DaisyBook;
 import org.androiddaisyreader.model.DaisySection;
 import org.androiddaisyreader.model.NccSpecification;
+import org.androiddaisyreader.model.Opf31Specification;
 import org.androiddaisyreader.model.OpfSpecification;
-import org.androiddaisyreader.model.OpfSpecification3;
 import org.androiddaisyreader.model.Part;
 import org.androiddaisyreader.model.Section;
+import org.androiddaisyreader.model.SimpleBookContext;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
+
 import android.content.Context;
 
 public class DaisyEbookReaderBaseMode {
@@ -32,7 +34,7 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Open Daisy book with format 2.02.
-     * 
+     *
      * @throws PrivateException
      */
     public DaisyBook openBook202() throws PrivateException {
@@ -58,7 +60,7 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Open Daisy book with format 3.0.
-     * 
+     *
      * @throws PrivateException
      */
     public DaisyBook openBook30() throws PrivateException {
@@ -70,8 +72,10 @@ public class DaisyEbookReaderBaseMode {
             BookContext bookContext = getBookContext(path);
             contents = bookContext.getResource(opfName);
             DaisyBook book = null;
-            if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
-                book = OpfSpecification3.readFromStream(contents, bookContext);
+            if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == Constants.EPUB3_FORMAT) {
+                book = Opf31Specification.readFromStream(contents, bookContext);
+            } else if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                book = Opf31Specification.readFromStream(contents, bookContext);
             } else {
                 book = OpfSpecification.readFromStream(contents, bookContext);
             }
@@ -92,14 +96,14 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Gets the book context.
-     * 
+     *
      * @param path the path of the book
      * @return the book context
      * @throws PrivateException
      */
     public BookContext getBookContext(String path) throws PrivateException {
         try {
-            return DaisyBookUtil.openBook(path);
+            return DaisyBookUtil.openBook(path, mContext.getApplicationContext());
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext, path);
             throw ex;
@@ -109,7 +113,7 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Read from stream.
-     * 
+     *
      * @param contents the contents
      * @return the daisy book
      * @throws PrivateException
@@ -125,13 +129,13 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Gets the path exactly daisy30.
-     * 
+     *
      * @param path the path
      * @return the path exactly daisy30
      */
     public String getPathExactlyDaisy30(String path) {
         String result = null;
-        if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+        if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME) || path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
             result = path;
         } else {
             result = path + File.separator + DaisyBookUtil.getOpfFileName(path);
@@ -141,9 +145,9 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Gets the parts from section.
-     * 
-     * @param section the current section
-     * @param path the path of the book
+     *
+     * @param section     the current section
+     * @param path        the path of the book
      * @param isFormat202 true if books' format is Daisy 2.02.
      * @return the parts from section
      * @throws PrivateException
@@ -155,11 +159,15 @@ public class DaisyEbookReaderBaseMode {
         }
         Part[] parts = null;
         DaisySection currentSection = null;
-        BookContext bookContext = null;
+        BookContext bookContext = null; // 20240924
+//        BookContext bookContext = section.getBookContext();
         try {
-            bookContext = getBookContext(path);
+            if (bookContext == null) {
+                bookContext = getBookContext(path);
+            }
             currentSection = new DaisySection.Builder().setHref(section.getHref())
                     .setContext(bookContext).build();
+            //TODO check
             parts = currentSection.getParts(isFormat202, path);
             return parts;
         } catch (PrivateException e) {
@@ -170,22 +178,25 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Gets the parts from section daisy30.
-     * 
-     * @param section the current section
-     * @param path the path of the book
-     * @param isFormat30 true if books' format is Daisy3.0
-     * @param listId the list id in file opf of daisy format 3.0
+     *
+     * @param section         the current section
+     * @param path            the path of the book
+     * @param isFormat202     true if books' format is Daisy2.02
+     * @param listId          the list id in file opf of daisy format 3.0
      * @param positionSection the position section
      * @return the parts from section daisy30
      * @throws PrivateException the private exception
      */
-    public Part[] getPartsFromSectionDaisy30(Section section, String path, boolean isFormat30,
-            List<String> listId, int positionSection) throws PrivateException {
+    public Part[] getPartsFromSectionDaisy30(Section section, String path, boolean isFormat202,
+                                             List<String> listId, int positionSection, BookContext bookContext) throws PrivateException {
         Part[] parts = null;
         boolean isCurrentPart = false;
         try {
-            Part[] tempParts = getPartsFromSection(section, path, isFormat30);
-            if (path.endsWith("epub")) {
+            //TODO check
+            Part[] tempParts = getPartsFromSection(section, path, isFormat202);
+            if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == 31) {
+                return tempParts;
+            } else if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
                 return tempParts;
             }
             List<Part> listPart = new ArrayList<Part>();
@@ -221,7 +232,9 @@ public class DaisyEbookReaderBaseMode {
 
     private String getOpfFileName(String path) {
         String result = null;
-        if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+        if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            result = DaisyBookUtil.getOpfFileNameInZipFolder(path, mContext.getApplicationContext());
+        } else if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
             result = DaisyBookUtil.getOpfFileNameInZipFolder(path);
         } else {
             result = DaisyBookUtil.getOpfFileName(path);
@@ -231,16 +244,16 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Creates the current information.
-     * 
+     *
      * @param audioName the name of audio
-     * @param activity the name of activity which call this function
-     * @param section the current section of book
-     * @param time the current time of audio
+     * @param activity  the name of activity which call this function
+     * @param section   the current section of book
+     * @param time      the current time of audio
      * @param isPlaying the status of audio
      * @return the current information
      */
     public CurrentInformation createCurrentInformation(String audioName, String activity,
-            int section, int time, boolean isPlaying) {
+                                                       int section, int time, boolean isPlaying) {
         // create a current information
         CurrentInformation current = new CurrentInformation();
         try {
@@ -264,19 +277,19 @@ public class DaisyEbookReaderBaseMode {
 
     /**
      * Update current information.
-     * 
-     * @param current the current information
+     *
+     * @param current   the current information
      * @param audioName the name of audio
-     * @param activity the name of activity which call this function
-     * @param section the current section of book
-     * @param sentence the current sentence of book
-     * @param time the current time of audio
+     * @param activity  the name of activity which call this function
+     * @param section   the current section of book
+     * @param sentence  the current sentence of book
+     * @param time      the current time of audio
      * @param isPlaying the status of audio
      * @return the current information updated
      */
     public CurrentInformation updateCurrentInformation(CurrentInformation current,
-            String audioName, String activity, int section, int sentence, int time,
-            boolean isPlaying) {
+                                                       String audioName, String activity, int section, int sentence, int time,
+                                                       boolean isPlaying) {
         CurrentInformation newCurrentInfomation = current;
         try {
             newCurrentInfomation.setAudioName(audioName);

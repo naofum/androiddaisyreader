@@ -156,8 +156,12 @@ public class OpfSpecification extends DefaultHandler {
         }
         switch (meta) {
         case DATE:
-            Date date = Smil.parseDate(content, null);
-            bookBuilder.setDate(date);
+            try {
+                Date date = Smil.parseDate(content, null);
+                bookBuilder.setDate(date);
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
             break;
         case TITLE:
             bookBuilder.setTitle(content);
@@ -216,13 +220,12 @@ public class OpfSpecification extends DefaultHandler {
             throws IOException {
         String encoding = obtainEncodingStringFromInputStream(contents);
         encoding = mapUnsupportedEncoding(encoding);
-        return readFromStream(contents, encoding, bookContext);
+        return readFromStream(contents, bookContext, encoding);
 
     }
 
-    public static DaisyBook readFromStream(InputStream contents, String encoding,
-            BookContext bookContext) throws IOException {
-//        InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
+    public static DaisyBook readFromStream(InputStream contents,
+            BookContext bookContext, String encoding) throws IOException {
         OpfSpecification specification = new OpfSpecification(bookContext);
         try {
             XMLReader saxParser = Smil.getSaxParser();

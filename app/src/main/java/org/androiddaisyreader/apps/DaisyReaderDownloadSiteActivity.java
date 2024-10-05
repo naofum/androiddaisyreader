@@ -155,14 +155,14 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
 
     @Override
     protected void onDestroy() {
-        try {
-            if (mTts != null) {
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderDownloadSiteActivity.this);
-            ex.writeLogException();
-        }
+//        try {
+//            if (mTts != null) {
+//                mTts.shutdown();
+//            }
+//        } catch (Exception e) {
+//            PrivateException ex = new PrivateException(e, DaisyReaderDownloadSiteActivity.this);
+//            ex.writeLogException();
+//        }
         super.onDestroy();
     }
 

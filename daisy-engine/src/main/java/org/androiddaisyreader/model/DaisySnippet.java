@@ -8,10 +8,18 @@ import java.io.InputStream;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.NodeVisitor;
 
 public class DaisySnippet extends Snippet {
     private Document doc;
     private String id;
+    private boolean fin;
+    private boolean suppress;
+    private String imgSrc;
+    private BookContext bookContext;
+    private StringBuilder stringBuilder = new StringBuilder(500);
 
     // Prevent people from using the default constructor.
     @SuppressWarnings("unused")
@@ -53,6 +61,7 @@ public class DaisySnippet extends Snippet {
             throw new IllegalArgumentException("Programming error: context needs to be set");
         }
 
+        bookContext = context;
         String[] elements = parseCompositeReference(compositeReference);
         String uri = elements[0];
         this.id = elements[1];
@@ -99,9 +108,68 @@ public class DaisySnippet extends Snippet {
         return elements;
     }
 
+    /**
+     * Retrieve text from specified id to another id element
+     *
+     * @return string result
+     */
     @Override
     public String getText() {
-        return doc.getElementById(id).text();
+//    Element element = doc.getElementById(id);
+        Element element = doc.getElementById(id);
+        stringBuilder = new StringBuilder(500);
+        fin = false;
+        imgSrc = "";
+        while (!fin) {
+            element.traverse(new NodeVisitor() {
+                public void head(Node node, int depth) {
+                    if (fin || suppress) {
+                        //
+                    } else if (node instanceof TextNode) {
+                        if (!((TextNode) node).text().trim().isEmpty()) {
+                            if (stringBuilder.length() > 0) stringBuilder.append(" ");
+                            stringBuilder.append(((TextNode) node).text().trim());
+                        }
+                    } else if (node instanceof Element) {
+                        if (((Element) node).tag().equals("img")) {
+                            imgSrc = node.attr("src");
+                        }
+                        String tmpid = node.attr("id");
+                        if (!tmpid.isEmpty() && !tmpid.equals(id)) {
+                            fin = true;
+                        }
+                        if (((Element) node).tagName().equalsIgnoreCase("rb") || ((Element) node).tagName().equalsIgnoreCase("rp")) {
+                            suppress = true;
+                        }
+                    }
+                }
+
+                public void tail(Node node, int depth) {
+                    if (node instanceof Element) {
+                        if (((Element) node).tagName().equalsIgnoreCase("rb") || ((Element) node).tagName().equalsIgnoreCase("rp")) {
+                            suppress = false;
+                        }
+                    }
+                }
+            });
+            if (!fin) {
+                element = element.nextElementSibling();
+                if (element == null) {
+                    fin = true;
+                }
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Retrieve img src from specified id range
+     * img src available after call getText() method
+     *
+     * @return string result
+     */
+    public String getImgSrc() {
+        return imgSrc;
     }
 
     @Override

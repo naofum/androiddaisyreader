@@ -1,6 +1,8 @@
 package org.androiddaisyreader.apps;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +15,10 @@ import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -103,14 +108,14 @@ public class DaisyReaderRecentBooksActivity extends DaisyEbookReaderBaseActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            if (mTts != null) {
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderRecentBooksActivity.this);
-            ex.writeLogException();
-        }
+//        try {
+//            if (mTts != null) {
+//                mTts.shutdown();
+//            }
+//        } catch (Exception e) {
+//            PrivateException ex = new PrivateException(e, DaisyReaderRecentBooksActivity.this);
+//            ex.writeLogException();
+//        }
 
     }
 
@@ -135,17 +140,41 @@ public class DaisyReaderRecentBooksActivity extends DaisyEbookReaderBaseActivity
             // get all items from 0 to number of recent books
             for (int i = 0; i < mNumberOfRecentBooks; i++) {
                 DaisyBookInfo re = recentBooks.get(i);
-                File f = new File(re.getPath());
-                if (f.exists()) {
-                    daisyBookList.add(re);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    String path = re.getPath();
+                    ContentResolver resolver = getContentResolver();
+                    try (InputStream stream = resolver.openInputStream(Uri.parse(path))) {
+                        if (stream != null) {
+                            daisyBookList.add(re);
+                        }
+                    } catch (IOException e) {
+                        //
+                    }
+                } else {
+                    File f = new File(re.getPath());
+                    if (f.exists()) {
+                        daisyBookList.add(re);
+                    }
                 }
             }
         } else {
             for (int i = 0; i < sizeOfRecentBooks; i++) {
                 DaisyBookInfo re = recentBooks.get(i);
-                File f = new File(re.getPath());
-                if (f.exists()) {
-                    daisyBookList.add(re);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    String path = re.getPath();
+                    ContentResolver resolver = getContentResolver();
+                    try (InputStream stream = resolver.openInputStream(Uri.parse(path))) {
+                        if (stream != null) {
+                            daisyBookList.add(re);
+                        }
+                    } catch (IOException e) {
+                        //
+                    }
+                } else {
+                    File f = new File(re.getPath());
+                    if (f.exists()) {
+                        daisyBookList.add(re);
+                    }
                 }
             }
         }

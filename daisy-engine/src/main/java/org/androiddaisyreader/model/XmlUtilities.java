@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PushbackInputStream;
 import java.io.StringReader;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,7 @@ public final class XmlUtilities {
     protected static final String XML_TRAILER = "\"?>";
     protected static final String EXTRACT_ENCODING_REGEX = ".*encoding=\"";
     protected static final String XML_FIRST_LINE_REGEX = "<\\?xml version=\"1\\.0\" encoding=\"(.*)\"?>";
+    protected static final int FIRST_LINE_SIZE = 45;
 
     // Hide the constructor for this utility class.
     private XmlUtilities() {
@@ -110,6 +112,48 @@ public final class XmlUtilities {
         return er;
     }
 
+    /**
+     * Replace xml first line encoding string 'shift_jis' to 'utf-8'
+     * Android default SAX parser not support shift_jis encoding
+     *
+     * @return inputStream
+     */
+    public static InputStream replaceXmlEncodingString(InputStream bis) throws IOException {
+        byte[] line = new byte[FIRST_LINE_SIZE];
+        PushbackInputStream pushbackStream = new PushbackInputStream(bis, FIRST_LINE_SIZE);
+        if (!bis.markSupported()) {
+            throw new IllegalArgumentException(
+                    "Error in the program, InputStream needs to support markSupported()");
+        }
+        int n = pushbackStream.read(line, 0, line.length);
+        if (n > 41) {
+            for (int i = 31; i < 35; i++) {
+                if (line[i] == 'h' && line[i + 1] == 'i' && line[i + 2] == 'f' && line[i + 3] == 't') {
+                    line[i - 1] = 'u';
+                    line[i] = 't';
+                    line[i + 1] = 'f';
+                    line[i + 2] = '-';
+                    line[i + 3] = '8';
+                    line[i + 4] = line[i - 2];
+                    line[i + 5] = ' ';
+                    line[i + 6] = ' ';
+                    line[i + 7] = ' ';
+                    line[i + 8] = ' ';
+                    break;
+                }
+            }
+        }
+        pushbackStream.unread(line);
+        return pushbackStream;
+    }
+
+    /**
+     * Convert xml encoding
+     * Android default SAX parser not support shift_jis encoding
+     *
+     * @return inputStream
+     */
+    @Deprecated
     public static InputStream convertEncoding(InputStream contents, String encoding)
             throws IOException {
         StringBuilder sb = new StringBuilder();

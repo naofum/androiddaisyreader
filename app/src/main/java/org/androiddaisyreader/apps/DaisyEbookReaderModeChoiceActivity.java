@@ -120,14 +120,14 @@ public class DaisyEbookReaderModeChoiceActivity extends DaisyEbookReaderBaseActi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            if (mTts != null) {
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyEbookReaderModeChoiceActivity.this);
-            ex.writeLogException();
-        }
+//        try {
+//            if (mTts != null) {
+//                mTts.shutdown();
+//            }
+//        } catch (Exception e) {
+//            PrivateException ex = new PrivateException(e, DaisyEbookReaderModeChoiceActivity.this);
+//            ex.writeLogException();
+//        }
     }
 
     @Override

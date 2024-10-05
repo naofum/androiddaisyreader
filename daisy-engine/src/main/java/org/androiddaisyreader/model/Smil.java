@@ -50,6 +50,19 @@ public class Smil {
     }
 
     /**
+     * Gets the input source.
+     *
+     * @param contents the contents
+     * @param encoding the encoding
+     * @return the input source
+     */
+    public static InputSource getInputSource(InputStream contents, String encoding) {
+        InputSource input = new InputSource(contents);
+        input.setEncoding(encoding);
+        return input;
+    }
+
+    /**
      * Gets the XMLReader.
      * 
      * @return XMLReader

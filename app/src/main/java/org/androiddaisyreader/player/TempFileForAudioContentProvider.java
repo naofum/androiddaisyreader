@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.androiddaisyreader.player;
 
@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
 import org.androiddaisyreader.model.BookContext;
 import org.androiddaisyreader.utils.Constants;
 import org.apache.commons.io.IOUtils;
@@ -15,10 +16,10 @@ import android.os.StatFs;
 
 /**
  * Helper class to provide the audio contents on Android.
- * 
+ *
  * This capability is needed as the MediaPlayer does not accept input streams,
  * essentially it expects to work with files.
- * 
+ *
  * @author Julian Harty
  */
 public class TempFileForAudioContentProvider {
@@ -30,16 +31,16 @@ public class TempFileForAudioContentProvider {
 
     /**
      * Is the original content contained in a zip file?
-     * 
+     *
      * @return true if it is, else false.
      */
     boolean doesContentNeedUnzipping() {
-        return context.getBaseUri().endsWith(".zip") || context.getBaseUri().endsWith(".epub");
+        return context.getBaseUri().startsWith(Constants.PREFIX_CONTENT_SCHEME) || context.getBaseUri().endsWith(Constants.SUFFIX_ZIP_FILE) || context.getBaseUri().endsWith(Constants.SUFFIX_EPUB_FILE);
     }
 
     /**
      * OK the name may be over precise, however it serves my purpose for now :)
-     * 
+     *
      * @param sourceFilename the name of the source file
      * @return a file handle to the
      * @throws IOException

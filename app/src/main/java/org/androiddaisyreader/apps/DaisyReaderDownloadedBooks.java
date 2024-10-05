@@ -1,6 +1,8 @@
 package org.androiddaisyreader.apps;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,13 +10,13 @@ import org.androiddaisyreader.adapter.DaisyBookAdapter;
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
 import org.androiddaisyreader.model.DaisyBookInfo;
 import org.androiddaisyreader.player.IntentController;
-import org.androiddaisyreader.service.DaisyEbookReaderService;
 import org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
-import android.content.Intent;
+import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -25,6 +27,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.github.naofum.androiddaisyreader.R;
 
@@ -41,6 +45,9 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
     private DaisyBookAdapter mDaisyBookAdapter;
     private EditText mTextSearch;
     private int mNumberOfRecentBooks;
+
+    private LocalBroadcastManager broadcastManager;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +73,9 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
         deleteCurrentInformation();
         mListDaisyBookOriginal = new ArrayList<DaisyBookInfo>(mlistDaisyBook);
         // start service application when download completed
-        Intent serviceIntent = new Intent(DaisyReaderDownloadedBooks.this,
-                DaisyEbookReaderService.class);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(DaisyReaderDownloadedBooks.this,
+//                DaisyEbookReaderService.class);
+//        startService(serviceIntent);
     }
 
     @Override
@@ -94,9 +101,20 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
         ArrayList<DaisyBookInfo> actualDownloadedBooks = new ArrayList<DaisyBookInfo>();
         List<DaisyBookInfo> listBooks = mSql.getAllDaisyBook(Constants.TYPE_DOWNLOADED_BOOK);
         for (DaisyBookInfo book : listBooks) {
-            File file = new File(book.getPath());
-            if (file.exists()) {
-                actualDownloadedBooks.add(book);
+            String path = book.getPath();
+            if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                try (InputStream stream = getContentResolver().openInputStream(Uri.parse(path))) {
+                    if (stream != null) {
+                        actualDownloadedBooks.add(book);
+                    }
+                } catch (Exception e) {
+                    //
+                }
+            } else {
+                File file = new File(book.getPath());
+                if (file.exists()) {
+                    actualDownloadedBooks.add(book);
+                }
             }
         }
         return actualDownloadedBooks;
@@ -162,14 +180,14 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
 
     @Override
     protected void onDestroy() {
-        try {
-            if (mTts != null) {
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderDownloadedBooks.this);
-            ex.writeLogException();
-        }
+//        try {
+//            if (mTts != null) {
+//                mTts.shutdown();
+//            }
+//        } catch (Exception e) {
+//            PrivateException ex = new PrivateException(e, DaisyReaderDownloadedBooks.this);
+//            ex.writeLogException();
+//        }
         super.onDestroy();
     }
 }

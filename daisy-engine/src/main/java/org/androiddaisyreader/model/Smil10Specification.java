@@ -2,13 +2,16 @@ package org.androiddaisyreader.model;
 
 import static org.androiddaisyreader.model.XmlUtilities.*;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.input.ReaderInputStream;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.xml.sax.Attributes;
@@ -58,30 +61,27 @@ public class Smil10Specification extends DefaultHandler {
      * @return The parts discovered in the contents.
      */
     public static Part[] getParts(BookContext context, InputStream contents) {
-        // for Shift_JIS support
-        InputStream contents2 = contents;
+        String encoding = "utf-8";
         try {
-            if (contents != null) {
-                String encoding = obtainEncodingStringFromInputStream(contents);
-                contents2 = XmlUtilities.convertEncoding(contents, encoding);
+            encoding = obtainEncodingStringFromInputStream(contents);
+            encoding = mapUnsupportedEncoding(encoding);
+            if (encoding.equals("shift_jis")) {
+                contents = XmlUtilities.replaceXmlEncodingString(contents);
+                contents = new BufferedInputStream(new ReaderInputStream(new InputStreamReader(contents, encoding), "utf-8"));
+                encoding = "utf-8";
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-//            try {
-//                if (contents != null) {
-//                    contents.close();
-//                }
-//            } catch (IOException e) {
-//                //
-//            }
         }
+        return getParts(context, contents, encoding);
+    }
 
+    public static Part[] getParts(BookContext context, InputStream contents, String encoding) {
         Smil10Specification smil = new Smil10Specification(context);
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(smil);
-            saxParser.parse(Smil.getInputSource(contents2));
+            saxParser.parse(Smil.getInputSource(contents));
 //            contents.close();
         } catch (SAXException e) {
             throw new RuntimeException(e);
@@ -95,13 +95,6 @@ public class Smil10Specification extends DefaultHandler {
             } catch (IOException e) {
                 //
             }
-//            try {
-//                if (contents2 != null) {
-//                    contents2.close();
-//                }
-//            } catch (IOException e) {
-//                //
-//            }
         }
         return smil.getParts();
     }

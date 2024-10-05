@@ -31,4 +31,8 @@ public class Section implements Navigable {
     public List<Navigable> getChildren() {
         return Collections.unmodifiableList(navigables);
     }
+
+    public BookContext getBookContext() {
+        return bookContext;
+    }
 }

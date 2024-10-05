@@ -1,44 +1,48 @@
-apply plugin: 'com.android.application'
-//apply plugin: 'com.google.gms.google-services'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+}
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    namespace 'com.github.naofum.androiddaisyreader'
+    compileSdk 35
+
     defaultConfig {
-        applicationId 'com.github.naofum.androiddaisyreader'
-        minSdkVersion 14
-        targetSdkVersion 28
-        multiDexEnabled true
-        versionCode 14
-        versionName "1.14"
+        applicationId "com.github.naofum.androiddaisyreader"
+        minSdk 21
+        targetSdk 35
+        versionCode 15
+        versionName "1.15"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    productFlavors {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        mavenCentral()
-        google()
-        maven { url 'http://guardian.github.com/maven/repo-releases' }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:25.1-android'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     implementation project(':daisy-engine')
-    implementation 'net.rdrei.android.dirchooser:library:3.2@aar'
-    implementation 'com.gu:option:1.3'
-    implementation 'commons-io:commons-io:2.6'
-//    implementation 'com.google.firebase:firebase-core:16.0.0'
+    implementation libs.library
+    implementation libs.option
+    implementation 'commons-io:commons-io:2.7' // for old Android
+    implementation 'org.apache.commons:commons-lang3:3.9' // for old Android
+    implementation libs.androidx.work.runtime
+    implementation libs.androidx.core
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }

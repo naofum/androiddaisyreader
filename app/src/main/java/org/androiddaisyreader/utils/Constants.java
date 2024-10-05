@@ -6,8 +6,6 @@
 
 package org.androiddaisyreader.utils;
 
-import android.os.Environment;
-
 /**
  * The Class Constants.
  */
@@ -98,6 +96,8 @@ public class Constants {
     public static final String SUFFIX_ZIP_FILE = ".zip";
     /** The suffix of epub file */
     public static final String SUFFIX_EPUB_FILE = ".epub";
+    /** The prefix of content */
+    public static final String PREFIX_CONTENT_SCHEME = "content:";
     /**
      * This key will help you to get value of link website from
      * SharedPreferences
@@ -126,6 +126,8 @@ public class Constants {
     public static final int DAISY_202_FORMAT = 2;
     /** The Constant DAISY_30_FORMAT. */
     public static final int DAISY_30_FORMAT = 3;
+    /** The Constant DAISY_30_FORMAT. */
+    public static final int EPUB3_FORMAT = 31;
 
     /** Id item menu of sub menu */
     public static final int SUBMENU_MENU = 1;

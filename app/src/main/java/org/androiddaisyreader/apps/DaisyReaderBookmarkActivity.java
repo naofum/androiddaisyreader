@@ -159,9 +159,9 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
             try {
                 DaisyBook daisyBook;
                 if (isFormat202) {
-                    daisyBook = DaisyBookUtil.getDaisy202Book(mPath);
+                    daisyBook = DaisyBookUtil.getDaisy202Book(mPath, getApplicationContext());
                 } else {
-                    daisyBook = DaisyBookUtil.getDaisy30Book(mPath);
+                    daisyBook = DaisyBookUtil.getDaisy30Book(mPath, getApplicationContext());
                 }
                 navigator = new Navigator(daisyBook);
                 mIntentController.pushToTableOfContentsIntent(mPath, navigator,
@@ -245,15 +245,15 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
 
     @Override
     protected void onDestroy() {
-        try {
-            if (mTts != null) {
-                mTts.stop();
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderBookmarkActivity.this);
-            ex.writeLogException();
-        }
+//        try {
+//            if (mTts != null) {
+//                mTts.stop();
+//                mTts.shutdown();
+//            }
+//        } catch (Exception e) {
+//            PrivateException ex = new PrivateException(e, DaisyReaderBookmarkActivity.this);
+//            ex.writeLogException();
+//        }
         super.onDestroy();
     }
 

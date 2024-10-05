@@ -111,8 +111,10 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
     @Override
     protected void onDestroy() {
         try {
-            mTts.stop();
-            mTts.shutdown();
+            if (mTts != null) {
+                mTts.stop();
+            }
+//            mTts.shutdown();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyReaderScanBooksActivity.this);
             ex.writeLogException();

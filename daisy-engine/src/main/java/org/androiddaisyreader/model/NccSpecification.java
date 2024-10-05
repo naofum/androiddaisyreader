@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.androiddaisyreader.model.DaisySection.Builder;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -277,40 +278,40 @@ public class NccSpecification extends DefaultHandler {
         InputStream contents = new BufferedInputStream(new FileInputStream(file));
         String encoding = obtainEncodingStringFromInputStream(contents);
         encoding = mapUnsupportedEncoding(encoding);
+        if (encoding.equalsIgnoreCase("shift_jis")) {
+            contents = XmlUtilities.replaceXmlEncodingString(contents);
+            contents = new BufferedInputStream(new ReaderInputStream(new InputStreamReader(contents, encoding), "utf-8"));
+            encoding = "utf-8";
+        }
         return readFromStream(contents, encoding);
     }
 
     public static DaisyBook readFromStream(InputStream contents) throws IOException {
         String encoding = obtainEncodingStringFromInputStream(contents);
         encoding = mapUnsupportedEncoding(encoding);
+        if (encoding.equalsIgnoreCase("shift_jis")) {
+            contents = XmlUtilities.replaceXmlEncodingString(contents);
+            contents = new BufferedInputStream(new ReaderInputStream(new InputStreamReader(contents, encoding), "utf-8"));
+            encoding = "utf-8";
+        }
         return readFromStream(contents, encoding);
 
     }
 
     public static DaisyBook readFromStream(InputStream contents, String encoding)
             throws IOException {
-        InputStream contents2 = null;
-
         NccSpecification specification = new NccSpecification();
         try {
-            contents2 = XmlUtilities.convertEncoding(contents, encoding);
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);
-            saxParser.parse(Smil.getInputSource(contents2));
+            saxParser.parse(Smil.getInputSource(contents));
 
         } catch (Exception e) {
             throw new IOException("Couldn't parse the ncc.html contents.", e);
         } finally {
-//            try {
-//                if (contents != null) {
-//                    contents.close();
-//                }
-//            } catch (IOException e) {
-//                //
-//            }
             try {
-                if (contents2 != null) {
-                    contents2.close();
+                if (contents != null) {
+                    contents.close();
                 }
             } catch (IOException e) {
                 //

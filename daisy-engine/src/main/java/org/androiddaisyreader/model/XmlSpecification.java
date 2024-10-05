@@ -3,13 +3,16 @@ package org.androiddaisyreader.model;
 import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
 import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.input.ReaderInputStream;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -174,19 +177,22 @@ public class XmlSpecification extends DefaultHandler {
     public static List<XmlModel> readFromStream(InputStream contents) throws IOException {
         String encoding = obtainEncodingStringFromInputStream(contents);
         encoding = mapUnsupportedEncoding(encoding);
+        if (encoding.equalsIgnoreCase("shift_jis")) {
+            contents = XmlUtilities.replaceXmlEncodingString(contents);
+            contents = new BufferedInputStream(new ReaderInputStream(new InputStreamReader(contents, encoding), "utf-8"));
+            encoding = "utf-8";
+        }
         return readFromStream(contents, encoding);
 
     }
 
     public static List<XmlModel> readFromStream(InputStream contents, String encoding)
             throws IOException {
-        InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
-
         XmlSpecification specification = new XmlSpecification();
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);
-            saxParser.parse(Smil.getInputSource(contents2));
+            saxParser.parse(Smil.getInputSource(contents));
 //            contents.close();
 
         } catch (Exception e) {
@@ -195,13 +201,6 @@ public class XmlSpecification extends DefaultHandler {
             try {
                 if (contents != null) {
                     contents.close();
-                }
-            } catch (IOException e) {
-                //
-            }
-            try {
-                if (contents2 != null) {
-                    contents2.close();
                 }
             } catch (IOException e) {
                 //

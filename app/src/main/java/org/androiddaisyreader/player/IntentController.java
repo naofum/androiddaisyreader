@@ -151,7 +151,7 @@ public class IntentController {
     @SuppressWarnings("deprecation")
     public void pushToDialog(String message, String title, int resId, final boolean isBack,
             boolean isSpeak, TextToSpeech tts) {
-        AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
         // Setting Dialog Title
         alertDialog.setTitle(title);
         // Setting Dialog Message
@@ -159,7 +159,7 @@ public class IntentController {
         // Setting Icon to Dialog
         alertDialog.setIcon(resId);
         // Setting OK Button
-        alertDialog.setButton(mContext.getString(R.string.ok),
+        alertDialog.setPositiveButton(mContext.getString(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -174,7 +174,8 @@ public class IntentController {
             tts.speak(message, TextToSpeech.QUEUE_FLUSH, null);
         }
         // Showing Alert Message
-        alertDialog.show();
+        AlertDialog alert = alertDialog.create();
+        alert.show();
     }
 
     /**

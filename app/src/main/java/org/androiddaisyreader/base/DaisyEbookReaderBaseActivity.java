@@ -24,13 +24,13 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.System;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 //import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -42,7 +42,7 @@ import android.support.v7.app.AppCompatActivity;
 
 public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements OnClickListener,
         TextToSpeech.OnInitListener {
-    protected TextToSpeech mTts;
+    protected static TextToSpeech mTts;
     private static final long DOUBLE_PRESS_INTERVAL = 1000;
     private static final long DELAY_MILLIS = 500;
     private static long lastPressTime;
@@ -81,8 +81,9 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
                 .getDefaultSharedPreferences(getApplicationContext());
         Constants.folderRoot = mPreferences.getString(Constants.STORAGE_ROOT,
                 Environment.getExternalStorageDirectory().getAbsolutePath());
-        Constants.folderContainMetadata = Constants.folderRoot
-                + "/" + Constants.FOLDER_NAME + "/";
+//        Constants.folderContainMetadata = Constants.folderRoot
+//                + "/" + Constants.FOLDER_NAME + "/";
+        Constants.folderContainMetadata = getFilesDir().getAbsolutePath() + "/";
     }
 
     @Override
@@ -103,8 +104,10 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
             window.setAttributes(layoutpars);
             Constants.folderRoot = mPreferences.getString(Constants.STORAGE_ROOT,
                     Environment.getExternalStorageDirectory().getAbsolutePath());
-            Constants.folderContainMetadata = Constants.folderRoot
-                    + "/" + Constants.FOLDER_NAME + "/";
+//            Constants.folderContainMetadata = Constants.folderRoot
+//                    + "/" + Constants.FOLDER_NAME + "/";
+            Constants.folderContainMetadata = getFilesDir().getAbsolutePath() + "/";
+            startTts();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, getApplicationContext());
             ex.writeLogException();
@@ -113,18 +116,18 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
 
     @Override
     protected void onDestroy() {
+//        try {
+//            if (mTts != null) {
+//                if (mTts.isSpeaking()) {
+//                    mTts.stop();
+//                }
+//                mTts.shutdown();
+//            }
+//        } catch (Exception e) {
+//            PrivateException ex = new PrivateException(e, DaisyEbookReaderBaseActivity.this);
+//            ex.writeLogException();
+//        }
         super.onDestroy();
-        try {
-            if (mTts != null) {
-                if (mTts.isSpeaking()) {
-                    mTts.stop();
-                }
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyEbookReaderBaseActivity.this);
-            ex.writeLogException();
-        }
     }
 
     /**

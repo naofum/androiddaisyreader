@@ -8,30 +8,29 @@ import java.io.OutputStream;
 
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
 import org.androiddaisyreader.player.IntentController;
-import org.androiddaisyreader.receiver.DaisyEbookReaderReceiver;
-import org.androiddaisyreader.service.DaisyEbookReaderService;
 import org.androiddaisyreader.utils.Constants;
+import org.androiddaisyreader.worker.DaisyEbookReaderWorker;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.github.naofum.androiddaisyreader.R;
 
@@ -51,6 +50,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
 
     private LocalBroadcastManager broadcastManager;
     private BroadcastReceiver broadcastReceiver;
+    private WorkManager workManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,19 +71,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         // set title of this screen
         getSupportActionBar().setTitle(R.string.title_activity_daisy_reader_library);
-        Intent serviceIntent = new Intent(DaisyReaderLibraryActivity.this,
-                DaisyEbookReaderService.class);
-        if (Build.VERSION.SDK_INT >= 26) { // Build.VERSION_CODES.O
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
-        }
 
-        broadcastManager = LocalBroadcastManager.getInstance(getApplication());
-        broadcastReceiver = new DaisyEbookReaderReceiver();
-        broadcastManager.registerReceiver(broadcastReceiver, new IntentFilter("android.intent.action.MEDIA_SCANNER_FINISHED"));
-        broadcastManager.registerReceiver(broadcastReceiver, new IntentFilter("android.intent.action.MEDIA_SCANNER_STARTED"));
-        broadcastManager.registerReceiver(broadcastReceiver, new IntentFilter("android.intent.action.MEDIA_SCANNER_SCAN_FILE"));
+        workManager = WorkManager.getInstance(getApplication());
+        workManager.enqueue(OneTimeWorkRequest.from(DaisyEbookReaderWorker.class));
 
     }
 
@@ -253,21 +243,17 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
      */
     private void pushToScreen(int activityID) {
         Intent intent = null;
-        switch (activityID) {
         // push to Recent Books Screen.
-        case R.id.btnRecentBooks:
+        if (activityID == R.id.btnRecentBooks) {
             intent = new Intent(this, DaisyReaderRecentBooksActivity.class);
-            break;
-        // push to Scan Books Screen.
-        case R.id.btnScanBooks:
+            // push to Scan Books Screen.
+        } else if (activityID == R.id.btnScanBooks) {
             intent = new Intent(this, DaisyReaderScanBooksActivity.class);
-            break;
-        // push to Download Books Screen.
-        case R.id.btnDownloadBooks:
+            // push to Download Books Screen.
+        } else if (activityID == R.id.btnDownloadBooks) {
             intent = new Intent(this, DaisyReaderDownloadSiteActivity.class);
-            break;
-        default:
-            break;
+        } else {
+            return;
         }
         this.startActivity(intent);
     }
@@ -280,14 +266,15 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         // do not allow user press button many times at the same time.
         if (SystemClock.elapsedRealtime() - mLastPressTime < Constants.TIME_WAIT_TO_EXIT_APPLICATION
                 && mIsExit) {
             moveTaskToBack(true);
             mIsExit = false;
-            Intent serviceIntent = new Intent(DaisyReaderLibraryActivity.this,
-                    DaisyEbookReaderService.class);
-            stopService(serviceIntent);
+//            Intent serviceIntent = new Intent(DaisyReaderLibraryActivity.this,
+//                    DaisyEbookReaderService.class);
+//            stopService(serviceIntent);
         } else {
             Toast.makeText(DaisyReaderLibraryActivity.this,
                     this.getString(R.string.message_exit_application), Toast.LENGTH_SHORT).show();
@@ -310,7 +297,6 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         try {
             if (mTts != null) {
                 if (mTts.isSpeaking()) {
@@ -322,6 +308,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
             PrivateException ex = new PrivateException(e, DaisyReaderLibraryActivity.this);
             ex.writeLogException();
         }
+        super.onDestroy();
 
         if (broadcastReceiver != null) {
             broadcastManager = LocalBroadcastManager.getInstance(getApplication());

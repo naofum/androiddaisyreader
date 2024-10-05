@@ -1,5 +1,6 @@
 package org.androiddaisyreader.model;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -31,18 +32,22 @@ public class DaisySection extends Section {
      * @param isDaisyFormat202 the is daisy format202 otherwise is daisy format
      * @return the parts
      */
-    public Part[] getParts(boolean isDaisyFormat202, String path) {
+    public Part[] getParts(boolean isDaisyFormat202, String bookPath) {
         try {
             if (isDaisyFormat202) {
                 return Smil10Specification.getParts(bookContext,
-                        bookContext.getResource(getSmilFilename()));
+                        new BufferedInputStream(bookContext.getResource(getSmilFilename())));
             } else {
-                if (path.endsWith("epub")) {
+                if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == 31) {
+                    //TODO check
                     return Smil31Specification.getParts(bookContext,
-                            bookContext.getResource(getSmilFilename()));
+                            new BufferedInputStream(bookContext.getResource(getSmilFilename())), getSmilFilename());
+                } else if (bookPath.endsWith("epub")) {
+                    return Smil31Specification.getParts(bookContext,
+                            new BufferedInputStream(bookContext.getResource(getSmilFilename())), getSmilFilename());
                 } else {
                     return Smil30Specification.getParts(bookContext,
-                            bookContext.getResource(getSmilFilename()));
+                            new BufferedInputStream(bookContext.getResource(getSmilFilename())));
                 }
             }
         } catch (IOException e) {
@@ -83,7 +88,7 @@ public class DaisySection extends Section {
      * @return true if the filename seems to represent a smil file, else false.
      */
     public boolean isSmilFilenameValid(String smilFilename) {
-        if (smilFilename.endsWith(".smil")) {
+        if (smilFilename.endsWith(".smil") || smilFilename.endsWith("html")) {
             return true;
         }
         return false;

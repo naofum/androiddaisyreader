@@ -128,10 +128,10 @@ public class DaisyReaderTableOfContentsActivity extends DaisyEbookReaderBaseActi
         try {
             try {
                 if (DaisyBookUtil.findDaisyFormat(mPath) == Constants.DAISY_202_FORMAT) {
-                    mBook = DaisyBookUtil.getDaisy202Book(mPath);
+                    mBook = DaisyBookUtil.getDaisy202Book(mPath, getApplicationContext());
                     titleOfBook = mBook.getTitle() == null ? "" : mBook.getTitle();
                 } else {
-                    mBook = DaisyBookUtil.getDaisy30Book(mPath);
+                    mBook = DaisyBookUtil.getDaisy30Book(mPath, getApplicationContext());
                     titleOfBook = mBook.getTitle() == null ? "" : mBook.getTitle();
                 }
             } catch (Exception e) {
@@ -155,8 +155,10 @@ public class DaisyReaderTableOfContentsActivity extends DaisyEbookReaderBaseActi
     @Override
     protected void onDestroy() {
         try {
-            mTts.stop();
-            mTts.shutdown();
+            if (mTts != null) {
+                mTts.stop();
+            }
+//            mTts.shutdown();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyReaderTableOfContentsActivity.this);
             ex.writeLogException();

@@ -118,15 +118,15 @@ public class AndroidAudioPlayer implements AudioPlayer, OnCompletionListener {
     public void seekTo(int newTimeInMilliseconds) {
         player.pause();
         player.seekTo(newTimeInMilliseconds);
-        try {
-            player.prepare();
-        } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            Log.e("TAG", e.getMessage(), e);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            Log.e("TAG", e.getMessage(), e);
-        }
+//        try {
+//            player.prepare();
+//        } catch (IllegalStateException e) {
+//            // TODO Auto-generated catch block
+//            Log.e("TAG", e.getMessage(), e);
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            Log.e("TAG", e.getMessage(), e);
+//        }
     }
 
     public void setCurrentSegment(Audio audioSegment) {

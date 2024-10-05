@@ -1,274 +1,246 @@
 <books type="1">
-	<website url="http://www.daisy.org/sample-content" name="DAISY コンソーシアム">
-		<book link="http://www.daisy.org/samples/202toc-only/light-man.zip">
+	<website url="https://daisy.org/info-help/document-archive/sample-files/" name="DAISY コンソーシアム">
+		<book link="https://dl.daisy.org/samples/202toc-only/light-man.zip">
 			<title>A Light Man (34.4 MB)</title>
 			<author>Henry James</author>
 			<publisher></publisher>
 			<date>June 2009</date>
 		</book>
-		<book link="http://www.daisy.org/samples/3full-text-full-audio/are-you-ready-z3986.zip">
-			<title>Are You Ready? (13 MB)</title>
-			<author>wikiHow</author>
-			<publisher></publisher>
-			<date>April 2009</date>
-		</book>
-		<book link="http://www.daisy.org/samples/202toc-only/mountains-skip.zip">
+		<book link="https://dl.daisy.org/samples/202toc-only/mountains_skip.zip">
 			<title>Climbing the Highest Mountain(1.85 MB)</title>
 			<author>Per Sennels</author>
 			<publisher></publisher>
 			<date>May 2003</date>
 		</book>
-		<book link="http://www.daisy.org/samples/3full-text-full-audio/1Brochure-DAISY-Consortium.zip">
+		<book link="https://dl.daisy.org/samples/3full-text-full-audio/1Brochure-DAISY-Consortium.zip">
 			<title>DAISY Brochure (7 MB)</title>
 			<author>DAISY Consortium</author>
 			<publisher></publisher>
 			<date>October 2009</date>
 		</book>
-		<book link="http://www.daisy.org/samples/202full-text-full-audio/fire-safety.zip">
+		<book link="https://dl.daisy.org/samples/202full-text-full-audio/fire-safety.zip">
 			<title>Fire Safety (9.67 MB)</title>
 			<author>Wendy Blaxland - Macmillan Education Aust Pty. Ltd.</author>
 			<publisher></publisher>
 			<date>December 2003</date>
 		</book>
-		<book link="http://www.daisy.org/samples/202full-text-full-audio/gon-ruby-mp3.zip">
+		<book link="https://dl.daisy.org/samples/202full-text-full-audio/gon-ruby-mp3.zip">
 			<title>Gongitsune (9.11 MB)</title>
 			<author>Iwanami Shoten</author>
 			<publisher></publisher>
 			<date>June 2009</date>
 		</book>
-		<book link="http://www.daisy.org/samples/202full-text-full-audio/frontpage-202-complete.zip">
+		<book link="https://dl.daisy.org/samples/202full-text-full-audio/frontpage-202-complete.zip">
 			<title>Microsoft FrontPage 2003 (575 MB)</title>
 			<author>Jim Byens - Microsoft Press</author>
 			<publisher></publisher>
 			<date>September 2005</date>
 		</book>
-		<book link="http://www.daisy.org/samples/dtbook-xml/great-painters-dtbook-2005-3.zip">
+		<book link="http://www.daisy.org/samples/3full-text-full-audio/are-you-ready-z3986.zip">
+			<title>WBU WIPO Copyright Treaty (draft) (28 KB)</title>
+			<author>WBU</author>
+			<publisher></publisher>
+			<date>October 2008</date>
+		</book>
+		<book link="https://dl.daisy.org/samples/3full-text-full-audio/are-you-ready-z3986.zip">
+			<title>Are You Ready? (13 MB)</title>
+			<author>wikiHow</author>
+			<publisher></publisher>
+			<date>April 2009</date>
+		</book>
+		<book link="https://dl.daisy.org/samples/dtbook-xml/great-painters-dtbook-2005-3.zip">
 			<title>Selections from Great Pictures, As Seen and Described by Famous Writers (584 KB)</title>
 			<author>Esther Singleton</author>
 			<publisher></publisher>
 			<date>February 2009</date>
 		</book>
-		<book link="http://www.daisy.org/samples/202full-text-full-audio/valentin-hauy.zip">
-			<title>Valentin Hauy (118 MB)</title>
+		<book link="https://dl.daisy.org/samples/epub/valentin-hauy.epub">
+			<title>Valentin Hauy (68.9 KB)</title>
 			<author>Beatrice Christensen Sköld</author>
 			<publisher></publisher>
-			<date>April 2003</date>
+			<date>February 2004</date>
 		</book>
 	</website>
-	<website url="http://www.htctu.net/demos" name="The High Tech Center Training Unit">
-		<book link="http://www.htctu.net/demos/daisy/AliceWonderland.zip">
-			<title>Alice in Wonderland (25 MB)</title>
-			<author></author>
-			<publisher></publisher>
-			<date></date>
-		</book>
-		<book link="http://www.htctu.net/demos/daisy/ChristmasStoriesDickens.zip">
-			<title>Christmas Stories by Charles Dickens (20 MB)</title>
-			<author></author>
-			<publisher></publisher>
-			<date></date>
-		</book>
-		<book link="http://www.htctu.net/demos/daisy/HoundBaskervilles.zip">
-			<title>Hound of the Baskervilles (50 MB)</title>
-			<author></author>
-			<publisher></publisher>
-			<date></date>
-		</book>
-	</website>
-	<website url="http://www.normanet.ne.jp/services/download/daisy.html" name="DAISY ファクトリー">
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/gonM.zip">
+	<website url="https://www.normanet.ne.jp/service/download/" name="DAISY ファクトリー">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/gonM.zip">
 			<title>ごんぎつね (15.2 MB)</title>
 			<author></author>
 			<publisher>独立行政法人　福祉医療機構　助成</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/pigs.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/pigs.zip">
 			<title>三匹の子ぶた (7.6 MB)</title>
 			<author></author>
 			<publisher>独立行政法人　福祉医療機構　助成</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/pigsE.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/pigsE.zip">
 			<title>The Story of the Three Little Pigs (8.3 MB)</title>
 			<author></author>
 			<publisher>独立行政法人　福祉医療機構　助成</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/match.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/match.zip">
 			<title>マッチ売りの少女 (8.8 MB)</title>
 			<author></author>
 			<publisher>独立行政法人　福祉医療機構　助成</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/matchPRR.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/matchPRR.zip">
 			<title>マッチ売りの少女（総ルビ） (8.8 MB)</title>
 			<author></author>
 			<publisher>独立行政法人　福祉医療機構　助成</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/matchE.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/matchE.zip">
 			<title>The Little Match Girl (8.8 MB)</title>
 			<author></author>
 			<publisher>独立行政法人　福祉医療機構　助成</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/genkiM2.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/genkiM2.zip">
 			<title>元気と幸せのおすそわけ (157 MB)</title>
 			<author></author>
 			<publisher>国立大学法人富山大学人間発達科学部森田研究室　森田信一氏　提供</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/Dog-aM.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/Dog-aM.zip">
 			<title>盲導犬の健康管理 (41.8 MB)</title>
 			<author></author>
 			<publisher>国立身体障害者リハビリテーションセンター研究所　水越美奈氏　提供</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/Dog-bM.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/Dog-bM.zip">
 			<title>ほじょけんのけんこうかんり (47.9 MB)</title>
 			<author></author>
 			<publisher>国立身体障害者リハビリテーションセンター研究所　水越美奈氏　提供</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/wdaisy.zip">
-			<title>DAISYってなんだろう？ (21 MB)</title>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/bokuwakunarration_sr.zip">
+			<title>僕の惑星日記</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/bcake.zip">
-			<title>バースデーケーキができたよ (4.3 MB)</title>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/01_tentokun/ten_japaneseP2.zip">
+			<title>てんとてん</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/hyaku.zip">
-			<title>百人一首 (20 MB)</title>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/02_nagasaki/nagasaki_japaneseM.zip">
+			<title>布のえほん「長崎の原爆」</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/jido.zip">
-			<title>児童の権利に関する条約 (40.8 MB)</title>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/03_turu/tsuruno_japaneseM.zip">
+			<title>つるのよめさま</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/OhayoOyasumi_JapaneseP.zip">
-			<title>布の絵本「おはよう　おやすみ」 (10.8 MB)</title>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/04_kasazizou/kasajizo_japaneseM.zip">
+			<title>かさじぞう</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Shirokuma_JapaneseP.zip">
-			<title>しろくまフロートくんのおねがい (18.7 MB)</title>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/05_hanasakazii/hanasakaji_japaneseM.zip">
+			<title>はなさかじい</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Kurokuma_JapaneseP.zip">
-			<title>くろくまくんとさけ (16.4 MB)</title>
-			<author></author>
-			<publisher></publisher>
-			<date></date>
-		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Nezumi_JapaneseP.zip">
-			<title>目黒区子ども条例のえほん「すごいよねずみくん」 (32.8 MB)</title>
-			<author></author>
-			<publisher></publisher>
-			<date></date>
-		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/rainbow/Carlos_JapaneseP.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/06_karurosu/Carlos_JapaneseP.zip">
 			<title>ええぞ、カルロス (14 MB)</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/nukada1.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/07_nezumikun/Nezumi_JapaneseP.zip">
+			<title>目黒区子ども条例のえほん「すごいよねずみくん」 (32.8 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/08_kurumakun/Kurokuma_JapaneseP.zip">
+			<title>くろくまくんとさけ (16.4 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/09_shirokuma/Shirokuma_JapaneseP.zip">
+			<title>しろくまフロートくんのおねがい (18.7 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/10_ohayou/OhayoOyasumi_JapaneseP.zip">
+			<title>布の絵本「おはよう　おやすみ」 (10.8 MB)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/nukada1.zip">
 			<title>額田のたっさい（標準語テキスト版） (10.9 MB)</title>
 			<author></author>
 			<publisher>茨城県立図書館</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.normanet.ne.jp/services/download/daisybook/nukada2.zip">
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/nukada1.zip">
 			<title>額田のたっさい（方言テキスト版） (11.1 MB)</title>
 			<author></author>
 			<publisher>茨城県立図書館</publisher>
 			<date></date>
 		</book>
 	</website>
-	<!-- website url="http://www.normanet.ne.jp/~atdo/download.html" name="特定非営利活動法人　支援技術開発機構">
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/tsunami_urakawa_jp.zip">
+	<website url="https://www.atdo.jp/76" name="特定非営利活動法人　支援技術開発機構">
+		<book link="https://www.atdo.jp/m/daisy/tsunami_urakawa_jp.zip">
 			<title>津波から身を守る (9.8 MB)</title>
 			<author></author>
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/en/UrakawaTsunami_EN_mp3.zip">
+		<book link="https://www.atdo.jp/m/daisy/UrakawaTsunami_EN_mp3.zip">
 			<title>How to protect yourself from a Tsunami (9.2 MB)</title>
 			<author></author>
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/mailin_mp3.zip">
+		<book link="https://www.atdo.jp/m/daisy/mailin_mp3.zip">
 			<title>DAISYと私　マイ・リン・ホルトの場合 (9 MB)</title>
 			<author></author>
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/wasurehendeP.zip">
+		<book link="https://www.atdo.jp/m/daisy/wasurehendeP.zip">
 			<title>１．１７忘れへんで　防災教育副読本（中学校編） (63.6 MB)</title>
 			<author></author>
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/kataruP.zip">
+		<book link="https://www.atdo.jp/m/daisy/katarup.zip">
 			<title>DAISYを語る (20.2 MB)</title>
 			<author></author>
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-	</website -->
-	<website url="https://atdo.website/download/" name="特定非営利活動法人　支援技術開発機構">
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/tsunami_urakawa_jp.zip">
-			<title>津波から身を守る (9.8 MB)</title>
-			<author></author>
-			<publisher>支援技術開発機構</publisher>
-			<date></date>
-		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/en/UrakawaTsunami_EN_mp3.zip">
-			<title>How to protect yourself from a Tsunami (9.2 MB)</title>
-			<author></author>
-			<publisher>支援技術開発機構</publisher>
-			<date></date>
-		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/mailin_mp3.zip">
-			<title>DAISYと私　マイ・リン・ホルトの場合 (9 MB)</title>
-			<author></author>
-			<publisher>支援技術開発機構</publisher>
-			<date></date>
-		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/wasurehendeP.zip">
-			<title>１．１７忘れへんで　防災教育副読本（中学校編） (63.6 MB)</title>
-			<author></author>
-			<publisher>支援技術開発機構</publisher>
-			<date></date>
-		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/kataruP.zip">
+		<book link="https://www.atdo.jp/m/daisy/katarup.zip">
 			<title>DAISYを語る (20.2 MB)</title>
 			<author></author>
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/2012princess.zip">
+		<!-- book link="http://atdo.sakura.ne.jp/files/DAISY/share/2012princess.zip">
 			<title>プリンセス・小公女セーラ (53.1 MB)</title>
 			<author></author>
 			<publisher>米沢ICT協働会</publisher>
 			<date></date>
-		</book>
+		</book-->
 	</website>
 	<website url="https://saccessnet.com/multimediadaisy/chattybooks_sample/" name="サイエンス・アクセシビリティ・ネット">
-		<book link="https://saccessnet.com/wp-content/multimedia/daisy/Rashomon_MultimediaDaisy.zip">
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/RashoumonR_MultimediaDAISY.zip">
 			<title>羅生門</title>
 			<author></author>
 			<publisher></publisher>
@@ -286,10 +258,34 @@
 			<publisher></publisher>
 			<date></date>
 		</book>
-		<book link="https://saccessnet.com/wp-content/multimedia/daisy/DAISY-comic_MultimediaDAISY">
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/DAISY-comic_MultimediaDAISY.zip">
 			<title>コミック『読むことが苦手な児童・生徒の学びのために』</title>
 			<author></author>
 			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/NewCoronavirus_mmDaisy.zip">
+			<title>科学館が 科学の視点で わかりやすく伝える 新型コロナウイルス</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/DAISY-comic_MultimediaDAISY.zip">
+			<title>樹木漫画　リン子の絵日記</title>
+			<author></author>
+			<publisher>林野図書資料館</publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/Makura_Soushi_MultimediaDAISY.zip">
+			<title>枕草子</title>
+			<author></author>
+			<publisher>サイエンス・アクセシビリティ・ネット</publisher>
+			<date></date>
+		</book>
+		<book link="https://saccessnet.com/wp-content/multimedia/daisy/Gingatetsudouno_yoru_MultimediaDAISY.zip">
+			<title>銀河鉄道の夜</title>
+			<author></author>
+			<publisher>サイエンス・アクセシビリティ・ネット</publisher>
 			<date></date>
 		</book>
 	</website>
@@ -313,7 +309,77 @@
 			<date></date>
 		</book>
 	</website -->
-	<website url="http://www.barifuri.jp/portal/page/daisy.html" name="日本バリアフリー旅行情報">
+	<website url="https://www.barifuri.com/tourcenter/daisy/daisy.html" name="伊勢志摩バリアフリーツアーセンター">
+		<book link="https://www.barifuri.com/tourcenter/daisy/daisy_iseshima.zip">
+			<title>伊勢志摩の観光地情報 (2013年版)</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="http://pjui.com/daisy/" name="中国五県観光情報">
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/shimane-daisy1.zip">
+			<title>島根県観光情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/tottori-daisy.zip">
+			<title>鳥取県観光情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/yamaguchi-daisy.zip">
+			<title>山口県観光情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/hiroshima-daisy.zip">
+			<title>広島県観光情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/okayama-daisy.zip">
+			<title>岡山県観光情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/shimane-kanko.zip">
+			<title>島根県おすすめご当地情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/tottori-kanko.zip">
+			<title>鳥取県おすすめご当地情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/yamaguchi-kanko.zip">
+			<title>山口県おすすめご当地情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/hiroshima-kanko.zip">
+			<title>広島県おすすめご当地情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/okayama-kanko.zip">
+			<title>岡山県おすすめご当地情報デイジー</title>
+			<author></author>
+			<publisher></publisher>
+			<date></date>
+		</book>
+	</website>
+	<!-- website url="http://www.barifuri.jp/portal/page/daisy.html" name="日本バリアフリー旅行情報">
 		<book link="http://www.barifuri.jp/portal/system/daisy/daisy_asahikawa.zip">
 			<title>旭川の観光地情報 (8.2 MB)</title>
 			<author></author>
@@ -404,7 +470,7 @@
 			<publisher>日本バリアフリー観光推進機構</publisher>
 			<date></date>
 		</book>
-	</website>
+	</website -->
 	<!-- website url="http://www.nhk.or.jp/pr/daisy/" name="NHK">
 		<book link="http://www.nhk.or.jp/pr/daisy/bangumi.zip">
 			<title>ＮＨＫ音声版番組時刻表 (78.7 MB)</title>
@@ -413,149 +479,149 @@
 			<date></date>
 		</book>
 	</website -->
-	<!-- website url="http://www.iccb.jp/mmd/sample/" name="日本ライトハウス情報文化センター">
-		<book link="http://www.iccb.jp/uploads/singoki.zip">
+	<website url="https://www.lighthouse.or.jp/iccb/library/index_library/index_mmd/sample/" name="日本ライトハウス情報文化センター">
+		<book link="https://www.lighthouse.or.jp/iccb/wp-content/uploads/services/singoki.zip">
 			<title>おとがするしんごうき (10 MB)</title>
 			<author></author>
 			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.iccb.jp/uploads/karurosu.zip">
+		<book link="https://www.lighthouse.or.jp/iccb/wp-content/uploads/services/karurosu.zip">
 			<title>ええぞ、カルロス (10.7 MB)</title>
 			<author></author>
 			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
 			<date></date>
 		</book>
-		<book link="http://www.iccb.jp/uploads/okurimono.zip">
+		<book link="https://www.lighthouse.or.jp/iccb/wp-content/uploads/services/okurimono.zip">
 			<title>おばあちゃんからのおくりもの (18 MB)</title>
 			<author></author>
 			<publisher>社会福祉法人 日本ライトハウス情報文化センター</publisher>
 			<date></date>
 		</book>
-	</website -->
-	<website url="http://rits-daisy.com/" name="Rits-DAISY 立命館大学DAISY研究会">
-		<book link="http://rits-daisy.com/daisy/j01.zip">
+	</website>
+	<website url="https://rits-daisy.com/" name="Rits-DAISY 立命館大学DAISY研究会">
+		<book link="https://rits-daisy.com/daisy/j01.zip">
 			<title>かちかち山 (45 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j02.zip">
+		<book link="https://rits-daisy.com/daisy/j02.zip">
 			<title>一寸法師 (62 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j03.zip">
+		<book link="https://rits-daisy.com/daisy/j03.zip">
 			<title>ねずみの嫁入り (17 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j04.zip">
+		<book link="https://rits-daisy.com/daisy/j04.zip">
 			<title>花咲かじいさん (26 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j05.zip">
+		<book link="https://rits-daisy.com/daisy/j05.zip">
 			<title>よだかの星 (57 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j06.zip">
+		<book link="https://rits-daisy.com/daisy/j06.zip">
 			<title>京都が大好きになったデウィ (38 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j07.zip">
+		<book link="https://rits-daisy.com/daisy/j07.zip">
 			<title>二匹のかえる (11 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j08.zip">
+		<book link="https://rits-daisy.com/daisy/j08.zip">
 			<title>赤いろうそく (17 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j23.zip">
+		<book link="https://rits-daisy.com/daisy/j23.zip">
 			<title>くろくまくんとさけ (17 MB)</title>
 			<author></author>
 			<publisher>にほんごの会くれよん</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j24.zip">
+		<book link="https://rits-daisy.com/daisy/j24.zip">
 			<title>しろくまフロートくんのおねがい (20 MB)</title>
 			<author></author>
 			<publisher>にほんごの会くれよん</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j25.zip">
+		<book link="https://rits-daisy.com/daisy/j25.zip">
 			<title>布の絵本「おはよう おやすみ」 (11 MB)</title>
 			<author></author>
 			<publisher>にほんごの会くれよん</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j26.zip">
+		<book link="https://rits-daisy.com/daisy/j26.zip">
 			<title>目黒区子ども条例のえほん「すごい よねずみくん」 (34 MB)</title>
 			<author></author>
 			<publisher>にほんごの会くれよん</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j27.zip">
+		<book link="https://rits-daisy.com/daisy/j27.zip">
 			<title>ええぞ、カルロス (15 MB)</title>
 			<author></author>
 			<publisher>にほんごの会くれよん</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j28.zip">
+		<book link="https://rits-daisy.com/daisy/j28.zip">
 			<title>桶に落ちた蜂 (14 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j29.zip">
+		<book link="https://rits-daisy.com/daisy/j29.zip">
 			<title>金岡の馬 (10 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j30.zip">
+		<book link="https://rits-daisy.com/daisy/j30.zip">
 			<title>琴聞き橋 (10 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j31.zip">
+		<book link="https://rits-daisy.com/daisy/j31.zip">
 			<title>仙翁草 (11 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j32.zip">
+		<book link="https://rits-daisy.com/daisy/j32.zip">
 			<title>二本足で立った蛙 (16 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j33.zip">
+		<book link="https://rits-daisy.com/daisy/j33.zip">
 			<title>二本足で立った蛙 関西弁 (18 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
-		<book link="http://rits-daisy.com/daisy/j34.zip">
+		<book link="https://rits-daisy.com/daisy/j34.zip">
 			<title>二本足で立った蛙 京ことば (20 MB)</title>
 			<author></author>
 			<publisher>Rits-DAISY 立命館大学DAISY研究会</publisher>
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.gsk.org/naradaisy/daisy/09daisy/" name="特定非営利活動法人 NaD">
+	<!-- website url="https://www.npo-nad.org/" name="特定非営利活動法人 NaD">
 		<book link="https://s3-ap-northeast-1.amazonaws.com/nadownclouds3/%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E5%9B%B3%E6%9B%B8/kimikimi_kaitei.zip">
 			<title>NPO EDGE発行　品川裕香著「キミはキミのままでいい」DAISY版 (10.6 MB)</title>
 			<author></author>
@@ -580,123 +646,123 @@
 			<publisher>特定非営利活動法人 NaD</publisher>
 			<date></date>
 		</book>
-	</website>
-	<website url="http://www.dinf.ne.jp/doc/daisy/jdc/" name="日本DAISYコンソーシアム">
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/kids.zip">
+	</website -->
+	<website url="https://www.dinf.ne.jp/doc/daisy/jdc/" name="日本DAISYコンソーシアム">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/kids.zip">
 			<title>よくわかる原子力（キッズページ） (71.5 MB)</title>
 			<author>原子力教育を考える会</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/wedge.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/wedge.zip">
 			<title>小中学生の生存率99.8%は奇跡じゃない (10.2 MB)</title>
 			<author>片田敏孝 月刊「ＷＥＤＧＥ」2011年5月号</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/tosuido.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/tosuido.zip">
 			<title>水道水をくみ置く際の留意事項について　第36報 (2.1 MB)</title>
 			<author>東京都水道局</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien6.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/shien6.zip">
 			<title>生活支援ニュース第6号 (18.9 MB)</title>
 			<author>厚生労働省</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien5.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/shien5.zip">
 			<title>生活支援ニュース第5号 (8.6 MB)</title>
 			<author>厚生労働省</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien4.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/shien4.zip">
 			<title>生活支援ニュース第4号 (18.5 MB)</title>
 			<author>厚生労働省</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien3.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/shien3.zip">
 			<title>生活支援ニュース第3号 (13.5 MB)</title>
 			<author>厚生労働省</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien2.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/shien2.zip">
 			<title>生活支援ニュース第2号 (13.8 MB)</title>
 			<author>厚生労働省</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/shien1.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/shien1.zip">
 			<title>生活支援ニュース第1号 (9.9 MB)</title>
 			<author>厚生労働省</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/gensiryoku.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/gensiryoku.zip">
 			<title>生活と原子力・原発 (84.2 MB)</title>
 			<author>武田邦彦</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/inamura.zip">
-			<title>津波だ！いなむらの火をけすな (18.8 MB)</title>
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/inamura.zip">
+			<title>つなみだ！いなむらの火をけすな (18.8 MB)</title>
 			<author>桜井信夫/財団法人都市防災研究所</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/toto.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/toto.zip">
 			<title>TOTO断水・給水制限・停電時のトイレ使用について (5.6 MB)</title>
 			<author>TOTO株式会社</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part5.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/part5.zip">
 			<title>放射線被ばくに関する基礎知識第5報 (1.5 MB)</title>
 			<author>独立行政法人 放射線医学総合研究所</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part4.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/part4.zip">
 			<title>放射線被ばくに関する基礎知識第4報 (0.9 MB)</title>
 			<author>独立行政法人 放射線医学総合研究所</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part3.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/part3.zip">
 			<title>放射線被ばくに関する基礎知識第3報 (0.8 MB)</title>
 			<author>独立行政法人 放射線医学総合研究所</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part2.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/part2.zip">
 			<title>放射線被ばくに関する基礎知識第2報 (1.7 MB)</title>
 			<author>独立行政法人 放射線医学総合研究所</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/part1.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/part1.zip">
 			<title>東北地方太平洋沖地震に伴い発生した原子力発電所被害に関する放射能分野の基礎知識（第1報） (22 MB)</title>
 			<author>独立行政法人 放射線医学総合研究所</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/BasicFacts6.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/BasicFacts6.zip">
 			<title>Basic Facts- No.6 (6.5 MB)</title>
 			<author>National Institute of Radiological Sciences</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/BasicFacts4.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/BasicFacts4.zip">
 			<title>Basic facts about radiation exposure Part 4 (4.7 MB)</title>
 			<author>National Institute of Radiological Sciences</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/projectzip/BasicFacts1.zip">
+		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/BasicFacts1.zip">
 			<title>Basic Facts regarding radiation exposure resulting from the nuclear plant accident caused by "tohoku" area earthquake (4 MB)</title>
 			<author>National Institute of Radiological Sciences</author>
 			<publisher>日本DAISYコンソーシアム</publisher>
@@ -777,478 +843,52 @@
 			<date></date>
 		</book>
 	</website -->
-	<website url="http://www.city.mitaka.tokyo.jp/c_service/002/002190.html" name="三鷹市">
-		<book link="http://www.city.mitaka.tokyo.jp/daisy/20190505.zip">
-			<title>広報みたか（2019年5月5日号） (31MB)</title>
+	<website url="https://www.city.mitaka.lg.jp/c_service/085/085863.html" name="三鷹市">
+		<book link="https://www.city.mitaka.lg.jp/daisy/20240915.zip">
+			<title>広報みたか（2024年9月15日号） (20MB)</title>
 			<author></author>
 			<publisher>三鷹市</publisher>
 			<date></date>
 		</book>
 	</website>
-	<website url="http://www.city.katsushika.lg.jp/information/kouho/1005537/index.html" name="葛飾区">
+	<website url="https://www.chofu-daisy.org/library.html" name="調布デイジー">
+		<book link="https://www.chofu-daisy.org/daisy/tanukitoyotaro.zip">
+			<title>狸と与太郎</title>
+			<author></author>
+			<publisher>調布デイジー</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.chofu-daisy.org/daisy/ookamito7hikinokodomoyagi.zip">
+			<title>おおかみと七ひきのこどもやぎ</title>
+			<author></author>
+			<publisher>調布デイジー</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.chofu-daisy.org/daisy/nagagutu.zip">
+			<title>長ぐつをはいたネコ</title>
+			<author></author>
+			<publisher>調布デイジー</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.chofu-daisy.org/daisy/kozosan.zip">
+			<title>こぞうさんのおきょう</title>
+			<author></author>
+			<publisher>調布デイジー</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.chofu-daisy.org/daisy/kachikachi.zip">
+			<title>かちかち山</title>
+			<author></author>
+			<publisher>調布デイジー</publisher>
+			<date></date>
+		</book>
+	</website>
+	<!-- website url="http://www.city.katsushika.lg.jp/information/kouho/1005537/index.html" name="葛飾区">
 		<book link="http://www.city.katsushika.lg.jp/_res/projects/default_project/_page_/001/020/148/0305daisy.zip">
 			<title>広報かつしか（2019年3月5日号） (50.7MB)</title>
 			<author></author>
 			<publisher>三鷹市</publisher>
 			<date></date>
 		</book>
-	</website>
-	<website url="http://www.willcom.jp/daisy-shiso/diarypro/diary.cgi" name="デイジー宍粟">
-		<book link="http://www.willcom.jp/daisy-shiso/zip/342.zip">
-			<title>「声のたより」4月号 （第342）</title>
-			<author>ふきのとう山崎</author>
-			<publisher>デイジー宍粟</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.willcom.jp/daisy-shiso/zip/341.zip">
-			<title>「声のたより」3月号 （第341）</title>
-			<author>ふきのとう山崎</author>
-			<publisher>デイジー宍粟</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.willcom.jp/daisy-shiso/zip/340.zip">
-			<title>「声のたより」2月号 （第340）</title>
-			<author>ふきのとう山崎</author>
-			<publisher>デイジー宍粟</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.willcom.jp/daisy-shiso/zip/339.zip">
-			<title>「声のたより」1月号 （第339）</title>
-			<author>ふきのとう山崎</author>
-			<publisher>デイジー宍粟</publisher>
-			<date></date>
-		</book>
-	</website>
-	<website url="https://www.city.kanuma.tochigi.jp/0338/info-0000002430-0.html" name="鹿沼市　広報かぬま">
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201905.zip">
-			<title>広報かぬま音声版2019年5月号</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201904.zip">
-			<title>広報かぬま音声版2019年4月号</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201903.zip">
-			<title>広報かぬま音声版2019年3月号</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201902.zip">
-			<title>広報かぬま音声版2019年2月号</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-		<book link="http://www.city.kanuma.tochigi.jp/koukai/koho/koho201901.zip">
-			<title>広報かぬま音声版2019年1月号</title>
-			<author></author>
-			<publisher>鹿沼市</publisher>
-			<date></date>
-		</book>
-	</website>
-	<website url="http://bible.salterrae.net/kougo/daisy/" name="DAISY版 口語訳音声データ (新約聖書1954年版)">
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_40.zip">
-        <title>マタイによる福音書 (157分21秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_41.zip">
-        <title>マルコによる福音書 ( 99分19秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_42.zip">
-        <title>ルカによる福音書 (167分52秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_43.zip">
-        <title>ヨハネによる福音書 (141分26秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_44.zip">
-        <title>使徒行伝 (167分29秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_45.zip">
-        <title>ローマ人への手紙 ( 69分36秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_46.zip">
-        <title>コリント人への第一の手紙 ( 69分33秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_47.zip">
-        <title>コリント人への第二の手紙 ( 23分46秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_48.zip">
-        <title>ガラテヤ人への手紙 ( 23分46秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_49.zip">
-        <title>エペソ人への手紙 ( 21分59秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_50.zip">
-        <title>ピリピ人への手紙 ( 16分59秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_51.zip">
-        <title>コロサイ人への手紙 ( 15分29秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_52.zip">
-        <title>テサロニケ人への第一の手紙 ( 14分23秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_53.zip">
-        <title>テサロニケ人への第二の手紙 (  8分01秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_54.zip">
-        <title>テモテヘの第一の手紙 ( 17分27秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_55.zip">
-        <title>テモテヘの第二の手紙 ( 12分59秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_56.zip">
-        <title>テトスヘの手紙 (  7分28秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_57.zip">
-        <title>ピレモンヘの手紙 (  3分25秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_58.zip">
-        <title>ヘブル人への手紙 ( 50分05秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_59.zip">
-        <title>ヤコブの手紙 ( 17分37秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_60.zip">
-        <title>ペテロの第一の手紙 ( 18分35秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_61.zip">
-        <title>ペテロの第二の手紙 ( 11分20秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_62.zip">
-        <title>ヨハネの第一の手紙 ( 18分35秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_63.zip">
-        <title>ヨハネの第二の手紙 (  2分06秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_64.zip">
-        <title>ヨハネの第三の手紙 (  2分14秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_65.zip">
-        <title>ユダの手紙 (  4分44秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_66.zip">
-        <title>ヨハネの默示録 ( 76分47秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-	</website>
-	<website url="http://bible.salterrae.net/kougo/daisy/ 0" name="DAISY版 口語訳音声データ (旧約聖書1955年版)">
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_01.zip">
-        <title>創世記 (230分16秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_02.zip">
-        <title>出エジプト記 (197分16秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_03.zip">
-        <title>レビ記 (146分18秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_04.zip">
-        <title>民数記 (198分32秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_05.zip">
-        <title>申命記 (177分05秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_06.zip">
-        <title>ヨシュア記 (118分25秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_07.zip">
-        <title>士師記 (115分39秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_08.zip">
-        <title>ルツ記 ( 17分27秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_09.zip">
-        <title>サムエル記上 (162分02秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_10.zip">
-        <title>サムエル記下 (130分08秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_11.zip">
-        <title>列王紀上 (145分33秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_12.zip">
-        <title>列王紀下 (138分58秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_13.zip">
-        <title>歴代志上 (124分02秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_14.zip">
-        <title>歴代志下 (154分44秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_15.zip">
-        <title>エズラ記 ( 44分13秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_16.zip">
-        <title>ネヘミヤ書 ( 65分19秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_17.zip">
-        <title>エステル記 ( 33分06秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_18.zip">
-        <title>ヨブ記 (114分52秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_19.zip">
-        <title>詩篇 (295分42秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_20.zip">
-        <title>箴言 ( 89分11秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_21.zip">
-        <title>伝道の書 ( 33分50秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_22.zip">
-        <title>雅歌 ( 18分20秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_23.zip">
-        <title>イザヤ書 (227分08秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_24.zip">
-        <title>エレミヤ書 (261分28秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_25.zip">
-        <title>哀歌 ( 21分49秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_26.zip">
-        <title>エゼキエル書 (229分40秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_27.zip">
-        <title>ダニエル書 ( 72分49秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_28.zip">
-        <title>ホセア書 ( 33分19秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_29.zip">
-        <title>ヨエル書 ( 12分13秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_30.zip">
-        <title>アモス書 ( 26分40秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_31.zip">
-        <title>オバデヤ書 (  3分44秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_32.zip">
-        <title>ヨナ書 (  8分09秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_33.zip">
-        <title>ミカ書 ( 18分32秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_34.zip">
-        <title>ナホム書 (  7分08秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_35.zip">
-        <title>ハバクク書 (  9分24秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_36.zip">
-        <title>ゼパニヤ書 (  9分47秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_37.zip">
-        <title>ハガイ書 (  7分08秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_38.zip">
-        <title>ゼカリヤ書 ( 39分06秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-    <book link="http://bible.salterrae.net/kougo/daisy/kougo_39.zip">
-        <title>マラキ書 ( 12分57秒)</title>
-        <author></author>
-        <publisher></publisher>
-        <date></date>
-    </book>
-	</website>
+	</website -->
 </books>

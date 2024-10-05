@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uid">
+	<metadata>
+		<dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Valentin Haüy - the father of the education for the blind</dc:title>
+		<dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Beatrice Christensen Sköld</dc:creator>
+		<dc:publisher xmlns:dc="http://purl.org/dc/elements/1.1/" />
+		<dc:date xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" opf:event="publication" />
+		<dc:date xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf" opf:event="creation">2008-02-19</dc:date>
+		<dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/" id="uid">C1093a</dc:identifier>
+		<dc:language xmlns:dc="http://purl.org/dc/elements/1.1/" />
+		<meta name="generator" content="Daisy Pipeline OPS Creator" />
+	</metadata>
+	<manifest>
+		<item id="opf1" href="valentinhauy11.html" media-type="application/xhtml+xml" />
+		<item id="opf2" href="valentin.jpg" media-type="image/jpeg" />
+		<item id="opf3" href="base.css" media-type="text/css" />
+		<item id="ncx" href="navigation.ncx" media-type="application/x-dtbncx+xml" />
+	</manifest>
+	<spine toc="ncx">
+		<itemref idref="opf1" />
+	</spine>
+</package>

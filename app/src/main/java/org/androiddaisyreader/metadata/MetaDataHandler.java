@@ -27,7 +27,8 @@ import android.app.Activity;
 import android.util.Log;
 
 @SuppressLint("NewApi")
-public class MetaDataHandler extends Activity {
+//public class MetaDataHandler extends Activity {
+public class MetaDataHandler {
 
     /**
      * Read data download from xml file.
@@ -49,7 +50,7 @@ public class MetaDataHandler extends Activity {
                 nList = readDataDownloadFromXmlFile(doc.getElementsByTagName(Constants.ATT_BOOKS),
                         link);
             } catch (Exception e) {
-                PrivateException ex = new PrivateException(e, MetaDataHandler.this);
+                PrivateException ex = new PrivateException(e, null);
                 throw ex;
             }
         } catch (PrivateException e) {
@@ -102,7 +103,7 @@ public class MetaDataHandler extends Activity {
                 doc.getDocumentElement().normalize();
                 nList = doc.getElementsByTagName(Constants.ATT_BOOK);
             } catch (Exception e) {
-                PrivateException ex = new PrivateException(e, MetaDataHandler.this);
+                PrivateException ex = new PrivateException(e, null);
                 throw ex;
             }
         } catch (PrivateException e) {
@@ -181,10 +182,10 @@ public class MetaDataHandler extends Activity {
 //            }
 //            ex.writeLogException();
         } catch (ParserConfigurationException pce) {
-            PrivateException ex = new PrivateException(pce, getApplicationContext());
+            PrivateException ex = new PrivateException(pce, null);
             ex.writeLogException();
         } catch (TransformerException tfe) {
-            PrivateException ex = new PrivateException(tfe, getApplicationContext());
+            PrivateException ex = new PrivateException(tfe, null);
             ex.writeLogException();
         }
     }

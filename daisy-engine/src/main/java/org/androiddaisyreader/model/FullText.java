@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+//import org.jsoup.safety.Safelist;
 import org.jsoup.safety.Whitelist;
 
 /**
@@ -75,6 +76,7 @@ public class FullText {
      */
     public String getHtmlFor(String reference) {
         String contents = documentContents.getElementById(reference).html();
+//        return Jsoup.clean(contents, Safelist.simpleText());
         return Jsoup.clean(contents, Whitelist.simpleText());
     }
 

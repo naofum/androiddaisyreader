@@ -1,5 +1,6 @@
 package org.androiddaisyreader.model;
 
+import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
 import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
 
 import java.io.IOException;
@@ -55,41 +56,36 @@ public class Smil30Specification extends DefaultHandler {
      * @return The parts discovered in the contents.
      */
     public static Part[] getParts(BookContext context, InputStream contents) {
-        InputStream contents2 = contents;
+        String encoding = "utf-8";
         try {
-            String encoding = obtainEncodingStringFromInputStream(contents);
-            contents2 = XmlUtilities.convertEncoding(contents, encoding);
+            encoding = obtainEncodingStringFromInputStream(contents);
+            encoding = mapUnsupportedEncoding(encoding);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-//            try {
-//                if (contents != null) {
-//                    contents.close();
-//                }
-//            } catch (IOException e) {
-//                //
-//            }
         }
+        return getParts(context, contents, encoding);
+    }
 
+    public static Part[] getParts(BookContext context, InputStream contents, String encoding) {
         Smil30Specification smil = new Smil30Specification(context);
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(smil);
-            saxParser.parse(Smil.getInputSource(contents2));
-            contents.close();
+            saxParser.parse(Smil.getInputSource(contents));
+//            contents.close();
 
         } catch (SAXException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-//            try {
-//                if (contents2 != null) {
-//                    contents2.close();
-//                }
-//            } catch (IOException e) {
-//                //
-//            }
+            try {
+                if (contents != null) {
+                    contents.close();
+                }
+            } catch (IOException e) {
+                //
+            }
         }
         return smil.getParts();
     }

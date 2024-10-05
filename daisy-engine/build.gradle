@@ -1,5 +1,38 @@
-apply plugin: 'java'
+//plugins {
+//    alias(libs.plugins.android.application)
+//}
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'org.androiddaisyreader'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 35
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.jsoup:jsoup:1.7.2' // for old Android
+    implementation 'commons-io:commons-io:2.7' // for old Android
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }

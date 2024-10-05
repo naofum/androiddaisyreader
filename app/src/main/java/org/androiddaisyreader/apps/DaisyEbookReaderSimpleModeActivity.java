@@ -94,7 +94,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
         setContentView(relativeLayout);
         mHandler = new Handler();
         mPath = getIntent().getStringExtra(Constants.DAISY_PATH);
-        isFormat202 = DaisyBookUtil.findDaisyFormat(mPath) == Constants.DAISY_202_FORMAT;
+        isFormat202 = DaisyBookUtil.findDaisyFormat(mPath, getApplicationContext()) == Constants.DAISY_202_FORMAT;
         openBook();
         readBook();
     }
@@ -283,7 +283,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
                 DaisyEbookReaderSimpleModeActivity.this);
         CurrentInformation currentInformation;
         String audioName = "";
-        if (!isFormat202 && listAudio != null) {
+        if (!isFormat202 && listAudio != null && !listAudio.isEmpty()) {
             audioName = listAudio.get(countAudio).getAudioFilename();
         }
         String activity = getString(R.string.title_activity_daisy_ebook_reader_simple_mode);
@@ -306,7 +306,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
                 mPlayer.stop();
                 mPlayer.release();
             }
-            mTts.shutdown();
+//            mTts.shutdown();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyEbookReaderSimpleModeActivity.this);
             ex.writeLogException();
@@ -474,7 +474,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
                     DaisyEbookReaderSimpleModeActivity.this);
             try {
                 parts = baseMode.getPartsFromSectionDaisy30(section, mPath, isFormat202, listId,
-                        mPositionSection);
+                        mPositionSection, baseMode.getBookContext(mPath));
                 getSnippetsOfCurrentSection(parts);
                 getAudioElementsOfCurrentSectionForDaisy30(parts);
             } catch (Exception e) {
