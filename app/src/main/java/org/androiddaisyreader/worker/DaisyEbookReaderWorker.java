@@ -1,8 +1,6 @@
 package org.androiddaisyreader.worker;
 
 import android.Manifest;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -12,16 +10,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-
-import com.github.naofum.androiddaisyreader.R;
 
 import org.androiddaisyreader.apps.PrivateException;
 import org.androiddaisyreader.metadata.MetaDataHandler;
@@ -36,18 +32,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
  * @author naofum
- * @date Sep 7, 2024
+ * {@code @date} Sep 7, 2024
  */
 
 public class DaisyEbookReaderWorker extends Worker {
+    private final String TAG = "DaisyReaderWorker";
 
     private MetaDataHandler mMetaData;
     private SharedPreferences.Editor mEditor;
@@ -55,6 +52,9 @@ public class DaisyEbookReaderWorker extends Worker {
     private final File mCurrentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     //    private final File mCurrentDirectory = Environment.getExternalStorageDirectory();
     private final Context context = getApplicationContext();
+
+    private String pathOfUri;
+    private Uri lastAccessUri;
 
     public DaisyEbookReaderWorker(
             @NonNull Context appContext,
@@ -90,29 +90,6 @@ public class DaisyEbookReaderWorker extends Worker {
 
     }
 
-    private void notification() {
-        String channelId = "ReaderWorker";
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext())
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelId)
-                .setContentTitle(context.getString(R.string.title_activity_daisy_reader_scan_book))
-                .setContentText("")
-                .setSmallIcon(R.drawable.media_play);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // API 29 Android 10
-            CharSequence name = context.getString(R.string.title_activity_daisy_reader_scan_book);
-            String description = "";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-
-            notificationManager.notify(1, builder.build());
-        }
-    }
-
     private void start() {
         mMetaData = new MetaDataHandler();
         SharedPreferences mPreferences = PreferenceManager
@@ -133,7 +110,7 @@ public class DaisyEbookReaderWorker extends Worker {
      * @return the data
      */
     private List<DaisyBookInfo> getDataFromMediaStore() {
-        List<DaisyBookInfo> filesResult = Collections.synchronizedList(new ArrayList<DaisyBookInfo>());
+        List<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
         Uri collection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
@@ -144,39 +121,40 @@ public class DaisyEbookReaderWorker extends Worker {
         ContentResolver resolver = getApplicationContext().getContentResolver();
         String selection = MediaStore.Files.FileColumns.MIME_TYPE + "='application/zip'" +
                 " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "='application/epub+zip'";
-        Cursor cursor = resolver.query(collection, null, selection, null, null);
-        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
-        int titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
-        int columnIndex = cursor.getColumnIndexOrThrow("_data");
-        while (cursor.moveToNext()) {
-            long id = cursor.getLong(idColumn);
-            String title = cursor.getString(titleColumn);
-            String pathOfUri = cursor.getString(columnIndex);
-            Uri uri;
-            uri = ContentUris.withAppendedId(collection, id);
-            if (pathOfUri.toLowerCase().endsWith(".zip") || pathOfUri.toLowerCase().endsWith(".epub")) {
-                InputStream input = null;
-                try {
-                    input = new BufferedInputStream(resolver.openInputStream(uri));
-                    ZippedBookInfo info = new ZippedBookInfo();
-                    DaisyBookInfo daisyBookInfo = info.readFromZipStream(input);
-                    // EBOOK ?
-                    if (daisyBookInfo != null) {
-                        daisyBookInfo.setId(Long.valueOf(id).toString());
-                        daisyBookInfo.setPath(uri.toString());
-                        filesResult.add(daisyBookInfo);
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (input != null) {
-                        try {
-                            input.close();
-                        } catch (IOException e) {
+        try (Cursor cursor = resolver.query(collection, null, selection, null, null)) {
+            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
+            int titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
+            int columnIndex = cursor.getColumnIndexOrThrow("_data");
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(idColumn);
+                String title = cursor.getString(titleColumn);
+                pathOfUri = cursor.getString(columnIndex);
+                lastAccessUri = ContentUris.withAppendedId(collection, id);
+                if (pathOfUri.toLowerCase().endsWith(".zip") || pathOfUri.toLowerCase().endsWith(".epub")) {
+                    try (InputStream input = new BufferedInputStream(resolver.openInputStream(lastAccessUri))) {
+                        DaisyBookInfo daisyBookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+                        // EBOOK ?
+                        if (daisyBookInfo != null) {
+                            daisyBookInfo.setId(Long.valueOf(id).toString());
+                            daisyBookInfo.setPath(lastAccessUri.toString());
+                            filesResult.add(daisyBookInfo);
+                        }
+                    } catch (FileNotFoundException e) {
+                        Log.d(TAG, "Not permitted " + pathOfUri);
+                    } catch (IllegalArgumentException iae) {
+                        try (InputStream input = new BufferedInputStream(resolver.openInputStream(lastAccessUri))) {
+                            DaisyBookInfo daisyBookInfo = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
+                            // EBOOK ?
+                            if (daisyBookInfo != null) {
+                                daisyBookInfo.setId(Long.valueOf(id).toString());
+                                daisyBookInfo.setPath(lastAccessUri.toString());
+                                filesResult.add(daisyBookInfo);
+                            }
+                        } catch (IOException ie) {
                             //
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -194,9 +172,8 @@ public class DaisyEbookReaderWorker extends Worker {
         File[] files = mCurrentDirectory.listFiles();
         try {
             if (files != null) {
-                int lengthOfFile = files.length;
-                for (int i = 0; i < lengthOfFile; i++) {
-                    List<String> listResult = DaisyBookUtil.getDaisyBook(files[i], false);
+                for (File file : files) {
+                    List<String> listResult = DaisyBookUtil.getDaisyBook(file, false);
 
                     for (String result : listResult) {
                         try {

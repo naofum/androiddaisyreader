@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,8 +25,9 @@ public class SimpleBookContext implements BookContext {
     private int mediaFormat = 0;
     private String directoryName = "";
     private ContentResolver resolver = null;
-    private DaisyBookInfo bookInfo;
     private ZippedBookContext zippedBookContext;
+    private DaisyBookInfo bookInfo;
+    private String opfFileName = "";
 
     public boolean isFileContext = false;
     public boolean isZippedContext = false;
@@ -39,9 +41,15 @@ public class SimpleBookContext implements BookContext {
         this.mediaUri = mediaUri;
         if (mediaUri.endsWith(".zip") || mediaUri.endsWith(".epub")) {
             // Daisy, EPUB
-            InputStream input = new BufferedInputStream(new FileInputStream(mediaUri));
-            ZippedBookInfo info = new ZippedBookInfo();
-            bookInfo = info.readFromZipStream(input);
+            try (InputStream input = new BufferedInputStream(new FileInputStream(mediaUri))) {
+                bookInfo = ZippedBookInfo.readFromZipStream(input);
+            } catch (IllegalArgumentException e) {
+                try (InputStream input = new BufferedInputStream(new FileInputStream(mediaUri))) {
+                    bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("utf-8"));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
             if (mediaUri.endsWith(".epub")) {
                 ((SimpleDaisyBookInfo) bookInfo).setEpub(true);
             } else {
@@ -57,19 +65,23 @@ public class SimpleBookContext implements BookContext {
                 throw new IllegalStateException("A valid directory is required");
             }
             this.directoryName = directoryName;
-            String optFileName = mediaUri + "/ncc.html";
-            file = new File(optFileName);
+            opfFileName = mediaUri + "/ncc.html";
+            file = new File(opfFileName);
             if (file.exists()) {
-                InputStream input = new BufferedInputStream(new FileInputStream(optFileName));
-                ZippedBookInfo info = new ZippedBookInfo();
-                bookInfo = info.readFromStream(input);
-                ((SimpleDaisyBookInfo) bookInfo).setDaisy202(true);
+                try (InputStream input = new BufferedInputStream(new FileInputStream(opfFileName))) {
+                    bookInfo = ZippedBookInfo.readFromStream(input);
+                }
+                if (bookInfo != null) {
+                    ((SimpleDaisyBookInfo) bookInfo).setDaisy202(true);
+                }
             } else {
-                optFileName = getOpfFileName(mediaUri);
-                InputStream input = new BufferedInputStream(new FileInputStream(optFileName));
-                ZippedBookInfo info = new ZippedBookInfo();
-                bookInfo = info.readFromStream(input);
-                ((SimpleDaisyBookInfo) bookInfo).setDaisy3(true);
+                opfFileName = getOpfFileName(mediaUri);
+                try (InputStream input = new BufferedInputStream(new FileInputStream(opfFileName))) {
+                    bookInfo = ZippedBookInfo.readFromStream(input);
+                }
+                if (bookInfo != null) {
+                    ((SimpleDaisyBookInfo) bookInfo).setDaisy3(true);
+                }
             }
             isFileContext = true;
         }
@@ -79,9 +91,15 @@ public class SimpleBookContext implements BookContext {
         this.resolver = resolver;
         this.mediaUri = mediaUri;
         if (Build.VERSION.SDK_INT > 0) {
-            InputStream input = new BufferedInputStream(resolver.openInputStream(Uri.parse(mediaUri)));
-            ZippedBookInfo info = new ZippedBookInfo();
-            bookInfo = info.readFromZipStream(input);
+            try (InputStream input = new BufferedInputStream(resolver.openInputStream(Uri.parse(mediaUri)))) {
+                bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+            } catch (IllegalArgumentException e) {
+                try (InputStream input = new BufferedInputStream(resolver.openInputStream(Uri.parse(mediaUri)))) {
+                    bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("utf-8"));
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
             if (((SimpleDaisyBookInfo) bookInfo).isDaisy202) {
                 mediaFormat = 2; // DAISY_202_FORMAT
             } else {
@@ -108,13 +126,36 @@ public class SimpleBookContext implements BookContext {
         }
         if (isZippedContext) {
             return zippedBookContext.getResource(uri);
+//            InputStream input = zippedBookContext.getResource(uri);
+//            if (input == null) {
+//                zippedBookContext.reopen(Charset.forName("Shift_JIS"));
+//                return zippedBookContext.getResource(uri);
+//            }
         }
 
+        try {
+            return getResource(uri, Charset.forName("MS932"));
+        } catch (IllegalArgumentException e) {
+            return getResource(uri, Charset.defaultCharset());
+        }
+    }
+
+    public InputStream getResource(String uri, Charset charset) throws IOException {
+        if (uri.startsWith("../")) {
+            uri = uri.substring(3);
+        } else if (uri.startsWith("./")) {
+            uri = uri.substring(2);
+        }
         ZipInputStream zipContents = null;
         ZipEntry entry;
 
-        if (Build.VERSION.SDK_INT > 0) {
-            zipContents = new ZipInputStream(resolver.openInputStream(Uri.parse(mediaUri)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && charset != null) {
+            zipContents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(mediaUri)), ModelConsts.BUFFER_SIZE), charset);
+        } else if (Build.VERSION.SDK_INT > 0) {
+                zipContents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(mediaUri)), ModelConsts.BUFFER_SIZE));
+        } else if (charset != null) {
+            // for unit test
+            zipContents = new ZipInputStream(new FileInputStream(mediaUri), charset);
         } else {
             // for unit test
             zipContents = new ZipInputStream(new FileInputStream(mediaUri));
@@ -122,7 +163,7 @@ public class SimpleBookContext implements BookContext {
         entry = zipContents.getNextEntry();
         while (entry != null) {
             if (entry.getName().toLowerCase().contains(uri.toLowerCase())) {
-                return new BufferedInputStream(zipContents);
+                return new BufferedInputStream(zipContents, ModelConsts.BUFFER_SIZE);
             }
             entry = zipContents.getNextEntry();
         }

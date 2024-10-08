@@ -3,6 +3,8 @@ package org.androiddaisyreader.model;
 import static org.androiddaisyreader.model.XmlUtilities.mapUnsupportedEncoding;
 import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFromInputStream;
 
+import android.os.Build;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -13,6 +15,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -230,17 +233,23 @@ public class ZippedBookInfo extends DefaultHandler {
         return specification.getBookInfo();
     }
 
-    public static DaisyBookInfo readFromStream2(InputStream contents) throws IOException {
+    public static DaisyBookInfo readFromStreamWithName(InputStream contents, Charset charset, String opfFileName) throws IOException {
         String encoding = obtainEncodingStringFromInputStream(contents);
         encoding = mapUnsupportedEncoding(encoding);
 //        System.out.println(encoding);
-        return readFromStream2(contents, encoding);
+        return readFromStreamWithName(contents, charset, opfFileName, encoding);
     }
 
-    public static DaisyBookInfo readFromStream2(InputStream contents, String encoding)
+    public static DaisyBookInfo readFromStreamWithName(InputStream contents, Charset charset, String opfFileName, String encoding)
             throws IOException {
         ZippedBookInfo specification = new ZippedBookInfo();
-        ((SimpleDaisyBookInfo)specification.daisyBookInfo).setDaisy202(true);
+        if (opfFileName.endsWith("ncc.html")) {
+            ((SimpleDaisyBookInfo) specification.daisyBookInfo).setDaisy202(true);
+        }
+        ((SimpleDaisyBookInfo)specification.daisyBookInfo).setOpfFileName(opfFileName);
+        if (charset != null) {
+            ((SimpleDaisyBookInfo) specification.daisyBookInfo).setZipCharset(charset.name());
+        }
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);
@@ -261,15 +270,28 @@ public class ZippedBookInfo extends DefaultHandler {
     }
 
     public static DaisyBookInfo readFromZipStream(InputStream zipContents) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Build.VERSION.SDK_INT == 0) {
+            return readFromZipStream(zipContents, Charset.forName("MS932"));
+        } else {
+            return readFromZipStream(zipContents, null);
+        }
+    }
+
+    public static DaisyBookInfo readFromZipStream(InputStream zipContents, Charset charset) throws IOException {
         ZipEntry zipEntry;
-        ZipInputStream contents = new ZipInputStream(zipContents);
+        ZipInputStream contents;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Build.VERSION.SDK_INT == 0) {
+            contents = new ZipInputStream(zipContents, charset);
+        } else {
+            contents = new ZipInputStream(zipContents);
+        }
         zipEntry = contents.getNextEntry();
         while (zipEntry != null) {
             String name = zipEntry.getName();
             if (name.toLowerCase().endsWith("ncc.html")) {
-                return readFromStream2(new BufferedInputStream(contents));
+                return readFromStreamWithName(new BufferedInputStream(contents), charset, name);
             } else if (name.toLowerCase().endsWith(".opf")) {
-                return readFromStream(new BufferedInputStream(contents));
+                return readFromStreamWithName(new BufferedInputStream(contents), charset, name);
             }
             zipEntry = contents.getNextEntry();
         }

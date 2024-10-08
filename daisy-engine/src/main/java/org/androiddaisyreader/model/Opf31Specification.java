@@ -82,15 +82,17 @@ public class Opf31Specification extends DefaultHandler {
     }
 
     private void handleItemOfHeading(Attributes attributes) {
+        String id = getId(attributes);
         String href = getHref(attributes);
+        String mediaOverlay = getMediaOverlay(attributes);
         if (href.endsWith("html") && bookBuilder != null) {
             InputStream contents = null;
             try {
                 contents = bookContext.getResource(href);
-                listModel = Xml31Specification.readFromStream(contents);
+                listModel = Xml31Specification.readFromStream(contents, null);
                 // set model-overlay id to smilHref temporary
                 for (XmlModel model : listModel) {
-                    model.setSmilHref(getId(attributes));
+                    model.setSmilHref(id);
                 }
                 allModel.addAll(listModel);
             } catch (IOException e) {
@@ -104,21 +106,30 @@ public class Opf31Specification extends DefaultHandler {
                     //
                 }
             }
-            manifestItem.put(getId(attributes) + "_ref", getMediaOverlay(attributes));
+            manifestItem.put(id + "_ref", mediaOverlay);
         }
-        manifestItem.put(getId(attributes), getHref(attributes));
+        manifestItem.put(id, href);
     }
 
     private void handleStartOfSpine(Attributes attributes) {
         // Create the new header
         String id = getIdRef(attributes);
+        String linear = getLinear(attributes);
+        if (linear != null && linear.equals("no")) {
+            return;
+        }
         XmlModel model = getXmlModelBySmilHref(getIdRef(attributes));
 //        String smilId = manifestItem.get(getIdRef(attributes));
 //        String smilHref = manifestItem.get(smilId);
-        String smilId = getIdRef(attributes);
-        String smilHref = manifestItem.get(smilId);
-        if (model != null) {
+//        String smilId = getIdRef(attributes);
+        String smilHref = manifestItem.get(id);
+        String smilId = manifestItem.get(id + "_ref");
+        if (smilId != null && !smilId.isEmpty()) {
+            smilHref = manifestItem.get(smilId);
+        }
+        if (model != null && model.getId() != null) {
             model.setSmilHref(smilHref + "#" + model.getId());
+//            model.setSmilHref(smilHref + "#" + (model.getId() == null ? "" : model.getId()));
             attachSectionToParent(model);
         }
 
@@ -176,6 +187,10 @@ public class Opf31Specification extends DefaultHandler {
 
     private String getMediaOverlay(Attributes attributes) {
         return ParserUtilities.getValueForName("media-overlay", attributes);
+    }
+
+    private String getLinear(Attributes attributes) {
+        return ParserUtilities.getValueForName("linear", attributes);
     }
 
     private void handleMetadata(String tagName) {

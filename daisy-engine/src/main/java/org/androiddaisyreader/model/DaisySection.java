@@ -1,6 +1,5 @@
 package org.androiddaisyreader.model;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -36,18 +35,28 @@ public class DaisySection extends Section {
         try {
             if (isDaisyFormat202) {
                 return Smil10Specification.getParts(bookContext,
-                        new BufferedInputStream(bookContext.getResource(getSmilFilename())));
+                        bookContext.getResource(getSmilFilename()));
             } else {
+                String smilFilename = getSmilFilename();
                 if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == 31) {
-                    //TODO check
-                    return Smil31Specification.getParts(bookContext,
-                            new BufferedInputStream(bookContext.getResource(getSmilFilename())), getSmilFilename());
+                    if (smilFilename.endsWith("smil")) {
+                        return Smil30Specification.getParts(bookContext,
+                                bookContext.getResource(getSmilFilename()));
+                    } else {
+                        return Smil31Specification.getParts(bookContext,
+                                bookContext.getResource(getSmilFilename()), getSmilFilename());
+                    }
                 } else if (bookPath.endsWith("epub")) {
-                    return Smil31Specification.getParts(bookContext,
-                            new BufferedInputStream(bookContext.getResource(getSmilFilename())), getSmilFilename());
+                    if (smilFilename.endsWith("smil")) {
+                        return Smil30Specification.getParts(bookContext,
+                                bookContext.getResource(getSmilFilename()));
+                    } else {
+                        return Smil31Specification.getParts(bookContext,
+                                bookContext.getResource(getSmilFilename()), getSmilFilename());
+                    }
                 } else {
                     return Smil30Specification.getParts(bookContext,
-                            new BufferedInputStream(bookContext.getResource(getSmilFilename())));
+                            bookContext.getResource(getSmilFilename()));
                 }
             }
         } catch (IOException e) {

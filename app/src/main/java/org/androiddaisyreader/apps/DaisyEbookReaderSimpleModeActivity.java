@@ -1,5 +1,7 @@
 package org.androiddaisyreader.apps;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,8 +13,10 @@ import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
 import org.androiddaisyreader.base.DaisyEbookReaderBaseMode;
 import org.androiddaisyreader.controller.AudioPlayerController;
 import org.androiddaisyreader.model.Audio;
+import org.androiddaisyreader.model.BookContext;
 import org.androiddaisyreader.model.CurrentInformation;
 import org.androiddaisyreader.model.DaisyBook;
+import org.androiddaisyreader.model.DaisySnippet;
 import org.androiddaisyreader.model.Navigable;
 import org.androiddaisyreader.model.Navigator;
 import org.androiddaisyreader.model.Part;
@@ -23,12 +27,15 @@ import org.androiddaisyreader.sqlite.SQLiteCurrentInformationHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.github.naofum.androiddaisyreader.R;
@@ -77,6 +84,9 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
     private int countAudio = 0;
     private Map<String, List<Integer>> mHashMapBegin;
     private Map<String, List<Integer>> mHashMapEnd;
+    private DaisyEbookReaderBaseMode baseMode;
+    private String prevImg = "";
+    private String imgSrc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,7 +289,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
     }
 
     private void handleCurrentInformation(CurrentInformation current) {
-        DaisyEbookReaderBaseMode baseMode = new DaisyEbookReaderBaseMode(mPath,
+        baseMode = new DaisyEbookReaderBaseMode(mPath,
                 DaisyEbookReaderSimpleModeActivity.this);
         CurrentInformation currentInformation;
         String audioName = "";
@@ -360,7 +370,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
      * open book from path
      */
     private void openBook() {
-        DaisyEbookReaderBaseMode baseMode = new DaisyEbookReaderBaseMode(mPath,
+        baseMode = new DaisyEbookReaderBaseMode(mPath,
                 DaisyEbookReaderSimpleModeActivity.this);
         try {
             if (isFormat202) {
@@ -450,12 +460,13 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
          * @param section the section
          */
         private void getSnippetAndAudioForDaisy202(Section section) throws PrivateException {
-            DaisyEbookReaderBaseMode baseMode = new DaisyEbookReaderBaseMode(mPath,
+            baseMode = new DaisyEbookReaderBaseMode(mPath,
                     DaisyEbookReaderSimpleModeActivity.this);
             try {
                 Part[] parts = baseMode.getPartsFromSection(section, mPath, isFormat202);
                 getSnippetsOfCurrentSection(parts);
                 getAudioElementsOfCurrentSectionForDaisy202(parts);
+                showImage(baseMode.getBookContext(mPath));
             } catch (PrivateException e) {
                 PrivateException ex = new PrivateException(e,
                         DaisyEbookReaderSimpleModeActivity.this, mPath);
@@ -470,7 +481,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
          */
         private void getSnippetAndAudioForDaisy30(Section section) throws PrivateException {
             Part[] parts = null;
-            DaisyEbookReaderBaseMode baseMode = new DaisyEbookReaderBaseMode(mPath,
+            baseMode = new DaisyEbookReaderBaseMode(mPath,
                     DaisyEbookReaderSimpleModeActivity.this);
             try {
                 parts = baseMode.getPartsFromSectionDaisy30(section, mPath, isFormat202, listId,
@@ -534,6 +545,26 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
             for (int i = 0; i < sizeOfPart; i++) {
                 String text = part.getSnippets().get(i).getText().toString();
                 mListStringText.add(text);
+                String img = ((DaisySnippet)part.getSnippets().get(i)).getImg();
+                if (!img.isEmpty()) {
+                    imgSrc = img;
+                }
+            }
+        }
+
+        private void showImage(BookContext bookContext) {
+            if (imgSrc == null || imgSrc.isEmpty() || prevImg.equals(imgSrc)) {
+                return;
+            }
+            Bitmap bitmap;
+            try (InputStream input = bookContext.getResource(imgSrc)) {
+                bitmap = BitmapFactory.decodeStream(input);
+                ImageView imageView = findViewById(R.id.imageView);
+                imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(View.VISIBLE);
+                imageView.setAdjustViewBounds(true);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 

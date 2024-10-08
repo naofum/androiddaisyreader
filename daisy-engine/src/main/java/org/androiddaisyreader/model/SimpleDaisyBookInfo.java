@@ -4,7 +4,9 @@ public class SimpleDaisyBookInfo extends DaisyBookInfo {
     public boolean isDaisy202 = false;
     public boolean isDaisy3 = false;
     public boolean isEpub = false;
-    public String version = "";
+    private String version = "";
+    private String opfFileName = "";
+    private String zipCharset = "";
 
     public SimpleDaisyBookInfo() {
     }
@@ -39,5 +41,21 @@ public class SimpleDaisyBookInfo extends DaisyBookInfo {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getOpfFileName() {
+        return opfFileName;
+    }
+
+    public void setOpfFileName(String opfFileName) {
+        this.opfFileName = opfFileName;
+    }
+
+    public String getZipCharset() {
+        return zipCharset;
+    }
+
+    public void setZipCharset(String zipCharset) {
+        this.zipCharset = zipCharset;
     }
 }

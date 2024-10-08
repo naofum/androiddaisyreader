@@ -10,11 +10,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class ZippedInfoTest extends TestCase {
     private static final String PATH_EBOOK_31 = "./sdcard/files-used-for-testing/testfiles/miniepub3/valentin-hauy.epub";
+    private static final String PATH_EBOOK_33 = "./sdcard/files-used-for-testing/testfiles/miniepub3/kusamakura.epub";
     private static final String PATH_EBOOK_202 = "./sdcard/files-used-for-testing/testfiles/daisy202/pigs.zip";
 
     protected void setUp() throws Exception {
@@ -93,6 +95,38 @@ public class ZippedInfoTest extends TestCase {
                     assertEquals("Beatrice Christensen Sköld", bookInfo.getAuthor());
                     assertEquals("", bookInfo.getPublisher());
                     assertEquals("2008-02-19", bookInfo.getDate());
+                    break;
+                }
+                entry = contents.getNextEntry();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    public void testEpub33() {
+        InputStream input = null;
+        ZipEntry entry;
+        try {
+            input = new BufferedInputStream(new FileInputStream(PATH_EBOOK_33));
+            ZipInputStream contents = new ZipInputStream(input, Charset.forName("Shift_JIS"));
+            InputStreamReader reader = new InputStreamReader(contents);
+            entry = contents.getNextEntry();
+            while (entry != null) {
+                String name = entry.getName();
+//                System.out.println(name);
+                if (name.toLowerCase().endsWith(".opf")) {
+                    ZippedBookInfo info = new ZippedBookInfo();
+//                    DaisyBookInfo bookInfo = info.readFromStream(new BufferedInputStream(new ReaderInputStream(reader)));
+                    DaisyBookInfo bookInfo = info.readFromStream(new BufferedInputStream(contents));
+                    assertEquals("草枕", bookInfo.getTitle());
+                    assertEquals("夏目 漱石", bookInfo.getAuthor());
+                    assertEquals(null, bookInfo.getPublisher());
+                    assertEquals(null, bookInfo.getDate());
                     break;
                 }
                 entry = contents.getNextEntry();

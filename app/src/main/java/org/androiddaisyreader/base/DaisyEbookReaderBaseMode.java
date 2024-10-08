@@ -3,6 +3,7 @@ package org.androiddaisyreader.base;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -233,7 +234,11 @@ public class DaisyEbookReaderBaseMode {
     private String getOpfFileName(String path) {
         String result = null;
         if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
-            result = DaisyBookUtil.getOpfFileNameInZipFolder(path, mContext.getApplicationContext());
+            try {
+                result = DaisyBookUtil.getOpfFileNameInZipFolder(path, Charset.forName("MS932"), mContext.getApplicationContext());
+            } catch (IllegalArgumentException iae) {
+                result = DaisyBookUtil.getOpfFileNameInZipFolder(path, mContext.getApplicationContext());
+            }
         } else if (path.endsWith(Constants.SUFFIX_ZIP_FILE) || path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
             result = DaisyBookUtil.getOpfFileNameInZipFolder(path);
         } else {

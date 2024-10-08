@@ -56,10 +56,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-//import androidx.databinding.tool.util.Preconditions;
-
 import com.github.naofum.androiddaisyreader.R;
-//import com.google.common.base.Preconditions;
+
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -498,6 +496,8 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
             if (mIsPlaying) {
                 setMediaPause();
             }
+//            mTts.setOnUtteranceCompletedListener(null);
+            mIsRunable = false;
             super.onBackPressed();
             handleCurrentInformation(mCurrent);
             finish();
@@ -572,9 +572,10 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 mPlayer.release();
             }
             mHandler.removeCallbacks(mRunnalbe);
-//            if (mTts != null) {
+            if (mTts != null) {
 //                mTts.shutdown();
-//            }
+                mTts.stop();
+            }
 
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyEbookReaderVisualModeActivity.this);
@@ -705,6 +706,11 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                         listId.add(splitHref(n.getHref())[1]);
                     }
                 }
+//                if (listId.size() == 0) {
+//                    PrivateException ex = new PrivateException(new NullPointerException(),
+//                            DaisyEbookReaderVisualModeActivity.this, mPath);
+//                    ex.showDialogException(mIntentController);
+//                }
             }
 
             AndroidAudioPlayer androidAudioPlayer = new AndroidAudioPlayer(
@@ -956,6 +962,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
          * Show message at the end of book.
          */
         private void atEndOfBook() {
+            try {
             mIntentController.pushToDialog(getString(R.string.atEnd) + getString(R.string.space)
                     + mBook.getTitle(), getString(R.string.error_title), R.raw.error, false, false,
                     null);
@@ -974,6 +981,13 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 mSql.updateCurrentInformation(mCurrent);
             }
 
+            } catch (Exception e) {
+                PrivateException ex = new PrivateException(e,
+                        DaisyEbookReaderVisualModeActivity.this, mPath);
+                if (!isFinishing()) {
+                    ex.showDialogException(mIntentController);
+                }
+            }
         }
 
         /**
@@ -1272,6 +1286,10 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
         // remove call backs when you touch button stop.
         mHandler.removeCallbacks(mRunnalbe);
         mPlayer.pause();
+        if (mTts != null) {
+//            mTts.stop();
+            mIsRunable = false;
+        }
         if (mCurrent != null) {
             mCurrent.setPlaying(mPlayer.isPlaying());
             mSql.updateCurrentInformation(mCurrent);
@@ -1346,6 +1364,9 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
 //                        }
 //                    } catch (Exception e) {
 //                        //
+//                    }
+//                    if (!mIsRunable) {
+//                        return;
 //                    }
                     if (Integer.valueOf(uttId) < mListStringText.size() - 1) {
                         mPositionSentence += 1;

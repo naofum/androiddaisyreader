@@ -193,13 +193,11 @@ public class Xml31Specification extends DefaultHandler {
 
     public static List<XmlModel> readFromStream(InputStream contents, String encoding)
             throws IOException {
-        InputStream contents2 = XmlUtilities.convertEncoding(contents, encoding);
-
         Xml31Specification specification = new Xml31Specification();
         try {
             XMLReader saxParser = Smil.getSaxParser();
             saxParser.setContentHandler(specification);
-            saxParser.parse(Smil.getInputSource(contents2));
+            saxParser.parse(Smil.getInputSource(contents));
 //            contents.close();
 
         } catch (Exception e) {
@@ -208,13 +206,6 @@ public class Xml31Specification extends DefaultHandler {
             try {
                 if (contents != null) {
                     contents.close();
-                }
-            } catch (IOException e) {
-                //
-            }
-            try {
-                if (contents2 != null) {
-                    contents2.close();
                 }
             } catch (IOException e) {
                 //

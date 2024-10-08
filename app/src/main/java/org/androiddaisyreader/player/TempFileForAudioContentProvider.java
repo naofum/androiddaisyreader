@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.androiddaisyreader.model.BookContext;
+import org.androiddaisyreader.model.ModelConsts;
 import org.androiddaisyreader.utils.Constants;
 import org.apache.commons.io.IOUtils;
 
@@ -24,6 +25,7 @@ import android.os.StatFs;
  */
 public class TempFileForAudioContentProvider {
     private BookContext context;
+    private byte[] buffer = new byte[ModelConsts.BUFFER_SIZE];
 
     TempFileForAudioContentProvider(BookContext context) {
         this.context = context;
@@ -56,7 +58,8 @@ public class TempFileForAudioContentProvider {
         // check available space
         if (isEnoughSpace(tempFile, (long) in.available())) {
             FileOutputStream out = new FileOutputStream(tempFile);
-            IOUtils.copy(in, out);
+//            IOUtils.copy(in, out);
+            IOUtils.copyLarge(in, out, buffer);
             File f = tempFile;
             if (f.exists()) {
                 return f;

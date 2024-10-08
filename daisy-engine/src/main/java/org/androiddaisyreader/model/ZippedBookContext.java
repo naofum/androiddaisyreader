@@ -1,10 +1,14 @@
 package org.androiddaisyreader.model;
 
+import android.os.Build;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 /**
@@ -25,7 +29,21 @@ public class ZippedBookContext implements BookContext {
     }
 
     public ZippedBookContext(String zipFilename) throws IOException {
-        zipContents = new ZipFile(zipFilename);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Build.VERSION.SDK_INT == 0) {
+            try {
+                zipContents = new ZipFile(zipFilename, Charset.forName("MS932"));
+            } catch (ZipException e) {
+                zipContents = new ZipFile(zipFilename);
+            }
+        } else {
+            zipContents = new ZipFile(zipFilename);
+        }
+    }
+
+    public void reopen(Charset charset) throws IOException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N || Build.VERSION.SDK_INT == 0) {
+            zipContents = new ZipFile(zipContents.getName(), charset);
+        }
     }
 
     public InputStream getResource(String uri) throws IOException {
@@ -45,7 +63,7 @@ public class ZippedBookContext implements BookContext {
             // 20130912: add "toLowerCase" to increase exactly when compare two
             // text.
             if (entry.getName().toLowerCase().contains(uri.toLowerCase())) {
-                return new BufferedInputStream(zipContents.getInputStream(entry));
+                return new BufferedInputStream(zipContents.getInputStream(entry), ModelConsts.BUFFER_SIZE);
             }
         }
         return null;

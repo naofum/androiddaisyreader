@@ -65,4 +65,13 @@ public class ZippedBookContextTest extends TestCase {
         assertEquals(1, book.sections.size());
         assertEquals(1, book.getChildren().size());
     }
+
+    public void testReadFromStream2_epub3() throws IOException {
+        ZippedBookContext context = new ZippedBookContext("./sdcard/files-used-for-testing/testfiles/miniepub3/kusamakura.epub");
+        InputStream contents = context.getResource("package.opf");
+        DaisyBook book = Opf31Specification.readFromStream(new BufferedInputStream(contents), context);
+        assertEquals("草枕", book.getTitle());
+        assertEquals(1, book.sections.size());
+        assertEquals(1, book.getChildren().size());
+    }
 }

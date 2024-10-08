@@ -228,6 +228,60 @@ public class DaisyBookUtil {
     }
 
     /**
+     * Gets the opf file name in zip folder.
+     *
+     * @param path the path
+     * @return the opf file name in zip folder
+     */
+    public static String getOpfFileNameInZipFolder(String path, Charset charset, Context... context) {
+        String result = "";
+        ZipEntry entry;
+        ZipFile zipContents = null;
+        try {
+            if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                ContentResolver resolver = context[0].getContentResolver();
+                ZipInputStream contents;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    contents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))), charset);
+                } else {
+                    contents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))));
+                }
+                entry = contents.getNextEntry();
+                while (entry != null) {
+                    String name = entry.getName();
+                    if (name.toLowerCase().endsWith(".opf")) {
+                        result = name;
+                        break;
+                    }
+                    entry = contents.getNextEntry();
+                }
+                try {
+                    contents.close();
+                } catch (IOException e) {
+                    //
+                }
+                return result;
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // N for Nougat
+                zipContents = new ZipFile(path, Charset.forName("ISO-8859-1"));
+            } else {
+                zipContents = new ZipFile(path);
+            }
+            Enumeration<? extends ZipEntry> e = zipContents.entries();
+            while (e.hasMoreElements()) {
+                entry = (ZipEntry) e.nextElement();
+                if (entry.getName().endsWith(".opf")) {
+                    result = entry.getName();
+                    break;
+                }
+            }
+            zipContents.close();
+        } catch (IOException e) {
+            Log.d("IOException", e.getMessage());
+        }
+        return result;
+    }
+
+    /**
      * return the NccFileName for a given book's root folder.
      *
      * @param currentDirectory
@@ -458,8 +512,7 @@ public class DaisyBookUtil {
         try {
             if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
                 ContentResolver resolver = context.getContentResolver();
-                ZippedBookInfo zippedBookInfo = new ZippedBookInfo();
-                DaisyBookInfo bookInfo = zippedBookInfo.readFromZipStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))));
+                DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))), Charset.forName("MS932"));
                 titleOfBook = bookInfo.getTitle();
             } else {
                 if (DaisyBookUtil.findDaisyFormat(path) == Constants.DAISY_202_FORMAT) {
@@ -469,6 +522,16 @@ public class DaisyBookUtil {
                     daisyBook = DaisyBookUtil.getDaisy30Book(path, context);
                     titleOfBook = daisyBook.getTitle() == null ? "" : daisyBook.getTitle();
                 }
+            }
+        } catch (IllegalArgumentException iae) {
+            try {
+                if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                    ContentResolver resolver = context.getContentResolver();
+                    DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))), Charset.defaultCharset());
+                    titleOfBook = bookInfo.getTitle();
+                }
+            } catch (IOException ie) {
+                throw new PrivateException(ie, context, path);
             }
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, context, path);

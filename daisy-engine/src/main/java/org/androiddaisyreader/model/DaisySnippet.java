@@ -4,6 +4,8 @@ import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFrom
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -115,9 +117,14 @@ public class DaisySnippet extends Snippet {
      */
     @Override
     public String getText() {
-//    Element element = doc.getElementById(id);
         Element element = doc.getElementById(id);
-        stringBuilder = new StringBuilder(500);
+//        element.getElementsByTag("rb").remove();
+        return element.text();
+    }
+
+    public String getSimpleText() {
+        Element element = doc.getElementById(id);
+        stringBuilder = new StringBuilder(100);
         fin = false;
         imgSrc = "";
         while (!fin) {
@@ -131,7 +138,7 @@ public class DaisySnippet extends Snippet {
                             stringBuilder.append(((TextNode) node).text().trim());
                         }
                     } else if (node instanceof Element) {
-                        if (((Element) node).tag().equals("img")) {
+                        if (((Element) node).tagName().equals("img")) {
                             imgSrc = node.attr("src");
                         }
                         String tmpid = node.attr("id");
@@ -162,6 +169,61 @@ public class DaisySnippet extends Snippet {
         return stringBuilder.toString();
     }
 
+    //TODO performance issue
+    public List<String> getPartText(List<String> idList) {
+        Element element = doc.getElementById(id);
+        stringBuilder = new StringBuilder(100);
+        List<String> list = new ArrayList<>();
+        fin = false;
+        imgSrc = "";
+        while (!fin) {
+            element.traverse(new NodeVisitor() {
+                public void head(Node node, int depth) {
+                    if (fin || suppress) {
+                        //
+                    } else if (node instanceof TextNode) {
+                        if (!((TextNode) node).text().trim().isEmpty()) {
+                            if (stringBuilder.length() > 0) stringBuilder.append(" ");
+                            stringBuilder.append(((TextNode) node).text().trim());
+                        }
+                    } else if (node instanceof Element) {
+                        if (((Element) node).tagName().equals("img")) {
+                            imgSrc = node.attr("src");
+                        }
+                        String tmpid = node.attr("id");
+                        if (!tmpid.isEmpty() && !tmpid.equals(id)) {
+                            if (!idList.contains(tmpid)) {
+                                fin = true;
+                            } else {
+                                list.add(stringBuilder.toString());
+                                stringBuilder = new StringBuilder(100);
+                            }
+                        }
+                        if (((Element) node).tagName().equalsIgnoreCase("rb") || ((Element) node).tagName().equalsIgnoreCase("rp")) {
+                            suppress = true;
+                        }
+                    }
+                }
+
+                public void tail(Node node, int depth) {
+                    if (node instanceof Element) {
+                        if (((Element) node).tagName().equalsIgnoreCase("rb") || ((Element) node).tagName().equalsIgnoreCase("rp")) {
+                            suppress = false;
+                        }
+                    }
+                }
+            });
+            if (!fin) {
+                element = element.nextElementSibling();
+                if (element == null) {
+                    fin = true;
+                }
+            }
+        }
+        list.add(stringBuilder.toString());
+        return list;
+    }
+
     /**
      * Retrieve img src from specified id range
      * img src available after call getText() method
@@ -170,6 +232,11 @@ public class DaisySnippet extends Snippet {
      */
     public String getImgSrc() {
         return imgSrc;
+    }
+
+    public String getImg() {
+        Element element = doc.getElementsByTag("img").first();
+        return element.attr("src");
     }
 
     @Override
