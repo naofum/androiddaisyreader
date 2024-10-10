@@ -118,7 +118,8 @@ public class DaisySnippet extends Snippet {
     @Override
     public String getText() {
         Element element = doc.getElementById(id);
-//        element.getElementsByTag("rb").remove();
+        element.getElementsByTag("rb").remove();
+        element.getElementsByTag("rp").remove();
         return element.text();
     }
 

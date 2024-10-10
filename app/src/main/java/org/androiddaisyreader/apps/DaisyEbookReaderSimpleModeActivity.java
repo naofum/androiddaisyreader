@@ -33,10 +33,14 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 
 import com.github.naofum.androiddaisyreader.R;
 import com.google.marvin.widget.GestureOverlay;
@@ -95,6 +99,8 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mIntentController = new IntentController(DaisyEbookReaderSimpleModeActivity.this);
         mSql = new SQLiteCurrentInformationHelper(DaisyEbookReaderSimpleModeActivity.this);
+
+        setHelpButton();
 
         mNavigationListener = new NavigationListener();
         mController = new Controller(mNavigationListener);
@@ -1208,4 +1214,34 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseActi
         }
     }
 
+    private void setHelpButton() {
+        getSupportActionBar().setDisplayOptions(getSupportActionBar().getDisplayOptions() | ActionBar.DISPLAY_SHOW_CUSTOM);
+        ImageView imageView = new ImageView(getSupportActionBar().getThemedContext());
+        imageView.setScaleType(ImageView.ScaleType.CENTER);
+        imageView.setImageResource(R.drawable.ic_menu_help);
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT, Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        layoutParams.rightMargin = 40;
+        imageView.setLayoutParams(layoutParams);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean current = mCurrent.getPlaying();
+                setMediaPause();
+                speakText("この画面の使い方を説明します。画面をタップすると再生と一時停止を切り替えます。ダブルタップすると目次を表示します。下にスライドすると次の章に移動します。うえにスライドすると前の章に移動します。右にスライドすると次のぶんに移動します。左にスライドすると前のぶんに移動します。");
+                while (mTts.isSpeaking()) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        //
+                    }
+                }
+                if (current) {
+                    setMediaPlay();
+                }
+            }
+        });
+        getSupportActionBar().setCustomView(imageView);
+    }
 }

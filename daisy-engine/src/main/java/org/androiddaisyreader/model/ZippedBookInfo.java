@@ -168,6 +168,9 @@ public class ZippedBookInfo extends DefaultHandler {
             case PUBLISHER:
                 daisyBookInfo.setPublisher(content);
                 break;
+            case LANGUAGE:
+                ((SimpleDaisyBookInfo)daisyBookInfo).setLanguage(content);
+                break;
 
             default:
                 // this handles null (apparently :)
@@ -195,6 +198,9 @@ public class ZippedBookInfo extends DefaultHandler {
                 break;
             case PUBLISHER:
                 daisyBookInfo.setPublisher(content);
+                break;
+            case LANGUAGE:
+                ((SimpleDaisyBookInfo)daisyBookInfo).setLanguage(content);
                 break;
 
             default:

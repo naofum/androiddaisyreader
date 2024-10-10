@@ -103,6 +103,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
     private static final int TIME_FOR_PROCESS = 400;
     private long mLastClickTime = 0;
     private boolean mIsRunable = true;
+    private boolean mIsCancel = false;
     // if audio is over, mIsEndOf will equal true.
     private boolean mIsEndOf = false;
     // This variable will help to find chapter has audio files or not.
@@ -497,7 +498,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 setMediaPause();
             }
 //            mTts.setOnUtteranceCompletedListener(null);
-            mIsRunable = false;
+            mIsCancel = true;
             super.onBackPressed();
             handleCurrentInformation(mCurrent);
             finish();
@@ -893,9 +894,16 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 if (i > 0) {
                     snippetText.append(getString(R.string.space));
                 }
-                String text = part.getSnippets().get(i).getText().toString();
+                String text = part.getSnippets().get(i).getText();
                 snippetText.append(text);
-                mListStringText.add(text);
+                if (text.length() > 100) {
+                    String[] splitj = text.split("。");
+                    for (String sj : splitj) {
+                        mListStringText.add(sj + "。");
+                    }
+                } else {
+                    mListStringText.add(text);
+                }
             }
             snippetText.append(getString(R.string.space));
             return snippetText.toString();
@@ -962,7 +970,6 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
          * Show message at the end of book.
          */
         private void atEndOfBook() {
-            try {
             mIntentController.pushToDialog(getString(R.string.atEnd) + getString(R.string.space)
                     + mBook.getTitle(), getString(R.string.error_title), R.raw.error, false, false,
                     null);
@@ -970,23 +977,17 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
             if (currentTime == -1 || currentTime == mPlayer.getDuration() || currentTime == 0) {
                 mIsRunable = false;
                 mIsEndOf = true;
-                mWordtoSpan.setSpan(new BackgroundColorSpan(Color.TRANSPARENT), 0, mContents
-                        .getText().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                mContents.setText(mWordtoSpan);
+                if (mWordtoSpan != null) {
+                    mWordtoSpan.setSpan(new BackgroundColorSpan(Color.TRANSPARENT), 0, mContents
+                            .getText().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    mContents.setText(mWordtoSpan);
+                }
                 mImgButton.setImageResource(R.drawable.media_play);
             }
 
             if (mCurrent != null) {
                 mCurrent.setAtTheEnd(mIsEndOf);
                 mSql.updateCurrentInformation(mCurrent);
-            }
-
-            } catch (Exception e) {
-                PrivateException ex = new PrivateException(e,
-                        DaisyEbookReaderVisualModeActivity.this, mPath);
-                if (!isFinishing()) {
-                    ex.showDialogException(mIntentController);
-                }
             }
         }
 
@@ -1264,7 +1265,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
      * Toggles the Media Player between Play and Pause states.
      */
     public void togglePlay() {
-        if (mPlayer.isPlaying()) {
+        if (mPlayer.isPlaying() || mTts.isSpeaking()) {
             setMediaPause();
         } else {
             try {
@@ -1287,8 +1288,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
         mHandler.removeCallbacks(mRunnalbe);
         mPlayer.pause();
         if (mTts != null) {
-//            mTts.stop();
-            mIsRunable = false;
+            mTts.stop();
         }
         if (mCurrent != null) {
             mCurrent.setPlaying(mPlayer.isPlaying());
@@ -1296,6 +1296,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
         }
         mImgButton.setImageResource(R.drawable.media_play);
         mIsRunable = false;
+        mIsCancel = true;
     }
 
     // this variable will be handle the time when you change from pause to play.
@@ -1318,6 +1319,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 mSql.updateCurrentInformation(mCurrent);
             }
             mIsRunable = true;
+            mIsCancel = false;
             if (mListTimeEnd != null && mListTimeEnd.size() > 0) {
                 if (mPlayer.getCurrentPosition() != 0) {
                     // if you pause while audio playing. You need to know time
@@ -1365,9 +1367,9 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
 //                    } catch (Exception e) {
 //                        //
 //                    }
-//                    if (!mIsRunable) {
-//                        return;
-//                    }
+                    if (mIsCancel) {
+                        return;
+                    }
                     if (Integer.valueOf(uttId) < mListStringText.size() - 1) {
                         mPositionSentence += 1;
                         highlight(mPositionSentence);
@@ -1396,9 +1398,16 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseActi
                 return;
             }
             mLastClickTime = SystemClock.elapsedRealtime();
-            nextSentence();
+            if (mListTimeBegin != null && mListTimeBegin.size() > 0) { // hasAudio
+                nextSentence();
+            } else if (mPositionSentence < mListStringText.size() - 1) {
+                mTts.stop();
+                return;
+            } else {
+                nextSection();
+            }
             try {
-//                Preconditions.checkArgument(mPositionSentence < mListTimeBegin.size() - 1);
+//            Preconditions.checkArgument(mPositionSentence < mListTimeBegin.size() - 1);
                 Validate.isTrue(mPositionSentence < mListTimeBegin.size() - 1);
                 mPositionSentence += 1;
                 mHandler.removeCallbacks(mRunnalbe);

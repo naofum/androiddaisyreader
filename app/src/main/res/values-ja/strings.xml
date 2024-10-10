@@ -28,6 +28,7 @@
     <string name="error_unknown_host">もう一度ホスト名を確認してください</string>
     <string name="error_file_not_found">ダウンロードファイルが正しくありません。もう一度確認してください</string>
     <string name="error_save_bookmark">%s の終わりにブックマークを保存できません</string>
+    <string name="help_simple_mode">この画面の使い方を説明します。画面をタップすると再生と一時停止を切り替えます。ダブルタップすると目次を表示します。下にスライドすると次の章に移動します。うえにスライドすると前の章に移動します。右にスライドすると次のぶんに移動します。左にスライドすると前のぶんに移動します。</string>
     <string name="empty_bookmark">空</string>
     <string name="fontSize">フォント サイズ: </string>
     <string name="load_bookmark">ロード</string>
@@ -37,13 +38,13 @@
     <string name="message_downloading_file">ファイルのダウンロード中 &#x2026;</string>
     <string name="message_confirm_exit_download">ダウンロードを終了してもよろしいですか?</string>
     <string name="night_mode">夜間モード</string>
-    <string name="next_section">次の節</string>
-    <string name="next_sentence">次の文</string>
+    <string name="next_section">次の章</string>
+    <string name="next_sentence">次のぶん</string>
     <string name="ok">OK</string>
     <string name="yes">はい</string>
     <string name="no">いいえ</string>
-    <string name="previous_sentence">前の文</string>
-    <string name="previous_section">前の節</string>
+    <string name="previous_sentence">前のぶん</string>
+    <string name="previous_section">前の章</string>
     <string name="pause">一時停止</string>
     <string name="play">再生</string>
     <string name="title_activity_daisy_reader_library">ライブラリー</string>

@@ -7,6 +7,7 @@ public class SimpleDaisyBookInfo extends DaisyBookInfo {
     private String version = "";
     private String opfFileName = "";
     private String zipCharset = "";
+    private String language = "";
 
     public SimpleDaisyBookInfo() {
     }
@@ -57,5 +58,13 @@ public class SimpleDaisyBookInfo extends DaisyBookInfo {
 
     public void setZipCharset(String zipCharset) {
         this.zipCharset = zipCharset;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

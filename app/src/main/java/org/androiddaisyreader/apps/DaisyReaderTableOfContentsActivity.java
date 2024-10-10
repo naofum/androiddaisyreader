@@ -127,7 +127,7 @@ public class DaisyReaderTableOfContentsActivity extends DaisyEbookReaderBaseActi
         mPath = getIntent().getStringExtra(Constants.DAISY_PATH);
         try {
             try {
-                if (DaisyBookUtil.findDaisyFormat(mPath) == Constants.DAISY_202_FORMAT) {
+                if (DaisyBookUtil.findDaisyFormat(mPath, getApplicationContext()) == Constants.DAISY_202_FORMAT) {
                     mBook = DaisyBookUtil.getDaisy202Book(mPath, getApplicationContext());
                     titleOfBook = mBook.getTitle() == null ? "" : mBook.getTitle();
                 } else {
