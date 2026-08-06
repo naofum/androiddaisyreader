@@ -3,6 +3,8 @@ package org.androiddaisyreader.apps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.androiddaisyreader.adapter.BookmarkListAdapter;
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
@@ -17,9 +19,9 @@ import org.androiddaisyreader.utils.DaisyBookUtil;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,7 +45,8 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
     private String mPath;
     private SharedPreferences mPreferences;
     private IntentController mIntentController;
-    private LoadingData mLoadingData;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private boolean isFormat202 = false;
 
     @Override
@@ -58,7 +61,7 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
         mPath = getIntent().getStringExtra(Constants.DAISY_PATH);
         isFormat202 = DaisyBookUtil.findDaisyFormat(mPath) == Constants.DAISY_202_FORMAT;
         createNewBookmark();
-        SQLiteBookmarkHelper mSql = new SQLiteBookmarkHelper(DaisyReaderBookmarkActivity.this);
+        SQLiteBookmarkHelper mSql = SQLiteBookmarkHelper.getInstance(DaisyReaderBookmarkActivity.this);
         mListItems = new ArrayList<Bookmark>();
         mListItems = mSql.getAllBookmark(mPath);
         loadData();
@@ -180,14 +183,16 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
     /**
      * Show dialog when data loading.
      */
-    class LoadingData extends AsyncTask<Void, Void, List<Bookmark>> {
-        private ProgressDialog progressDialog;
-        private int numberOfBookmarks = mPreferences.getInt(Constants.NUMBER_OF_BOOKMARKS,
-                Constants.NUMBER_OF_BOOKMARK_DEFAULT);;
+    private void loadData() {
+        final ProgressDialog progressDialog = new ProgressDialog(DaisyReaderBookmarkActivity.this);
+        progressDialog.setMessage(getString(R.string.waiting));
+        progressDialog.show();
 
-        @Override
-        protected List<Bookmark> doInBackground(Void... params) {
-            ArrayList<Bookmark> result = new ArrayList<Bookmark>();
+        final int numberOfBookmarks = mPreferences.getInt(Constants.NUMBER_OF_BOOKMARKS,
+                Constants.NUMBER_OF_BOOKMARK_DEFAULT);
+
+        executor.execute(() -> {
+            ArrayList<Bookmark> result = new ArrayList<>();
             if (numberOfBookmarks < mListItems.size()) {
                 for (int i = 0; i < numberOfBookmarks; i++) {
                     Bookmark bookmark = mListItems.get(i);
@@ -206,54 +211,28 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
                     result.add(bookmark);
                 }
             }
-            return result;
-        }
 
-        @Override
-        protected void onPostExecute(List<Bookmark> result) {
-            BookmarkListAdapter mAdapter;
-            mAdapter = new BookmarkListAdapter(DaisyReaderBookmarkActivity.this, result, mBookmark,
-                    mPath, mListItems.size());
-            mListBookmark.setAdapter(mAdapter);
-            progressDialog.dismiss();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            progressDialog = new ProgressDialog(DaisyReaderBookmarkActivity.this);
-            progressDialog.setMessage(getString(R.string.waiting));
-            progressDialog.show();
-            super.onPreExecute();
-        }
-    }
-
-    private void loadData() {
-        mLoadingData = new LoadingData();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mLoadingData.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mLoadingData.execute();
-        }
+            mainHandler.post(() -> {
+                if (!isFinishing()) {
+                    BookmarkListAdapter mAdapter = new BookmarkListAdapter(
+                            DaisyReaderBookmarkActivity.this, result, mBookmark,
+                            mPath, mListItems.size());
+                    mListBookmark.setAdapter(mAdapter);
+                    progressDialog.dismiss();
+                }
+            });
+        });
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        mLoadingData.cancel(true);
+        executor.shutdownNow();
         finish();
     }
 
     @Override
     protected void onDestroy() {
-//        try {
-//            if (mTts != null) {
-//                mTts.stop();
-//                mTts.shutdown();
-//            }
-//        } catch (Exception e) {
-//            PrivateException ex = new PrivateException(e, DaisyReaderBookmarkActivity.this);
-//            ex.writeLogException();
-//        }
         super.onDestroy();
     }
 

@@ -100,5 +100,5 @@
     <string name="submenu_about">About</string>
     <string name="submenu_google_play">Show/Review on Google Play</string>
     <string name="submenu_contact">Contact</string>
-	<string name="copyright" translatable="false">© 2013 DaisyBook Reader. All Rights Reserved.\n© 2014-2024 naofum</string>
+	<string name="copyright" translatable="false">© 2013 DaisyBook Reader. All Rights Reserved.\n© 2014-2026 naofum</string>
 </resources>

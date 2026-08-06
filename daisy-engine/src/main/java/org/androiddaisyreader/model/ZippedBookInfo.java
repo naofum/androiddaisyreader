@@ -293,7 +293,7 @@ public class ZippedBookInfo extends DefaultHandler {
         }
         zipEntry = contents.getNextEntry();
         while (zipEntry != null) {
-            String name = zipEntry.getName();
+            String name = ZipSecurity.validateEntryName(zipEntry.getName());
             if (name.toLowerCase().endsWith("ncc.html")) {
                 return readFromStreamWithName(new BufferedInputStream(contents), charset, name);
             } else if (name.toLowerCase().endsWith(".opf")) {

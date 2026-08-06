@@ -88,6 +88,11 @@ public class SimpleBookContext implements BookContext {
     }
 
     public SimpleBookContext(String mediaUri, ContentResolver resolver) throws IOException {
+        // =========================================================================
+        // @deprecated content:// URI は CacheHelper.copyToCache() でローカルファイルに
+        // コピーしてから ZippedBookContext で開く方式に移行。
+        // このコンストラクタは後方互換性のために残すが、新規使用は非推奨。
+        // =========================================================================
         this.resolver = resolver;
         this.mediaUri = mediaUri;
         if (Build.VERSION.SDK_INT > 0) {
@@ -119,6 +124,7 @@ public class SimpleBookContext implements BookContext {
     }
 
     public InputStream getResource(String uri) throws IOException {
+        ZipSecurity.validateResourceUri(uri);
         if (isFileContext) {
             String fullName = directoryName + File.separator + uri;
             InputStream contents = new FileInputStream(fullName);
@@ -126,11 +132,6 @@ public class SimpleBookContext implements BookContext {
         }
         if (isZippedContext) {
             return zippedBookContext.getResource(uri);
-//            InputStream input = zippedBookContext.getResource(uri);
-//            if (input == null) {
-//                zippedBookContext.reopen(Charset.forName("Shift_JIS"));
-//                return zippedBookContext.getResource(uri);
-//            }
         }
 
         try {
@@ -141,6 +142,7 @@ public class SimpleBookContext implements BookContext {
     }
 
     public InputStream getResource(String uri, Charset charset) throws IOException {
+        ZipSecurity.validateResourceUri(uri);
         if (uri.startsWith("../")) {
             uri = uri.substring(3);
         } else if (uri.startsWith("./")) {
@@ -162,6 +164,7 @@ public class SimpleBookContext implements BookContext {
         }
         entry = zipContents.getNextEntry();
         while (entry != null) {
+            ZipSecurity.validateEntryName(entry.getName());
             if (entry.getName().toLowerCase().contains(uri.toLowerCase())) {
                 return new BufferedInputStream(zipContents, ModelConsts.BUFFER_SIZE);
             }

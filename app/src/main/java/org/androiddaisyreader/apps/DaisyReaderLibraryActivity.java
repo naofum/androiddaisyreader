@@ -48,8 +48,8 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
     private boolean mIsExit = true;
     private static final int BYTE_VALUE = 1024;
 
-    private LocalBroadcastManager broadcastManager;
-    private BroadcastReceiver broadcastReceiver;
+//    private LocalBroadcastManager broadcastManager;
+//    private BroadcastReceiver broadcastReceiver;
     private WorkManager workManager;
 
     @Override
@@ -169,8 +169,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
      **/
     private void copyFileFromAssets() {
         File file = new File(Constants.folderContainMetadata + Constants.META_DATA_FILE_NAME);
-//        if (!file.exists()) {
-        if (true) {
+        if (!file.exists()) {
             AssetManager assetManager = getAssets();
             InputStream in = null;
             OutputStream out = null;
@@ -310,10 +309,10 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         }
         super.onDestroy();
 
-        if (broadcastReceiver != null) {
-            broadcastManager = LocalBroadcastManager.getInstance(getApplication());
-            broadcastManager.unregisterReceiver(broadcastReceiver);
-        }
+//        if (broadcastReceiver != null) {
+//            broadcastManager = LocalBroadcastManager.getInstance(getApplication());
+//            broadcastManager.unregisterReceiver(broadcastReceiver);
+//        }
 
     }
 

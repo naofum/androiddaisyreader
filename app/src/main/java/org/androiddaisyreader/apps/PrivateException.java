@@ -28,6 +28,7 @@ import com.github.naofum.androiddaisyreader.R;
  */
 
 public class PrivateException extends Exception {
+    private static final String TAG = "PrivateException";
     private static final long serialVersionUID = -3511134293183982787L;
     // constructor without parameters
     private Exception ex = new Exception();
@@ -40,6 +41,7 @@ public class PrivateException extends Exception {
     }
 
     public PrivateException(Exception ex, Context context, String... path) {
+        Log.e(TAG, "Exception occurred: " + ex.getMessage(), ex);
         this.ex = ex;
         this.mContext = context;
         if (path.length >= 1 && path[0] != null) {

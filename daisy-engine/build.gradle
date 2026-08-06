@@ -5,11 +5,10 @@ apply plugin: 'com.android.library'
 
 android {
     namespace 'org.androiddaisyreader'
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
-        minSdk 21
-        targetSdk 35
+        minSdk 29
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -26,12 +25,16 @@ android {
     }
     testOptions {
         unitTests.returnDefaultValues = true
+        targetSdk 37
+    }
+    lint {
+        targetSdk 37
     }
 }
 
 dependencies {
-    implementation 'org.jsoup:jsoup:1.7.2' // for old Android
-    implementation 'commons-io:commons-io:2.7' // for old Android
+    implementation libs.jsoup.v172
+    implementation libs.commons.io.v27
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core

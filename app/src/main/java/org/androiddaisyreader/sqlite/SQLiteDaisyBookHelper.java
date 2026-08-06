@@ -13,8 +13,20 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class SQLiteDaisyBookHelper extends SQLiteHandler {
+    private static SQLiteDaisyBookHelper sInstance;
     private Context mContext;
 
+    public static synchronized SQLiteDaisyBookHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new SQLiteDaisyBookHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    /**
+     * @deprecated getInstance(Context)を使用してください。
+     */
+    @Deprecated
     public SQLiteDaisyBookHelper(Context context) {
         super(context);
         this.mContext = context;
@@ -43,7 +55,6 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
             if (i != -1) {
                 result = true;
             }
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -59,9 +70,11 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
      */
     public List<DaisyBookInfo> getAllDaisyBook(String type) {
         ArrayList<DaisyBookInfo> arrDaisyBook = new ArrayList<DaisyBookInfo>();
+        SQLiteDatabase mdb = null;
+        Cursor mCursor = null;
         try {
-            SQLiteDatabase mdb = getReadableDatabase();
-            Cursor mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
+            mdb = getReadableDatabase();
+            mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
                     TITLE_KEY_DAISY_BOOK, PATH_KEY_DAISY_BOOK, AUTHOR_KEY_DAISY_BOOK,
                     PUBLISHER_KEY_DAISY_BOOK, DATE_DAISY_BOOK, SORT_KEY_DAISY_BOOK },
                     TYPE_OF_METADATA_DAISY_BOOK + "=?", new String[] { type },
@@ -79,32 +92,31 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
                     String date = mCursor.getString(mCursor.getColumnIndex(DATE_DAISY_BOOK));
                     int sort = Integer.valueOf(mCursor.getString(mCursor
                             .getColumnIndex(SORT_KEY_DAISY_BOOK)));
-                    // Add to ArrayList
                     arrDaisyBook.add(new DaisyBookInfo(id, title, path, author, publisher, date,
                             sort));
                 } while (mCursor.moveToNext());
             }
-            mCursor.close();
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return arrDaisyBook;
     }
 
     public DaisyBookInfo getDaisyBookByTitle(String title, String type) {
         DaisyBookInfo daisyBook = null;
+        SQLiteDatabase mdb = null;
+        Cursor mCursor = null;
         try {
-            SQLiteDatabase mdb = getReadableDatabase();
-            Cursor mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
+            mdb = getReadableDatabase();
+            mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
                     TITLE_KEY_DAISY_BOOK, PATH_KEY_DAISY_BOOK, AUTHOR_KEY_DAISY_BOOK,
                     PUBLISHER_KEY_DAISY_BOOK, DATE_DAISY_BOOK, SORT_KEY_DAISY_BOOK },
                     TITLE_KEY_DAISY_BOOK + "=?" + " AND " + TYPE_OF_METADATA_DAISY_BOOK + "=?",
                     new String[] { title, type }, null, null, null);
-            // Check data null or empty
-            if (mCursor != null && mCursor.getCount() > 0) {
-                mCursor.moveToFirst();
+            if (mCursor != null && mCursor.moveToFirst()) {
                 String id = mCursor.getString(mCursor.getColumnIndex(ID_KEY_DAISY_BOOK));
                 String titleBook = mCursor.getString(mCursor.getColumnIndex(TITLE_KEY_DAISY_BOOK));
                 String path = mCursor.getString(mCursor.getColumnIndex(PATH_KEY_DAISY_BOOK));
@@ -116,13 +128,11 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
                         .getColumnIndex(SORT_KEY_DAISY_BOOK)));
                 daisyBook = new DaisyBookInfo(id, titleBook, path, author, publisher, date, sort);
             }
-            if (mCursor != null) {
-                mCursor.close();
-                mdb.close();
-            }
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return daisyBook;
     }
@@ -133,7 +143,6 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
             SQLiteDatabase mdb = getWritableDatabase();
             result = mdb.delete(TABLE_NAME_DAISY_BOOK, TYPE_OF_METADATA_DAISY_BOOK + "=?",
                     new String[] { type }) > 0;
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -147,7 +156,6 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
             SQLiteDatabase mdb = getWritableDatabase();
             result = mdb.delete(TABLE_NAME_DAISY_BOOK, ID_KEY_DAISY_BOOK + "=?",
                     new String[] { id }) > 0;
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -163,19 +171,20 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
      */
     public boolean isExists(String name, String type) {
         boolean result = false;
+        Cursor mCursor = null;
         try {
             SQLiteDatabase mdb = getReadableDatabase();
-            Cursor mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
+            mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
                     TITLE_KEY_DAISY_BOOK, PATH_KEY_DAISY_BOOK, AUTHOR_KEY_DAISY_BOOK,
                     PUBLISHER_KEY_DAISY_BOOK, DATE_DAISY_BOOK, SORT_KEY_DAISY_BOOK },
                     TITLE_KEY_DAISY_BOOK + "=?" + " AND " + TYPE_OF_METADATA_DAISY_BOOK + "=?",
                     new String[] { name, type }, null, null, null);
             result = mCursor.moveToFirst();
-            mCursor.close();
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return result;
     }

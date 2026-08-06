@@ -19,6 +19,7 @@ import org.androiddaisyreader.model.OpfSpecification;
 import org.androiddaisyreader.model.Part;
 import org.androiddaisyreader.model.Section;
 import org.androiddaisyreader.model.SimpleBookContext;
+import org.androiddaisyreader.utils.CacheHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
@@ -73,9 +74,18 @@ public class DaisyEbookReaderBaseMode {
             BookContext bookContext = getBookContext(path);
             contents = bookContext.getResource(opfName);
             DaisyBook book = null;
-            if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == Constants.EPUB3_FORMAT) {
-                book = Opf31Specification.readFromStream(contents, bookContext);
-            } else if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+            // EPUB判定: パス拡張子、キャッシュファイル拡張子、URI文字列で判定
+            boolean isEpub = path.endsWith(Constants.SUFFIX_EPUB_FILE);
+            if (!isEpub && mPath.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                String cachedPath = CacheHelper.getCachedPath(mContext, mPath);
+                if (cachedPath != null && cachedPath.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                    isEpub = true;
+                }
+                if (!isEpub && mPath.toLowerCase().contains("epub")) {
+                    isEpub = true;
+                }
+            }
+            if (isEpub) {
                 book = Opf31Specification.readFromStream(contents, bookContext);
             } else {
                 book = OpfSpecification.readFromStream(contents, bookContext);
@@ -195,9 +205,22 @@ public class DaisyEbookReaderBaseMode {
         try {
             //TODO check
             Part[] tempParts = getPartsFromSection(section, path, isFormat202);
-            if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == 31) {
+            // EPUB判定: キャッシュファイル拡張子、パス拡張子、URI文字列
+            boolean isEpub = path.endsWith(Constants.SUFFIX_EPUB_FILE);
+            if (!isEpub && path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                String cachedPath = CacheHelper.getCachedPath(mContext, path);
+                if (cachedPath != null && cachedPath.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                    isEpub = true;
+                }
+                if (!isEpub && path.toLowerCase().contains("epub")) {
+                    isEpub = true;
+                }
+            }
+            if (isEpub) {
                 return tempParts;
-            } else if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+            }
+            // listIdが空の場合はフィルタリング不要（EPUB等）
+            if (listId == null || listId.isEmpty() || positionSection < 1 || positionSection > listId.size()) {
                 return tempParts;
             }
             List<Part> listPart = new ArrayList<Part>();

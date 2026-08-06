@@ -48,7 +48,7 @@ public class BookmarkListAdapter extends ArrayAdapter<Bookmark> {
         this.mBookmarkTmp = bookmark;
         this.mPath = path;
         this.mTotalNumberBookmark = totalNumberBookmark;
-        mSql = new SQLiteBookmarkHelper(getContext());
+        mSql = SQLiteBookmarkHelper.getInstance(getContext());
         mVi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

@@ -73,7 +73,7 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
         mNumberOfRecentBooks = mPreferences.getInt(Constants.NUMBER_OF_RECENT_BOOKS,
                 Constants.NUMBER_OF_RECENTBOOK_DEFAULT);
 
-        mSql = new SQLiteDaisyBookHelper(DaisyReaderScanBooksActivity.this);
+        mSql = SQLiteDaisyBookHelper.getInstance(DaisyReaderScanBooksActivity.this);
         // initial view
         mTextSearch = (EditText) findViewById(R.id.edit_text_search);
         mlistViewScanBooks = (ListView) findViewById(R.id.list_view_scan_books);
@@ -205,8 +205,31 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
      * @param daisyBook the daisy book
      */
     private void itemScanBookClick(DaisyBookInfo daisyBook) {
-        IntentController intentController = new IntentController(this);
-        intentController.pushToDaisyEbookReaderIntent(daisyBook.getPath());
+        String path = daisyBook.getPath();
+        // content:// URI が残っている場合はキャッシュ経由でローカルパスに変換
+        if (path != null && path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            new Thread(() -> {
+                try {
+                    java.io.File cachedFile = org.androiddaisyreader.utils.CacheHelper.copyToCache(
+                            getApplicationContext(), path);
+                    String cachedPath = cachedFile.getAbsolutePath();
+                    runOnUiThread(() -> {
+                        IntentController intentController = new IntentController(
+                                DaisyReaderScanBooksActivity.this);
+                        intentController.pushToDaisyEbookReaderIntent(cachedPath);
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(() -> {
+                        PrivateException ex = new PrivateException(e,
+                                DaisyReaderScanBooksActivity.this, path);
+                        ex.writeLogException();
+                    });
+                }
+            }).start();
+        } else {
+            IntentController intentController = new IntentController(this);
+            intentController.pushToDaisyEbookReaderIntent(path);
+        }
     }
 
     /**

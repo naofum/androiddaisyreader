@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -42,12 +41,13 @@ import androidx.core.content.ContextCompat;
 
 public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements OnClickListener,
         TextToSpeech.OnInitListener {
-    protected static TextToSpeech mTts;
+    protected TextToSpeech mTts;
     private static final long DOUBLE_PRESS_INTERVAL = 1000;
     private static final long DELAY_MILLIS = 500;
     private static long lastPressTime;
     private static int lastPositionClick = -1;
     private static boolean mHasDoubleClicked = false;
+    private String mPendingSpeakText = null;
 //    protected FirebaseAnalytics mFirebaseAnalytics;
 
 
@@ -62,19 +62,17 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
         // initial TTS
         startTts();
 
-        if (Build.VERSION.SDK_INT >= 23) { // Build.VERSION_CODES.M
-            if (ContextCompat.checkSelfPermission(this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(this,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{
-                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                        1);
-            }
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                    1);
         }
 
         SharedPreferences mPreferences = PreferenceManager
@@ -116,17 +114,13 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
 
     @Override
     protected void onDestroy() {
-//        try {
-//            if (mTts != null) {
-//                if (mTts.isSpeaking()) {
-//                    mTts.stop();
-//                }
-//                mTts.shutdown();
-//            }
-//        } catch (Exception e) {
-//            PrivateException ex = new PrivateException(e, DaisyEbookReaderBaseActivity.this);
-//            ex.writeLogException();
-//        }
+        if (mTts != null) {
+            if (mTts.isSpeaking()) {
+                mTts.stop();
+            }
+            mTts.shutdown();
+            mTts = null;
+        }
         super.onDestroy();
     }
 
@@ -136,26 +130,17 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constants.MY_DATA_CHECK_CODE
-                && !(resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS)) {
-            // missing data, install it
-            Intent installIntent = new Intent();
-            installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-            startActivity(installIntent);
-        }
-        if (requestCode == Constants.MY_DATA_CHECK_CODE
-                && !(resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS)) {
-            // missing data, install it
-            Intent installIntent = new Intent();
-            installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-            startActivity(installIntent);
-        }
     }
 
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             mTts.setLanguage(checkTTSSupportLanguage() ? Locale.getDefault() : Locale.US);
+            // TTS初期化完了時にpendingテキストがあれば読み上げ
+            if (mPendingSpeakText != null) {
+                speakText(mPendingSpeakText);
+                mPendingSpeakText = null;
+            }
         }
     }
 
@@ -170,10 +155,6 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     private void startTts() {
         if (mTts == null) {
             mTts = new TextToSpeech(getApplicationContext(), this);
-            Intent checkIntent = new Intent();
-            checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-            // startActivityForResult(checkIntent, RESULT_OK);
-            startActivityForResult(checkIntent, Constants.MY_DATA_CHECK_CODE);
         }
     }
 
@@ -206,15 +187,19 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
      * @param textToSpeech the text to speech
      */
     public void speakText(String textToSpeech) {
-        if (mTts != null) {
+        if (mTts != null && checkTTSSupportLanguage()) {
             if (mTts.isSpeaking()) {
                 mTts.stop();
             }
-            if (checkTTSSupportLanguage() && !checkKeyguardMode()) {
+            if (!checkKeyguardMode()) {
                 mTts.speak(textToSpeech, TextToSpeech.QUEUE_FLUSH, null);
             }
         } else {
-            startTts();
+            // TTS未初期化の場合はpendingに保存し、onInit完了後に読み上げる
+            mPendingSpeakText = textToSpeech;
+            if (mTts == null) {
+                startTts();
+            }
         }
     }
 
@@ -260,12 +245,13 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
      * Delete current information.
      */
     public void deleteCurrentInformation() {
-        SQLiteCurrentInformationHelper sql = new SQLiteCurrentInformationHelper(
-                getApplicationContext());
-        CurrentInformation current = sql.getCurrentInformation();
-        if (current != null) {
-            sql.deleteCurrentInformation(current.getId());
-        }
+        new Thread(() -> {
+            SQLiteCurrentInformationHelper sql = SQLiteCurrentInformationHelper.getInstance(getApplicationContext());
+            CurrentInformation current = sql.getCurrentInformation();
+            if (current != null) {
+                sql.deleteCurrentInformation(current.getId());
+            }
+        }).start();
     }
 
     /**

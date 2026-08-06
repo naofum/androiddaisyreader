@@ -46,7 +46,7 @@ public class DaisySection extends Section {
                         return Smil31Specification.getParts(bookContext,
                                 bookContext.getResource(getSmilFilename()), getSmilFilename());
                     }
-                } else if (bookPath.endsWith("epub")) {
+                } else if (bookPath.endsWith("epub") || bookContext.getBaseUri().endsWith("epub")) {
                     if (smilFilename.endsWith("smil")) {
                         return Smil30Specification.getParts(bookContext,
                                 bookContext.getResource(getSmilFilename()));

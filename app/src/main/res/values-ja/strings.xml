@@ -17,7 +17,7 @@
     <string name="desc_simple_mode">このモードは目の不自由な人と読みに関する障害がある人のためにデザインされています</string>
     <string name="desc_visual_mode">グラフィカルモードでは、大きなグラフィカルな要素を含めて、すべてのメニューが発声されます</string>
     <string name="error_title">DaisyReader - メッセージ</string>
-    <string name="error_no_path_found">SD カードに %s が見つかりません。もう一度確認してください</string>
+    <string name="error_no_path_found">ストレージに %s が見つかりません。もう一度確認してください</string>
     <string name="error_wrong_format">このデイジー本は形式が間違っています</string>
     <string name="error_wrong_format_audio">このデイジー本に含まれるオーディオファイルが、このアプリケーションでサポートされていません</string>
     <string name="error_not_enough_space">この本をダウンロードするために必要な空き容量が不足しています</string>
@@ -59,7 +59,7 @@
     <string name="test_fontsize">ABCDEF</string>
     <string name="toggle_turn_on">オン</string>
     <string name="toggle_turn_off">オフ</string>
-    <string name="sd_card_not_present">電話に SD カードが見つかりません</string>
+    <string name="sd_card_not_present">電話にストレージが見つかりません</string>
     <string name="space">\u0020</string>
     <string name="scan_books">本のスキャン</string>
     <string name="simple_mode">シンプルモード</string>

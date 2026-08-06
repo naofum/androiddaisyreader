@@ -165,7 +165,7 @@ public class IntentController {
                         dialog.dismiss();
                         if (isBack) {
                             Activity a = (Activity) mContext;
-                            a.onBackPressed();
+                            a.finish();
                         }
                     }
                 });
@@ -175,6 +175,10 @@ public class IntentController {
         }
         // Showing Alert Message
         AlertDialog alert = alertDialog.create();
+        if (isBack) {
+            alert.setCancelable(false);
+            alert.setCanceledOnTouchOutside(false);
+        }
         alert.show();
     }
 

@@ -39,6 +39,12 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * バックグラウンドで書籍をスキャンし、メタデータXMLに保存するWorker。
+ *
+ * API 29 (Android 10) 以降は MediaStore.Downloads を使用して、
+ * 自アプリがダウンロードした ZIP/EPUB ファイルを検出する。
+ * （Scoped Storage により他アプリのファイルは参照不可）
+ *
  * @author naofum
  * {@code @date} Sep 7, 2024
  */
@@ -50,11 +56,7 @@ public class DaisyEbookReaderWorker extends Worker {
     private SharedPreferences.Editor mEditor;
 
     private final File mCurrentDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    //    private final File mCurrentDirectory = Environment.getExternalStorageDirectory();
     private final Context context = getApplicationContext();
-
-    private String pathOfUri;
-    private Uri lastAccessUri;
 
     public DaisyEbookReaderWorker(
             @NonNull Context appContext,
@@ -66,28 +68,18 @@ public class DaisyEbookReaderWorker extends Worker {
     @Override
     public Result doWork() {
         start();
-//        notification();
 
         boolean isSDPresent = Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED);
         if (isSDPresent) {
             String localPath = Constants.folderContainMetadata
                     + Constants.META_DATA_SCAN_BOOK_FILE_NAME;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) { // 25
-                mMetaData.writeDataToXmlFile(getDataFromMediaStore(), localPath);
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 23
-                if (ContextCompat.checkSelfPermission(
-                        getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    mMetaData.writeDataToXmlFile(getData(), localPath);
-                }
-            } else {
-                mMetaData.writeDataToXmlFile(getData(), localPath);
-            }
+            // API 29+: MediaStore.Downloads で自アプリDL分を検出
+            mMetaData.writeDataToXmlFile(getDataFromDownloads(), localPath);
         }
 
         finish();
         return Result.success();
-
     }
 
     private void start() {
@@ -105,70 +97,169 @@ public class DaisyEbookReaderWorker extends Worker {
     }
 
     /**
-     * Gets the data.
+     * MediaStore.Downloads から自アプリがダウンロードした ZIP/EPUB を検出する。
+     * API 29+ 対応。パーミッション不要（自アプリが挿入したファイルは常にアクセス可能）。
      *
-     * @return the data
+     * @return 検出された書籍情報のリスト
      */
-    private List<DaisyBookInfo> getDataFromMediaStore() {
-        List<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
-        Uri collection;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-//            collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-        } else {
-            collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        }
+    private List<DaisyBookInfo> getDataFromDownloads() {
+        List<DaisyBookInfo> filesResult = new ArrayList<>();
         ContentResolver resolver = getApplicationContext().getContentResolver();
-        String selection = MediaStore.Files.FileColumns.MIME_TYPE + "='application/zip'" +
-                " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "='application/epub+zip'";
-        try (Cursor cursor = resolver.query(collection, null, selection, null, null)) {
-            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
-            int titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
-            int columnIndex = cursor.getColumnIndexOrThrow("_data");
+
+        Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+
+        String[] projection = {
+                MediaStore.Downloads._ID,
+                MediaStore.Downloads.DISPLAY_NAME,
+                MediaStore.Downloads.MIME_TYPE
+        };
+
+        String selection = MediaStore.Downloads.MIME_TYPE + "=? OR " +
+                MediaStore.Downloads.MIME_TYPE + "=?";
+        String[] selectionArgs = {"application/zip", "application/epub+zip"};
+
+        try (Cursor cursor = resolver.query(collection, projection, selection, selectionArgs, null)) {
+            if (cursor == null) {
+                Log.d(TAG, "Cursor is null for Downloads query");
+                return filesResult;
+            }
+
+            int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID);
+            int nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME);
+
             while (cursor.moveToNext()) {
                 long id = cursor.getLong(idColumn);
-                String title = cursor.getString(titleColumn);
-                pathOfUri = cursor.getString(columnIndex);
-                lastAccessUri = ContentUris.withAppendedId(collection, id);
-                if (pathOfUri.toLowerCase().endsWith(".zip") || pathOfUri.toLowerCase().endsWith(".epub")) {
-                    try (InputStream input = new BufferedInputStream(resolver.openInputStream(lastAccessUri))) {
-                        DaisyBookInfo daisyBookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
-                        // EBOOK ?
-                        if (daisyBookInfo != null) {
-                            daisyBookInfo.setId(Long.valueOf(id).toString());
-                            daisyBookInfo.setPath(lastAccessUri.toString());
-                            filesResult.add(daisyBookInfo);
-                        }
-                    } catch (FileNotFoundException e) {
-                        Log.d(TAG, "Not permitted " + pathOfUri);
-                    } catch (IllegalArgumentException iae) {
-                        try (InputStream input = new BufferedInputStream(resolver.openInputStream(lastAccessUri))) {
-                            DaisyBookInfo daisyBookInfo = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
-                            // EBOOK ?
-                            if (daisyBookInfo != null) {
-                                daisyBookInfo.setId(Long.valueOf(id).toString());
-                                daisyBookInfo.setPath(lastAccessUri.toString());
-                                filesResult.add(daisyBookInfo);
-                            }
-                        } catch (IOException ie) {
-                            //
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                String displayName = cursor.getString(nameColumn);
+
+                if (displayName == null) continue;
+                String lowerName = displayName.toLowerCase(Locale.ROOT);
+                if (!lowerName.endsWith(".zip") && !lowerName.endsWith(".epub")) {
+                    continue;
+                }
+
+                Uri contentUri = ContentUris.withAppendedId(collection, id);
+                DaisyBookInfo bookInfo = readBookInfoFromUri(resolver, contentUri, id);
+                if (bookInfo != null) {
+                    filesResult.add(bookInfo);
                 }
             }
+        } catch (Exception e) {
+            Log.e(TAG, "Error querying MediaStore.Downloads", e);
         }
+
         return filesResult;
     }
 
     /**
-     * Gets the data.
+     * content:// URI からZIPストリームを読み取り、書籍メタデータを取得する。
      *
-     * @return the data
+     * @param resolver ContentResolver
+     * @param uri      書籍の content:// URI
+     * @param id       MediaStore のID
+     * @return 書籍情報、読み取れない場合はnull
+     */
+    private DaisyBookInfo readBookInfoFromUri(ContentResolver resolver, Uri uri, long id) {
+        // MS932 charset で試行
+        try (InputStream input = new BufferedInputStream(resolver.openInputStream(uri))) {
+            DaisyBookInfo info = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+            if (info != null) {
+                info.setId(String.valueOf(id));
+                info.setPath(uri.toString());
+                return info;
+            }
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "Not permitted: " + uri);
+            return null;
+        } catch (IllegalArgumentException iae) {
+            // charset フォールバック
+            return readBookInfoWithDefaultCharset(resolver, uri, id);
+        } catch (Exception e) {
+            Log.d(TAG, "Error reading: " + uri, e);
+        }
+        return null;
+    }
+
+    /**
+     * content:// URI からZIPストリームを読み取り、書籍メタデータを取得する。
+     *
+     * @param resolver ContentResolver
+     * @param uri      書籍の content:// URI
+     * @param id       MediaStore のID
+     * @return 書籍情報、読み取れない場合はnull
+     */
+    private DaisyBookInfo readBookInfoFromUri_bak(ContentResolver resolver, Uri uri, long id) {
+        // キャッシュにコピーしてローカルパスを取得
+        String cachedPath;
+        try {
+            java.io.File cachedFile = org.androiddaisyreader.utils.CacheHelper.copyToCache(
+                    getApplicationContext(), uri);
+            cachedPath = cachedFile.getAbsolutePath();
+        } catch (Exception e) {
+            Log.d(TAG, "Failed to cache: " + uri, e);
+            return null;
+        }
+
+        // MS932 charset で試行
+        try (InputStream input = new BufferedInputStream(resolver.openInputStream(uri))) {
+            DaisyBookInfo info = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+            if (info != null) {
+                info.setId(String.valueOf(id));
+                info.setPath(cachedPath);
+                return info;
+            }
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "Not permitted: " + uri);
+            return null;
+        } catch (IllegalArgumentException iae) {
+            // charset フォールバック
+//            return readBookInfoWithDefaultCharset(resolver, uri, id, cachedPath);
+        } catch (Exception e) {
+            Log.d(TAG, "Error reading: " + uri, e);
+        }
+        return null;
+    }
+
+    /**
+     * デフォルト charset でフォールバック読み取り。
+     */
+    private DaisyBookInfo readBookInfoWithDefaultCharset(ContentResolver resolver, Uri uri, long id) {
+        try (InputStream input = new BufferedInputStream(resolver.openInputStream(uri))) {
+            DaisyBookInfo info = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
+            if (info != null) {
+                info.setId(String.valueOf(id));
+                info.setPath(uri.toString());
+                return info;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Fallback charset also failed: " + uri, e);
+        }
+        return null;
+    }
+
+    /**
+     * デフォルト charset でフォールバック読み取り。
+     */
+    private DaisyBookInfo readBookInfoWithDefaultCharset_bak(ContentResolver resolver, Uri uri, long id, String cachedPath) {
+        try (InputStream input = new BufferedInputStream(resolver.openInputStream(uri))) {
+            DaisyBookInfo info = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
+            if (info != null) {
+                info.setId(String.valueOf(id));
+                info.setPath(cachedPath);
+                return info;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Fallback charset also failed: " + uri, e);
+        }
+        return null;
+    }
+
+    /**
+     * レガシー方式: ファイルシステムから直接スキャン（API 28以下用）。
+     *
+     * @return 検出された書籍情報のリスト
      */
     private List<DaisyBookInfo> getData() {
-        ArrayList<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
+        ArrayList<DaisyBookInfo> filesResult = new ArrayList<>();
         File[] files = mCurrentDirectory.listFiles();
         try {
             if (files != null) {
@@ -183,8 +274,6 @@ public class DaisyEbookReaderWorker extends Worker {
                             // Check zip files.
                             if (!daisyPath.getAbsolutePath().endsWith(Constants.SUFFIX_ZIP_FILE) && !daisyPath.getAbsolutePath().endsWith(Constants.SUFFIX_EPUB_FILE)) {
                                 if (DaisyBookUtil.getNccFileName(daisyPath) != null) {
-                                    // We think we have a DAISY 2.02 book as
-                                    // these include an NCC file.
                                     result = result + File.separator
                                             + DaisyBookUtil.getNccFileName(daisyPath);
                                     mBook202 = DaisyBookUtil.getDaisy202Book(result, getApplicationContext());
@@ -192,8 +281,6 @@ public class DaisyEbookReaderWorker extends Worker {
                             } else {
                                 mBook202 = DaisyBookUtil.getDaisy202Book(result, getApplicationContext());
                             }
-                            // If book is not daisy 2.02, go to function daisy
-                            // 3.0 to read it.
                             if (mBook202 == null) {
                                 DaisyBook mBook30 = DaisyBookUtil.getDaisy30Book(result, getApplicationContext());
                                 daisyBook = getDataFromDaisyBook(mBook30, result);
@@ -203,8 +290,7 @@ public class DaisyEbookReaderWorker extends Worker {
                             filesResult.add(daisyBook);
 
                         } catch (Exception e) {
-                            PrivateException ex = new PrivateException(e,
-                                    context);
+                            PrivateException ex = new PrivateException(e, context);
                             ex.writeLogException();
                         }
                     }
@@ -218,38 +304,27 @@ public class DaisyEbookReaderWorker extends Worker {
     }
 
     /**
-     * Gets the data from daisy30 book.
-     *
-     * @param daisybook the daisy30
-     * @param result    the result
-     * @return the data from daisy book
+     * DaisyBook から DaisyBookInfo を生成する。
      */
     private DaisyBookInfo getDataFromDaisyBook(DaisyBook daisybook, String result) {
-        DaisyBookInfo daisyBook = null;
-
         Date date = daisybook.getDate();
         String sDate = formatDateOrReturnEmptyString(date);
-        daisyBook = new DaisyBookInfo("", daisybook.getTitle(), result, daisybook.getAuthor(),
+        return new DaisyBookInfo("", daisybook.getTitle(), result, daisybook.getAuthor(),
                 daisybook.getPublisher(), sDate, 1);
-        return daisyBook;
     }
 
     /**
-     * Format date or return empty string.
-     *
-     * @param date the date
-     * @return the string
+     * 日付をフォーマットする。nullの場合は空文字を返す。
      */
     private String formatDateOrReturnEmptyString(Date date) {
         String sDate = "";
         if (date != null) {
             if (Locale.getDefault().getLanguage().equals("ja")) {
-                sDate = String.format(Locale.getDefault(), ("%tY/%tm/%td %n"), date, date, date);
+                sDate = String.format(Locale.getDefault(), "%tY/%tm/%td", date, date, date);
             } else {
-                sDate = String.format(Locale.getDefault(), ("%tB %te, %tY %n"), date, date, date);
+                sDate = String.format(Locale.getDefault(), "%tB %te, %tY", date, date, date);
             }
         }
         return sDate;
     }
-
 }

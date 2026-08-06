@@ -47,12 +47,13 @@ public class ZippedBookContext implements BookContext {
     }
 
     public InputStream getResource(String uri) throws IOException {
+        ZipSecurity.validateResourceUri(uri);
         ZipEntry entry;
 
         Enumeration<? extends ZipEntry> e = zipContents.entries();
         while (e.hasMoreElements()) {
             entry = (ZipEntry) e.nextElement();
-//            System.out.println("Checking: " + entry);
+            String entryName = ZipSecurity.validateEntryName(entry.getName());
 
             // Note: we're blindly stripping off any folder prefix and
             // assuming that each filename in the zip file is unique. These
@@ -62,7 +63,7 @@ public class ZippedBookContext implements BookContext {
 
             // 20130912: add "toLowerCase" to increase exactly when compare two
             // text.
-            if (entry.getName().toLowerCase().contains(uri.toLowerCase())) {
+            if (entryName.toLowerCase().contains(uri.toLowerCase())) {
                 return new BufferedInputStream(zipContents.getInputStream(entry), ModelConsts.BUFFER_SIZE);
             }
         }

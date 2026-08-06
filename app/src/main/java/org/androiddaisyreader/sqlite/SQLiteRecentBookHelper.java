@@ -20,8 +20,20 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class SQLiteRecentBookHelper extends SQLiteHandler {
 
+    private static SQLiteRecentBookHelper sInstance;
     private Context mContext;
 
+    public static synchronized SQLiteRecentBookHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new SQLiteRecentBookHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    /**
+     * @deprecated getInstance(Context)を使用してください。
+     */
+    @Deprecated
     public SQLiteRecentBookHelper(Context context) {
         super(context);
         this.mContext = context;
@@ -42,7 +54,6 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
         try {
             SQLiteDatabase mdb = getWritableDatabase();
             mdb.insert(TABLE_NAME_RECENT_BOOKS, null, mValue);
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -61,7 +72,6 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
             SQLiteDatabase mdb = getWritableDatabase();
             mdb.delete(TABLE_NAME_RECENT_BOOKS, NAME_KEY_RECENT_BOOKS + "=?",
                     new String[] { String.valueOf(recentBooks.getTitle()) });
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -82,7 +92,6 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
             SQLiteDatabase mdb = getWritableDatabase();
             mdb.update(TABLE_NAME_RECENT_BOOKS, mValue, NAME_KEY_RECENT_BOOKS + "=?",
                     new String[] { recentBooks.getTitle() });
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -98,14 +107,14 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
      */
     public DaisyBookInfo getInfoRecentBook(String name) {
         DaisyBookInfo mRecentBooks = null;
+        SQLiteDatabase mdb = null;
+        Cursor mCursor = null;
         try {
-            SQLiteDatabase mdb = getReadableDatabase();
-            Cursor mCursor = mdb.query(TABLE_NAME_RECENT_BOOKS, new String[] {
+            mdb = getReadableDatabase();
+            mCursor = mdb.query(TABLE_NAME_RECENT_BOOKS, new String[] {
                     NAME_KEY_RECENT_BOOKS, PATH_KEY_RECENT_BOOKS, SORT_KEY_RECENT_BOOKS },
                     NAME_KEY_RECENT_BOOKS + "=?", new String[] { name }, null, null, null);
-            // Check data null or empty
-            if (mCursor != null && mCursor.getCount() > 0) {
-                mCursor.moveToFirst();
+            if (mCursor != null && mCursor.moveToFirst()) {
                 String valueName = mCursor.getString(mCursor.getColumnIndex(NAME_KEY_RECENT_BOOKS));
                 String path = mCursor.getString(mCursor.getColumnIndex(PATH_KEY_RECENT_BOOKS));
                 int sort = Integer.valueOf(mCursor.getString(mCursor
@@ -113,13 +122,11 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
                 mRecentBooks = new DaisyBookInfo("", valueName, path, "author", "publisher",
                         "date", sort);
             }
-            if (mCursor != null) {
-                mCursor.close();
-                mdb.close();
-            }
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return mRecentBooks;
     }
@@ -131,11 +138,13 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
      */
     public List<DaisyBookInfo> getAllRecentBooks() {
         ArrayList<DaisyBookInfo> arrRecentBooks = new ArrayList<DaisyBookInfo>();
+        SQLiteDatabase mdb = null;
+        Cursor mCursor = null;
         try {
-            SQLiteDatabase mdb = getReadableDatabase();
+            mdb = getReadableDatabase();
             String sql = "SELECT * FROM " + TABLE_NAME_RECENT_BOOKS + " ORDER BY "
                     + SORT_KEY_RECENT_BOOKS + " DESC";
-            Cursor mCursor = mdb.rawQuery(sql, null);
+            mCursor = mdb.rawQuery(sql, null);
 
             if (mCursor.moveToFirst()) {
                 do {
@@ -144,16 +153,15 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
                     String path = mCursor.getString(mCursor.getColumnIndex(PATH_KEY_RECENT_BOOKS));
                     int sort = Integer.valueOf(mCursor.getString(mCursor
                             .getColumnIndex(SORT_KEY_RECENT_BOOKS)));
-                    // Add to ArrayList
                     arrRecentBooks.add(new DaisyBookInfo("", valueName, path, "author",
                             "publisher", "date", sort));
                 } while (mCursor.moveToNext());
             }
-            mCursor.close();
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return arrRecentBooks;
     }
@@ -166,17 +174,18 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
      */
     public boolean isExists(String name) {
         boolean result = false;
+        Cursor mCursor = null;
         try {
             SQLiteDatabase mdb = getReadableDatabase();
-            Cursor mCursor = mdb.query(TABLE_NAME_RECENT_BOOKS, new String[] {
+            mCursor = mdb.query(TABLE_NAME_RECENT_BOOKS, new String[] {
                     NAME_KEY_RECENT_BOOKS, PATH_KEY_RECENT_BOOKS, SORT_KEY_RECENT_BOOKS },
                     NAME_KEY_RECENT_BOOKS + "=?", new String[] { name }, null, null, null);
             result = mCursor.moveToFirst();
-            mCursor.close();
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return result;
     }

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import org.androiddaisyreader.apps.PrivateException;
 import org.androiddaisyreader.model.BookContext;
@@ -21,16 +20,13 @@ import org.androiddaisyreader.model.FileSystemContext;
 import org.androiddaisyreader.model.NccSpecification;
 import org.androiddaisyreader.model.Opf31Specification;
 import org.androiddaisyreader.model.OpfSpecification;
-import org.androiddaisyreader.model.SimpleBookContext;
 import org.androiddaisyreader.model.ZippedBookContext;
 import org.androiddaisyreader.model.ZippedBookInfo;
 import org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -40,6 +36,7 @@ import android.util.Log;
  */
 
 public class DaisyBookUtil {
+    private static final String TAG = "DAISYBookUtil";
     /**
      * Search book with text.
      *
@@ -149,11 +146,7 @@ public class DaisyBookUtil {
         ZipFile zipContents = null;
         boolean found = false;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // N for Nougat
-                zipContents = new ZipFile(filename, Charset.forName("ISO-8859-1"));
-            } else {
-                zipContents = new ZipFile(filename);
-            }
+            zipContents = new ZipFile(filename, Charset.forName("ISO-8859-1"));
             Enumeration<? extends ZipEntry> e = zipContents.entries();
             while (e.hasMoreElements()) {
                 entry = (ZipEntry) e.nextElement();
@@ -190,27 +183,11 @@ public class DaisyBookUtil {
         ZipFile zipContents = null;
         try {
             if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
-                ContentResolver resolver = context[0].getContentResolver();
-                ZipInputStream contents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))));
-                entry = contents.getNextEntry();
-                while (entry != null) {
-                    String name = entry.getName();
-                    if (name.toLowerCase().endsWith(".opf")) {
-                        result = name;
-                        break;
-                    }
-                    entry = contents.getNextEntry();
-                }
-                try {
-                    contents.close();
-                } catch (IOException e) {
-                    //
-                }
-                return result;
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // N for Nougat
-                zipContents = new ZipFile(path, Charset.forName("ISO-8859-1"));
+                // content:// URI はキャッシュ経由でZipFileとして開く
+                java.io.File cachedFile = CacheHelper.copyToCache(context[0], path);
+                zipContents = new ZipFile(cachedFile, Charset.forName("ISO-8859-1"));
             } else {
-                zipContents = new ZipFile(path);
+                zipContents = new ZipFile(path, Charset.forName("ISO-8859-1"));
             }
             Enumeration<? extends ZipEntry> e = zipContents.entries();
             while (e.hasMoreElements()) {
@@ -239,32 +216,15 @@ public class DaisyBookUtil {
         ZipFile zipContents = null;
         try {
             if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
-                ContentResolver resolver = context[0].getContentResolver();
-                ZipInputStream contents;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    contents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))), charset);
+                // content:// URI はキャッシュ経由でZipFileとして開く
+                java.io.File cachedFile = CacheHelper.copyToCache(context[0], path);
+                if (charset != null) {
+                    zipContents = new ZipFile(cachedFile, charset);
                 } else {
-                    contents = new ZipInputStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))));
+                    zipContents = new ZipFile(cachedFile);
                 }
-                entry = contents.getNextEntry();
-                while (entry != null) {
-                    String name = entry.getName();
-                    if (name.toLowerCase().endsWith(".opf")) {
-                        result = name;
-                        break;
-                    }
-                    entry = contents.getNextEntry();
-                }
-                try {
-                    contents.close();
-                } catch (IOException e) {
-                    //
-                }
-                return result;
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // N for Nougat
-                zipContents = new ZipFile(path, Charset.forName("ISO-8859-1"));
             } else {
-                zipContents = new ZipFile(path);
+                zipContents = new ZipFile(path, Charset.forName("ISO-8859-1"));
             }
             Enumeration<? extends ZipEntry> e = zipContents.entries();
             while (e.hasMoreElements()) {
@@ -309,13 +269,9 @@ public class DaisyBookUtil {
     public static BookContext openBook(String filename, Context... context) throws IOException {
         BookContext bookContext = null;
         if (filename.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
-            bookContext = new SimpleBookContext(filename, context[0].getContentResolver());
-//            InputStream contents = null;
-//            contents = bookContext.getResource(Constants.FILE_NCC_NAME_NOT_CAPS);
-//            if (contents != null) {
-//                ((SimpleBookContext)bookContext).setMediaFormat(Constants.DAISY_202_FORMAT);
-//                contents.close();
-//            }
+            // content:// URI はZipFileで直接開けないため、キャッシュにコピーしてから開く
+            java.io.File cachedFile = CacheHelper.copyToCache(context[0], filename);
+            bookContext = new ZippedBookContext(cachedFile.getAbsolutePath());
         } else {
             File directory = new File(filename);
             boolean isDirectory = directory.isDirectory();
@@ -387,7 +343,19 @@ public class DaisyBookUtil {
                 contents = bookContext.getResource(getOpfFileName(path));
             }
             if (contents != null) {
-                if (path.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                // content:// URI の場合は拡張子がないため、キャッシュファイルの拡張子で判定
+                boolean isEpub = path.endsWith(Constants.SUFFIX_EPUB_FILE);
+                if (!isEpub && path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                    String cachedPath = CacheHelper.getCachedPath(context[0], path);
+                    if (cachedPath != null && cachedPath.endsWith(Constants.SUFFIX_EPUB_FILE)) {
+                        isEpub = true;
+                    }
+                    // キャッシュファイルの拡張子でも判定できない場合、URIに "epub" が含まれるかで判定
+                    if (!isEpub && path.toLowerCase().contains("epub")) {
+                        isEpub = true;
+                    }
+                }
+                if (isEpub) {
                     book = Opf31Specification.readFromStream(contents, bookContext);
                 } else {
                     book = OpfSpecification.readFromStream(contents, bookContext);
@@ -462,11 +430,14 @@ public class DaisyBookUtil {
         int result = 0;
         if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
             InputStream contents = null;
-            try {
-                BookContext bookContext = openBook(path, context[0]);
-                contents = bookContext.getResource("ncc.html");
-            } catch (IOException e) {
-                //
+            Log.d(TAG, path);
+            if (context != null && context.length > 0) {
+                try {
+                    BookContext bookContext = openBook(path, context[0]);
+                    contents = bookContext.getResource("ncc.html");
+                } catch (IOException e) {
+                    //
+                }
             }
             if (contents == null) {
                 result = Constants.DAISY_30_FORMAT;
@@ -507,28 +478,36 @@ public class DaisyBookUtil {
     }
 
     public String getBookTitle(String path, Context context) throws PrivateException {
-        DaisyBook daisyBook;
+        DaisyBook daisyBook = null;
         String titleOfBook = null;
         try {
             if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
-                ContentResolver resolver = context.getContentResolver();
-                DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))), Charset.forName("MS932"));
-                titleOfBook = bookInfo.getTitle();
+                // content:// URI はキャッシュ経由でZipFileとして読む
+                java.io.File cachedFile = CacheHelper.copyToCache(context, path);
+                try (InputStream input = new BufferedInputStream(new java.io.FileInputStream(cachedFile))) {
+                    DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+                    titleOfBook = bookInfo.getTitle();
+                }
             } else {
                 if (DaisyBookUtil.findDaisyFormat(path) == Constants.DAISY_202_FORMAT) {
                     daisyBook = DaisyBookUtil.getDaisy202Book(path, context);
-                    titleOfBook = daisyBook.getTitle() == null ? "" : daisyBook.getTitle();
-                } else {
+                }
+                // DAISY 2.02 で読めなかった場合は DAISY 3.0 / EPUB で試行
+                if (daisyBook == null) {
                     daisyBook = DaisyBookUtil.getDaisy30Book(path, context);
+                }
+                if (daisyBook != null) {
                     titleOfBook = daisyBook.getTitle() == null ? "" : daisyBook.getTitle();
                 }
             }
         } catch (IllegalArgumentException iae) {
             try {
                 if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
-                    ContentResolver resolver = context.getContentResolver();
-                    DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(new BufferedInputStream(resolver.openInputStream(Uri.parse(path))), Charset.defaultCharset());
-                    titleOfBook = bookInfo.getTitle();
+                    java.io.File cachedFile = CacheHelper.copyToCache(context, path);
+                    try (InputStream input = new BufferedInputStream(new java.io.FileInputStream(cachedFile))) {
+                        DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
+                        titleOfBook = bookInfo.getTitle();
+                    }
                 }
             } catch (IOException ie) {
                 throw new PrivateException(ie, context, path);

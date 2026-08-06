@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace 'com.github.naofum.androiddaisyreader'
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.github.naofum.androiddaisyreader"
-        minSdk 21
-        targetSdk 35
-        versionCode 15
-        versionName "1.15"
+        minSdk 29
+        targetSdk 37
+        versionCode 16
+        versionName '1.16'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,20 +30,24 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
     implementation project(':daisy-engine')
     implementation libs.library
     implementation libs.option
-    implementation 'commons-io:commons-io:2.7' // for old Android
-    implementation 'org.apache.commons:commons-lang3:3.9' // for old Android
+    implementation libs.commons.io.v27
+    implementation libs.commons.lang3.v39
     implementation libs.androidx.work.runtime
     implementation libs.androidx.core
     implementation libs.androidx.appcompat
     implementation libs.androidx.preference
     implementation libs.material
     testImplementation libs.junit
+    testImplementation libs.mockito.core
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
 }

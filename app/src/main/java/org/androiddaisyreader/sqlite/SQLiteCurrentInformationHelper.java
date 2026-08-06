@@ -11,8 +11,20 @@ import java.util.UUID;
 
 public class SQLiteCurrentInformationHelper extends SQLiteHandler {
 
+    private static SQLiteCurrentInformationHelper sInstance;
     private Context mContext;
 
+    public static synchronized SQLiteCurrentInformationHelper getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new SQLiteCurrentInformationHelper(context.getApplicationContext());
+        }
+        return sInstance;
+    }
+
+    /**
+     * @deprecated getInstance(Context)を使用してください。
+     */
+    @Deprecated
     public SQLiteCurrentInformationHelper(Context context) {
         super(context);
         this.mContext = context;
@@ -31,7 +43,6 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
         try {
             SQLiteDatabase mdb = getWritableDatabase();
             mdb.insert(TABLE_NAME_CURRENT_INFORMATION, null, mValue);
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -49,7 +60,6 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
             SQLiteDatabase mdb = getWritableDatabase();
             mdb.delete(TABLE_NAME_CURRENT_INFORMATION, ID_KEY_CURRENT_INFORMATION + "=?",
                     new String[] { id });
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -69,7 +79,6 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
             SQLiteDatabase mdb = getWritableDatabase();
             mdb.update(TABLE_NAME_CURRENT_INFORMATION, mValue, ID_KEY_CURRENT_INFORMATION + "=?",
                     new String[] { current.getId() });
-            mdb.close();
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
@@ -97,17 +106,18 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
     public CurrentInformation getCurrentInformation() {
         String valueOfTrue = "1";
         CurrentInformation current = null;
+        SQLiteDatabase mdb = null;
+        Cursor mCursor = null;
         try {
-            SQLiteDatabase mdb = getReadableDatabase();
-            Cursor mCursor = mdb.query(TABLE_NAME_CURRENT_INFORMATION, new String[] {
+            mdb = getReadableDatabase();
+            mCursor = mdb.query(TABLE_NAME_CURRENT_INFORMATION, new String[] {
                     AUDIO_NAME_KEY_CURRENT_INFORMATION, PATH_KEY_CURRENT_INFORMATION,
                     SECTION_KEY_CURRENT_INFORMATION, TIME_KEY_CURRENT_INFORMATION,
                     PLAYING_KEY_CURRENT_INFORMATION, SENTENCE_KEY_CURRENT_INFORMATION,
                     ACTIVITY_KEY_CURRENT_INFORMATION, ID_KEY_CURRENT_INFORMATION,
                     FIRST_NEXT_KEY_CURRENT_INFORMATION, FIRST_PREVIOUS_KEY_CURRENT_INFORMATION,
                     AT_THE_END_KEY_CURRENT_INFORMATION }, null, null, null, null, null);
-            if (mCursor != null && mCursor.getCount() > 0) {
-                mCursor.moveToFirst();
+            if (mCursor != null && mCursor.moveToFirst()) {
                 String audioName = mCursor.getString(mCursor
                         .getColumnIndex(AUDIO_NAME_KEY_CURRENT_INFORMATION));
                 String path = mCursor.getString(mCursor
@@ -136,13 +146,11 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
                 current = new CurrentInformation(audioName, path, section, time, playing, sentence,
                         activity, id, firstNext, firstPrevious, atTheEnd);
             }
-            if (mCursor != null) {
-                mCursor.close();
-                mdb.close();
-            }
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext);
             ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
         }
         return current;
     }

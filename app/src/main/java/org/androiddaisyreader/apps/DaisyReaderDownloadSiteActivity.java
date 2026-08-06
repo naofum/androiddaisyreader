@@ -27,6 +27,7 @@ import com.github.naofum.androiddaisyreader.R;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * The Class DaisyReaderDownloadSiteActivity.
@@ -108,6 +109,20 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
             MetaDataHandler metadata = new MetaDataHandler();
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            // XXE対策（サポートされないfeatureは無視）
+            try {
+                dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            } catch (Exception ignored) {}
+            try {
+                dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            } catch (Exception ignored) {}
+            try {
+                dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            } catch (Exception ignored) {}
+            try {
+                dbFactory.setXIncludeAware(false);
+            } catch (Exception ignored) {}
+            dbFactory.setExpandEntityReferences(false);
             DocumentBuilder dBuilder;
             dBuilder = dbFactory.newDocumentBuilder();
             Document doc;

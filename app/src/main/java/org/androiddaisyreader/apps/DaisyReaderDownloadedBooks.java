@@ -2,19 +2,22 @@ package org.androiddaisyreader.apps;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.androiddaisyreader.adapter.DaisyBookAdapter;
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
 import org.androiddaisyreader.model.DaisyBookInfo;
+import org.androiddaisyreader.model.ZippedBookInfo;
 import org.androiddaisyreader.player.IntentController;
 import org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper;
+import org.androiddaisyreader.utils.CacheHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
-import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,8 +30,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.github.naofum.androiddaisyreader.R;
 
@@ -46,9 +47,6 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
     private EditText mTextSearch;
     private int mNumberOfRecentBooks;
 
-    private LocalBroadcastManager broadcastManager;
-    private BroadcastReceiver broadcastReceiver;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +62,11 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
 
         mTextSearch = (EditText) findViewById(R.id.edit_text_search);
 
-        mSql = new SQLiteDaisyBookHelper(DaisyReaderDownloadedBooks.this);
+        mSql = SQLiteDaisyBookHelper.getInstance(DaisyReaderDownloadedBooks.this);
+
+        // 通知クリック等でcontent:// URIが渡された場合、キャッシュしてDB登録する
+        handleIntentUri(getIntent());
+
         mlistDaisyBook = getActualDownloadedBooks();
         mDaisyBookAdapter = new DaisyBookAdapter(DaisyReaderDownloadedBooks.this, mlistDaisyBook);
         ListView listDownloaded = (ListView) findViewById(R.id.list_view_downloaded_books);
@@ -76,6 +78,55 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
 //        Intent serviceIntent = new Intent(DaisyReaderDownloadedBooks.this,
 //                DaisyEbookReaderService.class);
 //        startService(serviceIntent);
+    }
+
+    /**
+     * Intent で渡された content:// URI をキャッシュし、キャッシュのローカルパスでDB登録する。
+     * DownloadManager の通知クリック時に呼ばれることを想定。
+     */
+    private void handleIntentUri(android.content.Intent intent) {
+        if (intent == null || intent.getData() == null) {
+            return;
+        }
+        Uri contentUri = intent.getData();
+        String uriStr = contentUri.toString();
+        if (!uriStr.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            return;
+        }
+
+        try {
+            // キャッシュにコピー
+            File cachedFile = CacheHelper.copyToCache(getApplicationContext(), contentUri);
+            String cachedPath = cachedFile.getAbsolutePath();
+
+            // 既にDB登録済みか確認（同じキャッシュパスのエントリがあれば重複登録しない）
+            List<DaisyBookInfo> existing = mSql.getAllDaisyBook(Constants.TYPE_DOWNLOADED_BOOK);
+            for (DaisyBookInfo book : existing) {
+                if (cachedPath.equals(book.getPath())) {
+                    return; // 既に登録済み
+                }
+            }
+
+            // ZIPストリームからメタデータを読み取り
+            DaisyBookInfo bookInfo = null;
+            try (InputStream input = new BufferedInputStream(new FileInputStream(cachedFile))) {
+                bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+            } catch (IllegalArgumentException iae) {
+                try (InputStream input = new BufferedInputStream(new FileInputStream(cachedFile))) {
+                    bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
+                }
+            }
+
+            if (bookInfo != null) {
+                bookInfo.setPath(cachedPath);
+                mSql.addDaisyBook(bookInfo, Constants.TYPE_DOWNLOADED_BOOK);
+                // 最近の書籍にも登録
+                DaisyBookUtil.addRecentBookToSQLite(bookInfo, mNumberOfRecentBooks, mSql);
+            }
+        } catch (Exception e) {
+            PrivateException ex = new PrivateException(e, getApplicationContext(), uriStr);
+            ex.writeLogException();
+        }
     }
 
     @Override

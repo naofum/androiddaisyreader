@@ -33,7 +33,7 @@ public class DaisyEbookReaderModeChoiceActivity extends DaisyEbookReaderBaseActi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daisy_ebook_reader);
 
-        mSql = new SQLiteCurrentInformationHelper(getApplicationContext());
+        mSql = SQLiteCurrentInformationHelper.getInstance(getApplicationContext());
         mIntentController = new IntentController(this);
 
         RelativeLayout simpleMode = (RelativeLayout) this.findViewById(R.id.simpleMode);
@@ -80,6 +80,9 @@ public class DaisyEbookReaderModeChoiceActivity extends DaisyEbookReaderBaseActi
     private String getBookTitle() {
         String titleOfBook = null;
         mPath = getIntent().getStringExtra(Constants.DAISY_PATH);
+        if (mPath == null || mPath.trim().isEmpty()) {
+            return "";
+        }
         try {
             titleOfBook = new DaisyBookUtil().getBookTitle(mPath, getApplicationContext());
         } catch (PrivateException e) {
@@ -120,14 +123,6 @@ public class DaisyEbookReaderModeChoiceActivity extends DaisyEbookReaderBaseActi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        try {
-//            if (mTts != null) {
-//                mTts.shutdown();
-//            }
-//        } catch (Exception e) {
-//            PrivateException ex = new PrivateException(e, DaisyEbookReaderModeChoiceActivity.this);
-//            ex.writeLogException();
-//        }
     }
 
     @Override

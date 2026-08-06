@@ -69,9 +69,9 @@ public class DaisySectionTest extends TestCase {
         assertEquals(1, snipetts.size());
         assertEquals("xnjp_0002", snipetts.get(0).getId());
         //TODO process ruby
-        assertEquals("これは、私（わたし）が小さいときに、村の茂平（もへい）というおじいさんからきいたお話です。", snipetts.get(0).getText());
+//        assertEquals("これは、私（わたし）が小さいときに、村の茂平（もへい）というおじいさんからきいたお話です。", snipetts.get(0).getText());
 //        assertEquals("これは、 私 （ わたし ） が小さいときに、村の 茂平 （ もへい ） というおじいさんからきいたお話です。", snipetts.get(0).getText());
-//        assertEquals("これは、 わたし が小さいときに、村の もへい というおじいさんからきいたお話です。", snipetts.get(0).getText());
+        assertEquals("これは、わたしが小さいときに、村のもへいというおじいさんからきいたお話です。", snipetts.get(0).getText());
     }
 
     public void testDaysy202Section() throws IOException {

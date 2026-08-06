@@ -202,8 +202,7 @@ public class DaisyReaderTableOfContentsActivity extends DaisyEbookReaderBaseActi
     private void pushToDaisyEbookReaderModeIntent(int position) {
         Intent i = null;
         String targetActivity = getIntent().getStringExtra(Constants.TARGET_ACTIVITY);
-        SQLiteCurrentInformationHelper sql = new SQLiteCurrentInformationHelper(
-                DaisyReaderTableOfContentsActivity.this);
+        SQLiteCurrentInformationHelper sql = SQLiteCurrentInformationHelper.getInstance(DaisyReaderTableOfContentsActivity.this);
         CurrentInformation current = sql.getCurrentInformation();
         if (targetActivity.equals(getString(R.string.simple_mode))) {
             i = new Intent(this, DaisyEbookReaderSimpleModeActivity.class);

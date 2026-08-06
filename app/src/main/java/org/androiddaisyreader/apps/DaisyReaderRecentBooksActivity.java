@@ -68,7 +68,7 @@ public class DaisyReaderRecentBooksActivity extends DaisyEbookReaderBaseActivity
         mTextSearch.clearFocus();
 
         // init SQLite Recent Book
-        mSql = new SQLiteDaisyBookHelper(this);
+        mSql = SQLiteDaisyBookHelper.getInstance(this);
 
         mListViewRecentBooks.setOnItemClickListener(onItemBookClick);
         deleteCurrentInformation();

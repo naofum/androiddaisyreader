@@ -31,6 +31,30 @@ import android.util.Log;
 public class MetaDataHandler {
 
     /**
+     * XXE対策を施したDocumentBuilderFactoryを生成する。
+     * Android端末のXMLパーサー実装によってはサポートされないfeatureがあるため、
+     * 各featureの設定は個別にtry-catchで囲む。
+     */
+    private DocumentBuilderFactory createSecureDocumentBuilderFactory()
+            throws ParserConfigurationException {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        try {
+            dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        } catch (Exception ignored) {}
+        try {
+            dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        } catch (Exception ignored) {}
+        try {
+            dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (Exception ignored) {}
+        try {
+            dbFactory.setXIncludeAware(false);
+        } catch (Exception ignored) {}
+        dbFactory.setExpandEntityReferences(false);
+        return dbFactory;
+    }
+
+    /**
      * Read data download from xml file.
      * 
      * @param databaseInputStream the database input stream
@@ -41,7 +65,7 @@ public class MetaDataHandler {
         NodeList nList = null;
         try {
             try {
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilderFactory dbFactory = createSecureDocumentBuilderFactory();
                 DocumentBuilder dBuilder;
                 dBuilder = dbFactory.newDocumentBuilder();
                 Document doc;
@@ -95,7 +119,7 @@ public class MetaDataHandler {
         NodeList nList = null;
         try {
             try {
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilderFactory dbFactory = createSecureDocumentBuilderFactory();
                 DocumentBuilder dBuilder;
                 dBuilder = dbFactory.newDocumentBuilder();
                 Document doc;
@@ -120,7 +144,7 @@ public class MetaDataHandler {
      */
     public void writeDataToXmlFile(List<DaisyBookInfo> daisybooks, String localPath) {
         try {
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory docFactory = createSecureDocumentBuilderFactory();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
             Element bookElement = doc.createElement(Constants.ATT_BOOKS);
@@ -160,6 +184,9 @@ public class MetaDataHandler {
             }
             // write the content into xml file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            // XXE対策
+//            transformerFactory.setAttribute("http://javax.xml.XMLConstants/property/accessExternalDTD", "");
+//            transformerFactory.setAttribute("http://javax.xml.XMLConstants/property/accessExternalStylesheet", "");
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
             File file = new File(localPath);
