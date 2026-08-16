@@ -91,6 +91,26 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
     private void initListWebsite() {
         listWebsite = new ArrayList<Website>();
         Website website = null;
+
+        // ChattyLib（認証情報が設定されている場合のみ表示）
+        if (org.androiddaisyreader.utils.ChattyLibPreferences.hasCredentials(this)) {
+            website = new Website(Constants.CHATTYLIB_SITE_NAME, Constants.CHATTYLIB_SITE_URL, 0);
+            listWebsite.add(website);
+        }
+
+        // サピエ図書館（認証情報が設定されている場合のみ表示）
+        if (org.androiddaisyreader.utils.SapiePreferences.hasCredentials(this)) {
+            website = new Website(Constants.SAPIE_SITE_NAME, Constants.SAPIE_SITE_URL, 0);
+            listWebsite.add(website);
+        }
+
+        // 青空文庫（常に表示、認証不要）
+        website = new Website(Constants.AOZORA_SITE_NAME, Constants.AOZORA_SITE_URL, 0);
+        listWebsite.add(website);
+
+        // 広報紙（マチイロ・MY広報。常に表示、認証不要）
+        website = new Website(Constants.KOHO_SITE_NAME, Constants.KOHO_SITE_URL, 0);
+        listWebsite.add(website);
 //        website = new Website(this.getString(R.string.web_site_name_daisy_org),
 //                this.getString(R.string.web_site_url_daisy_org), 1);
 //        listWebsite.add(website);
@@ -155,6 +175,13 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
      * Push to list book of website.
      */
     private void pushToWebsite(String websiteURL, String websiteName) {
+        if (Constants.SAPIE_SITE_URL.equals(websiteURL)) {
+            // サピエ図書館は専用の検索画面へ
+            Intent intent = new Intent(this, DaisyReaderSapieBooksActivity.class);
+            intent.putExtra(Constants.NAME_WEBSITE, websiteName);
+            this.startActivity(intent);
+            return;
+        }
         Intent intent = new Intent(this, DaisyReaderDownloadBooks.class);
         intent.putExtra(Constants.LINK_WEBSITE, websiteURL);
         intent.putExtra(Constants.NAME_WEBSITE, websiteName);
@@ -170,14 +197,6 @@ public class DaisyReaderDownloadSiteActivity extends DaisyEbookReaderBaseActivit
 
     @Override
     protected void onDestroy() {
-//        try {
-//            if (mTts != null) {
-//                mTts.shutdown();
-//            }
-//        } catch (Exception e) {
-//            PrivateException ex = new PrivateException(e, DaisyReaderDownloadSiteActivity.this);
-//            ex.writeLogException();
-//        }
         super.onDestroy();
     }
 

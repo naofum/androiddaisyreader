@@ -18,7 +18,6 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -83,10 +82,56 @@ public class DaisyReaderRecentBooksActivity extends DaisyEbookReaderBaseActivity
             backToTopScreen();
             break;
 
+        case Constants.CLEAR_RECENT:
+            confirmClearAll();
+            break;
+
         default:
             return super.onOptionsItemSelected(item);
         }
         return false;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        menu.add(0, Constants.CLEAR_RECENT, 0, R.string.clear_recent_books)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        return true;
+    }
+
+    /**
+     * 確認ダイアログを表示してから一覧とキャッシュをクリアする。
+     */
+    private void confirmClearAll() {
+        new android.app.AlertDialog.Builder(this)
+                .setMessage(R.string.clear_recent_books_confirm)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    clearAllRecentBooksAndCache();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /**
+     * 最近開いた本のDB・キャッシュをすべて削除する。
+     */
+    private void clearAllRecentBooksAndCache() {
+        // DB: 最近開いた本を全削除
+        mSql.deleteAllDaisyBook(Constants.TYPE_RECENT_BOOK);
+
+        // キャッシュフォルダを全削除
+        org.androiddaisyreader.utils.CacheHelper.clearCache(getApplicationContext());
+
+        // UI更新
+        mListRecentBooks.clear();
+        mListRecentBookOriginal.clear();
+        if (mDaisyBookAdapter != null) {
+            mDaisyBookAdapter.notifyDataSetChanged();
+        }
+
+        android.widget.Toast.makeText(this, R.string.clear_recent_books_done,
+                android.widget.Toast.LENGTH_SHORT).show();
+        speakText(getString(R.string.clear_recent_books_done));
     }
 
     @Override
@@ -136,49 +181,33 @@ public class DaisyReaderRecentBooksActivity extends DaisyEbookReaderBaseActivity
         List<DaisyBookInfo> recentBooks = mSql.getAllDaisyBook(Constants.TYPE_RECENT_BOOK);
         // if size of recent books > number of recent books in setting.
         int sizeOfRecentBooks = recentBooks.size();
-        if (sizeOfRecentBooks >= mNumberOfRecentBooks) {
-            // get all items from 0 to number of recent books
-            for (int i = 0; i < mNumberOfRecentBooks; i++) {
-                DaisyBookInfo re = recentBooks.get(i);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    String path = re.getPath();
-                    ContentResolver resolver = getContentResolver();
-                    try (InputStream stream = resolver.openInputStream(Uri.parse(path))) {
-                        if (stream != null) {
-                            daisyBookList.add(re);
-                        }
-                    } catch (IOException e) {
-                        //
-                    }
-                } else {
-                    File f = new File(re.getPath());
-                    if (f.exists()) {
-                        daisyBookList.add(re);
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < sizeOfRecentBooks; i++) {
-                DaisyBookInfo re = recentBooks.get(i);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    String path = re.getPath();
-                    ContentResolver resolver = getContentResolver();
-                    try (InputStream stream = resolver.openInputStream(Uri.parse(path))) {
-                        if (stream != null) {
-                            daisyBookList.add(re);
-                        }
-                    } catch (IOException e) {
-                        //
-                    }
-                } else {
-                    File f = new File(re.getPath());
-                    if (f.exists()) {
-                        daisyBookList.add(re);
-                    }
-                }
+        int limit = Math.min(sizeOfRecentBooks, mNumberOfRecentBooks);
+        for (int i = 0; i < limit; i++) {
+            DaisyBookInfo re = recentBooks.get(i);
+            if (isBookAccessible(re.getPath())) {
+                daisyBookList.add(re);
             }
         }
         return daisyBookList;
+    }
+
+    /**
+     * 書籍ファイルがアクセス可能か確認する。
+     * content:// URI の場合は ContentResolver で、ローカルパスの場合は File.exists() で確認。
+     */
+    private boolean isBookAccessible(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+        if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            try (InputStream stream = getContentResolver().openInputStream(Uri.parse(path))) {
+                return stream != null;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            return new File(path).exists();
+        }
     }
 
     /**

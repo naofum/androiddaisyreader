@@ -88,6 +88,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         db.execSQL(createCurrentInformationTableSql());
         db.execSQL(createRecentBooksTableSql());
         db.execSQL(createDaisyBookTableSql());
+        createIndexes(db);
         Log.i(TAG, "Database created with version " + DATABASE_VERSION);
     }
 
@@ -124,6 +125,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
      * Version 2 へのマイグレーション:
      * - Bookmarks テーブルに _text_show カラムを追加
      * - DaisyBook テーブルに _language カラムを追加
+     * - インデックスを作成
      */
     private void upgradeToVersion2(SQLiteDatabase db) {
         Log.i(TAG, "Applying migration to version 2");
@@ -133,6 +135,41 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
         // DaisyBook: _language カラム追加
         addColumnIfNotExists(db, TABLE_NAME_DAISY_BOOK, LANGUAGE_KEY_DAISY_BOOK, "TEXT");
+
+        // インデックス作成
+        createIndexes(db);
+    }
+
+    // =========================================================================
+    // インデックス作成
+    // =========================================================================
+
+    /**
+     * パフォーマンス向上のためのインデックスを作成する。
+     * CREATE INDEX IF NOT EXISTS を使用するため、複数回呼んでも安全。
+     */
+    private void createIndexes(SQLiteDatabase db) {
+        // Bookmarks: _path での検索を高速化
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_bookmark_path ON "
+                + TABLE_NAME_BOOKMARK + "(" + PATH_KEY_BOOKMARK + ")");
+
+        // DaisyBook: _type での検索を高速化
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_daisybook_type ON "
+                + TABLE_NAME_DAISY_BOOK + "(" + TYPE_OF_METADATA_DAISY_BOOK + ")");
+
+        // DaisyBook: _type + _sort での一覧表示を高速化（カバリングインデックス）
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_daisybook_type_sort ON "
+                + TABLE_NAME_DAISY_BOOK + "(" + TYPE_OF_METADATA_DAISY_BOOK + ", " + SORT_KEY_DAISY_BOOK + ")");
+
+        // DaisyBook: _name + _type での検索を高速化（isExists, getDaisyBookByTitle）
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_daisybook_name_type ON "
+                + TABLE_NAME_DAISY_BOOK + "(" + TITLE_KEY_DAISY_BOOK + ", " + TYPE_OF_METADATA_DAISY_BOOK + ")");
+
+        // RecentBooks: _name での検索を高速化
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_recentbook_name ON "
+                + TABLE_NAME_RECENT_BOOKS + "(" + NAME_KEY_RECENT_BOOKS + ")");
+
+        Log.i(TAG, "Indexes created");
     }
 
     // =========================================================================

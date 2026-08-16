@@ -147,12 +147,13 @@ public class SQLiteRecentBookHelper extends SQLiteHandler {
             mCursor = mdb.rawQuery(sql, null);
 
             if (mCursor.moveToFirst()) {
+                int idxName = mCursor.getColumnIndex(NAME_KEY_RECENT_BOOKS);
+                int idxPath = mCursor.getColumnIndex(PATH_KEY_RECENT_BOOKS);
+                int idxSort = mCursor.getColumnIndex(SORT_KEY_RECENT_BOOKS);
                 do {
-                    String valueName = mCursor.getString(mCursor
-                            .getColumnIndex(NAME_KEY_RECENT_BOOKS));
-                    String path = mCursor.getString(mCursor.getColumnIndex(PATH_KEY_RECENT_BOOKS));
-                    int sort = Integer.valueOf(mCursor.getString(mCursor
-                            .getColumnIndex(SORT_KEY_RECENT_BOOKS)));
+                    String valueName = mCursor.getString(idxName);
+                    String path = mCursor.getString(idxPath);
+                    int sort = Integer.valueOf(mCursor.getString(idxSort));
                     arrRecentBooks.add(new DaisyBookInfo("", valueName, path, "author",
                             "publisher", "date", sort));
                 } while (mCursor.moveToNext());

@@ -29,12 +29,31 @@ public class AndroidAudioPlayer implements AudioPlayer, OnCompletionListener {
     private BookContext context;
     private TempFileForAudioContentProvider tempFileCreator;
     private List<AudioCallbackListener> listeners = new ArrayList<AudioCallbackListener>();
+    private float playbackSpeed = 1.0f;
 
     public AndroidAudioPlayer(BookContext context) {
         this.context = context;
         tempFileCreator = new TempFileForAudioContentProvider(context);
         player = new MediaPlayer();
         player.setOnCompletionListener(this);
+    }
+
+    /**
+     * 再生速度を設定する。次回のplay()以降に適用される。
+     */
+    public void setPlaybackSpeed(float speed) {
+        this.playbackSpeed = speed;
+        applyPlaybackSpeed();
+    }
+
+    private void applyPlaybackSpeed() {
+        try {
+            android.media.PlaybackParams params = player.getPlaybackParams();
+            params.setSpeed(playbackSpeed);
+            player.setPlaybackParams(params);
+        } catch (Exception e) {
+            // 再生中でない場合等は無視
+        }
     }
 
     public void increaseVolume() {
@@ -73,6 +92,14 @@ public class AndroidAudioPlayer implements AudioPlayer, OnCompletionListener {
         if (doesContentNeedUnzipping) {
             try {
                 File f = tempFileCreator.getFileHandleToTempAudioFile(requestedFilename);
+                if (f == null) {
+                    Log.w(TAG, "Audio file not found in archive: " + requestedFilename);
+                    // オーディオが見つからない場合はコールバックを呼んで次に進む
+                    for (AudioCallbackListener acl : listeners) {
+                        acl.endOfAudio();
+                    }
+                    return;
+                }
                 filenameToPlay = f.getAbsolutePath();
                 Log.i(TAG, "Created temporary audio file, " + filenameToPlay);
 
@@ -83,8 +110,8 @@ public class AndroidAudioPlayer implements AudioPlayer, OnCompletionListener {
         } else {
             filenameToPlay = context.getBaseUri() + File.separator + requestedFilename;
         }
-        Log.i(TAG, filenameToPlay);
-        Log.i(TAG, context.getBaseUri());
+        Log.i(TAG, "play(): requested=" + filenameToPlay);
+        Log.i(TAG, "play(): baseUri=" + context.getBaseUri());
         player.reset();
         try {
             player.setDataSource(filenameToPlay);
@@ -92,12 +119,14 @@ public class AndroidAudioPlayer implements AudioPlayer, OnCompletionListener {
         } catch (Exception e) {
             // TODO 20120514 (jharty): Consider how to report exceptions. For
             // now this'll do.
-            Log.e("TAG", e.getMessage(), e);
+            Log.e(TAG, "play(): setDataSource/prepare failed: " + e.getMessage(), e);
+            return;
         }
         // TODO 20120514 (jharty): This starts from the start of the clip. Add
         // code to start later in the clip e.g. from a bookmark setting.
         player.seekTo(audioSegment.getClipBegin());
         player.start();
+        applyPlaybackSpeed();
 
         // Seems we can delete the temporary file now.
         if (doesContentNeedUnzipping) {
@@ -145,6 +174,24 @@ public class AndroidAudioPlayer implements AudioPlayer, OnCompletionListener {
         player.reset();
         for (AudioCallbackListener acl : listeners) {
             acl.endOfAudio();
+        }
+    }
+
+    /**
+     * MediaPlayer のリソースを解放する。
+     * Activity の onDestroy 等で呼ぶこと。
+     */
+    public void release() {
+        if (player != null) {
+            try {
+                if (player.isPlaying()) {
+                    player.stop();
+                }
+            } catch (IllegalStateException e) {
+                // ignore
+            }
+            player.release();
+            player = null;
         }
     }
 

@@ -247,8 +247,12 @@ public class NccSpecification extends DefaultHandler {
 
         switch (meta) {
         case DATE:
-            Date date = Smil.parseDate(content, scheme);
-            bookBuilder.setDate(date);
+            try {
+                Date date = Smil.parseDate(content, scheme);
+                bookBuilder.setDate(date);
+            } catch (IllegalArgumentException e) {
+                // 空文字や不正な日付形式は無視する（OpfSpecification と同様）
+            }
             break;
         case TITLE:
             bookBuilder.setTitle(content);

@@ -47,4 +47,21 @@ public interface ReaderView {
 
     /** 読み上げ停止 */
     void stopSpeaking();
+
+    /**
+     * 指定されたセンテンスをTTSで読み上げる（書籍コンテンツ読み上げ用）。
+     * 読み上げ完了時は onUtteranceCompleted をPresenterに通知する。
+     * @param text 読み上げテキスト
+     * @param sentenceIndex センテンス位置（utteranceId用）
+     */
+    void speakSentence(String text, int sentenceIndex);
+
+    /** TTS読み上げを停止する（書籍コンテンツ読み上げ用） */
+    void stopReadAloud();
+
+    /** 書籍コンテンツの読み上げ言語/速度を設定に基づいて適用する */
+    void applyReadAloudSettings();
+
+    /** 読み上げ中のハイライト表示（VisualMode用。SimpleModeでは空実装可） */
+    void highlightSentence(int sentenceIndex);
 }

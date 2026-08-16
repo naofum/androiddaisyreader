@@ -102,34 +102,38 @@ public class PrivateException extends Exception {
      * This function will write error to log file.
      */
     public void writeLogException() {
+        String tag = (mContext != null) ? mContext.getClass().toString() : "PrivateException";
         if (ex instanceof IOException) {
-            Log.i(mContext.getClass().toString(), IOException.class.toString());
+            Log.i(tag, IOException.class.toString());
         } else if (ex instanceof IllegalStateException) {
-            Log.i(mContext.getClass().toString(), IllegalStateException.class.toString());
+            Log.i(tag, IllegalStateException.class.toString());
         } else if (ex instanceof NullPointerException) {
-            Log.i(mContext.getClass().toString(), NullPointerException.class.toString());
+            Log.i(tag, NullPointerException.class.toString());
         } else if (ex instanceof NumberFormatException) {
-            Log.i(mContext.getClass().toString(), NumberFormatException.class.toString());
+            Log.i(tag, NumberFormatException.class.toString());
         } else if (ex instanceof SettingNotFoundException) {
-            Log.i(mContext.getClass().toString(), SettingNotFoundException.class.toString());
+            Log.i(tag, SettingNotFoundException.class.toString());
         } else if (ex instanceof NumberFormatException) {
-            Log.i(mContext.getClass().toString(), NumberFormatException.class.toString());
+            Log.i(tag, NumberFormatException.class.toString());
         } else if (ex instanceof SQLiteException) {
-            Log.i(mContext.getClass().toString(), SQLiteException.class.toString());
+            Log.i(tag, SQLiteException.class.toString());
         } else if (ex instanceof SQLiteConstraintException) {
-            Log.i(mContext.getClass().toString(), SQLiteConstraintException.class.toString());
+            Log.i(tag, SQLiteConstraintException.class.toString());
         } else if (ex instanceof ParserConfigurationException) {
-            Log.i(mContext.getClass().toString(), ParserConfigurationException.class.toString());
+            Log.i(tag, ParserConfigurationException.class.toString());
         } else if (ex instanceof TransformerException) {
-            Log.i(mContext.getClass().toString(), TransformerException.class.toString());
+            Log.i(tag, TransformerException.class.toString());
         } else if (ex instanceof IllegalArgumentException) {
-            Log.i(mContext.getClass().toString(), IllegalArgumentException.class.toString());
+            Log.i(tag, IllegalArgumentException.class.toString());
         } else if (ex instanceof InterruptedException) {
-            Log.i(mContext.getClass().toString(), InterruptedException.class.toString());
+            Log.i(tag, InterruptedException.class.toString());
         } else {
-            Log.i(mContext.getClass().toString(), Exception.class.toString());
+            Log.i(tag, Exception.class.toString());
         }
-
+        // スタックトレースも出力
+        Log.e(tag, "Exception occurred: " + (ex != null ? ex.getMessage() : "null"), ex);
+        // ファイルログにも記録（実ユーザーのエラーを回収するため）
+        org.androiddaisyreader.utils.LogFile.e(tag, "Exception occurred: " + (ex != null ? ex.getMessage() : "null"), ex);
     }
 
     /**

@@ -100,8 +100,7 @@ public class Part implements Navigable {
     }
 
     public List<Navigable> getChildren() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
 }

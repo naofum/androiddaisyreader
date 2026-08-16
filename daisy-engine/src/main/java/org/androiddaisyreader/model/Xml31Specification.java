@@ -172,7 +172,11 @@ public class Xml31Specification extends DefaultHandler {
     }
 
     private void addText() {
-        if (model != null) {
+        // id が無いモデル（例: <h1> に id が無い場合のボディモデル）は
+        // SMIL で参照できないため、セクション候補として追加しない。
+        // 追加すると Opf31Specification が id=null のモデルを先頭に掴み、
+        // セクションが1件も生成されなくなる。
+        if (model != null && model.getId() != null) {
             if (model.getText() == null) {
                 model.setText(buffer.toString());
             }

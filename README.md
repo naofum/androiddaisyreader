@@ -9,9 +9,9 @@
 1. 3種類のデイジー図書に対応しています
     - **音声デイジー**：人間の声や合成音声による朗読と、見出しなどの構造化データ（主にDAISY 2.02規格）
     - **マルチメディアデイジー**：音声とテキスト（文字）、画像が同期しており、読まれている部分がハイライト表示される（EPUB 3、DAISY 2.02規格）
-    - **テキストデイジー**：音声なしでテキストのみを構造化したもの（主にDAISY 3規格）
+    - **テキストデイジー**：音声なしでテキストのみを構造化したもの（DAISY 3、EPUB 3規格）
 
-2. 無料で、広告も表示されません
+2. 無料でご利用いただけます
 
 3. オープンソースソフトウェアでソースコードを公開しています
 
@@ -26,8 +26,9 @@
     2. Androidのファイルで、対象のファイルを選んで「アプリで開く」を選びます
         1. デイジーリーダーを選びます
         2. 本が開きます、シンプルモードとビジュアルモードを選んで本を開きます
-    3. 本を開くと、次からは最近読んだ本に表示されます
+    3. 本を開くと、次からは「最近読んだ本」に表示されます
     4. このアプリでダウンロードした本は「本のスキャン」にも表示されます（Androidのバージョンによって表示される対象のファイルは変わります）
+    5. 「本を開く」から読みたい本を選択します
 
 2. シンプルモード
         シンプルモードは音声で聞くことに特化しています。文章は表示されません。
@@ -57,7 +58,4 @@ will. Specifically you can redistribute and/or modify it under the terms of the
 [GNU General Public License](https://www.gnu.org/licenses/gpl.html) as
 published by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
-If you want to help me, than donate to `1LPq4coDNvqz9PB3qSpfGn9HKZxrMdQrMp`
-
 

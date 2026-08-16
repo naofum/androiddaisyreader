@@ -14,11 +14,13 @@ import org.androiddaisyreader.model.CurrentInformation;
 import org.androiddaisyreader.model.DaisyBook;
 import org.androiddaisyreader.model.DaisySection;
 import org.androiddaisyreader.model.NccSpecification;
+import org.androiddaisyreader.model.Navigable;
 import org.androiddaisyreader.model.Opf31Specification;
 import org.androiddaisyreader.model.OpfSpecification;
 import org.androiddaisyreader.model.Part;
 import org.androiddaisyreader.model.Section;
 import org.androiddaisyreader.model.SimpleBookContext;
+import org.androiddaisyreader.model.ZippedBookContext;
 import org.androiddaisyreader.utils.CacheHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
@@ -45,6 +47,7 @@ public class DaisyEbookReaderBaseMode {
             BookContext mBookContext = getBookContext(mPath);
             contents = mBookContext.getResource(Constants.FILE_NCC_NAME_NOT_CAPS);
             DaisyBook book = NccSpecification.readFromStream(contents);
+            logBookInfo(book, mPath, true, false, mBookContext);
             return book;
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext, mPath);
@@ -90,6 +93,7 @@ public class DaisyEbookReaderBaseMode {
             } else {
                 book = OpfSpecification.readFromStream(contents, bookContext);
             }
+            logBookInfo(book, path, false, isEpub, bookContext);
             return book;
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, mContext, mPath);
@@ -102,6 +106,51 @@ public class DaisyEbookReaderBaseMode {
             } catch (IOException e) {
                 //
             }
+        }
+    }
+
+    /**
+     * 開いた本の情報をデバッグログ出力する。
+     * 認識した形式・セクション数・パート数・エントリ数などを確認するためのもの。
+     */
+    private void logBookInfo(DaisyBook book, String path, boolean isFormat202,
+                             boolean isEpub, BookContext bookContext) {
+        if (book == null) {
+            android.util.Log.w("BookInfo", "book is null, path=" + path);
+            return;
+        }
+        try {
+            List<? extends Navigable> sections = book.getChildren();
+            int sectionCount = sections.size();
+
+            String firstHref = "";
+            if (sectionCount > 0 && sections.get(0) instanceof Section) {
+                firstHref = ((Section) sections.get(0)).getHref();
+            }
+            boolean hasSmil = firstHref != null && firstHref.contains(".smil");
+
+            String type;
+            if (isFormat202) {
+                type = "DAISY2.02";
+            } else if (isEpub) {
+                type = hasSmil ? "EPUB(media-overlay)" : "EPUB";
+            } else {
+                type = "DAISY3.0";
+            }
+
+            int entryCount = -1;
+            if (bookContext instanceof ZippedBookContext) {
+                entryCount = ((ZippedBookContext) bookContext).getEntryCount();
+            }
+
+            android.util.Log.i("BookInfo", "type=" + type
+                    + ", title=" + (book.getTitle() != null ? book.getTitle() : "")
+                    + ", sections=" + sectionCount
+                    + ", entries=" + entryCount
+                    + ", firstHref=" + firstHref
+                    + ", path=" + path);
+        } catch (Exception e) {
+            android.util.Log.w("BookInfo", "bookInfo logging failed", e);
         }
     }
 

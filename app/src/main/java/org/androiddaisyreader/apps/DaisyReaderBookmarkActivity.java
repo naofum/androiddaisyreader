@@ -17,7 +17,6 @@ import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,7 +25,9 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.github.naofum.androiddaisyreader.R;
 
@@ -40,6 +41,7 @@ import com.github.naofum.androiddaisyreader.R;
 @SuppressLint("NewApi")
 public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
     private ListView mListBookmark;
+    private ProgressBar mProgressBar;
     private List<Bookmark> mListItems;
     private Bookmark mBookmark;
     private String mPath;
@@ -58,6 +60,7 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
         mIntentController = new IntentController(this);
 
         mListBookmark = (ListView) this.findViewById(R.id.listBookmark);
+        mProgressBar = (ProgressBar) this.findViewById(R.id.progress_bar_bookmark);
         mPath = getIntent().getStringExtra(Constants.DAISY_PATH);
         isFormat202 = DaisyBookUtil.findDaisyFormat(mPath) == Constants.DAISY_202_FORMAT;
         createNewBookmark();
@@ -181,12 +184,10 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
     }
 
     /**
-     * Show dialog when data loading.
+     * Show progress bar when data loading.
      */
     private void loadData() {
-        final ProgressDialog progressDialog = new ProgressDialog(DaisyReaderBookmarkActivity.this);
-        progressDialog.setMessage(getString(R.string.waiting));
-        progressDialog.show();
+        mProgressBar.setVisibility(View.VISIBLE);
 
         final int numberOfBookmarks = mPreferences.getInt(Constants.NUMBER_OF_BOOKMARKS,
                 Constants.NUMBER_OF_BOOKMARK_DEFAULT);
@@ -218,17 +219,17 @@ public class DaisyReaderBookmarkActivity extends DaisyEbookReaderBaseActivity {
                             DaisyReaderBookmarkActivity.this, result, mBookmark,
                             mPath, mListItems.size());
                     mListBookmark.setAdapter(mAdapter);
-                    progressDialog.dismiss();
+                    mProgressBar.setVisibility(View.GONE);
                 }
             });
         });
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected boolean onBackPressedHandled() {
         executor.shutdownNow();
         finish();
+        return true;
     }
 
     @Override

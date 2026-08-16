@@ -53,6 +53,9 @@ public class TempFileForAudioContentProvider {
                     "Called incorrectly, should only be used to create temp files for zipped content.");
         }
         InputStream in = context.getResource(sourceFilename);
+        if (in == null) {
+            return null;
+        }
         File tempFile = File.createTempFile(Constants.PREFIX_AUDIO_TEMP_FILE,
                 Constants.SUFFIX_AUDIO_TEMP_FILE);
         // check available space

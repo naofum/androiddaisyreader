@@ -23,8 +23,19 @@ public class FileSystemContext implements BookContext {
     }
 
     public InputStream getResource(String uri) throws FileNotFoundException {
+        ZipSecurity.validateResourceUri(uri);
         String fullName = directoryName + File.separator + uri;
-        InputStream contents = new FileInputStream(fullName);
+        File resolved;
+        try {
+            resolved = new File(fullName).getCanonicalFile();
+            File base = new File(directoryName).getCanonicalFile();
+            if (!resolved.getPath().startsWith(base.getPath())) {
+                throw new SecurityException("Path traversal detected: " + uri);
+            }
+        } catch (java.io.IOException e) {
+            throw new FileNotFoundException("Cannot resolve path: " + fullName);
+        }
+        InputStream contents = new FileInputStream(resolved);
         // A BufferedInputStream adds functionality to another input
         // stream-namely, the ability to buffer the input and to support the
         // mark and reset methods.

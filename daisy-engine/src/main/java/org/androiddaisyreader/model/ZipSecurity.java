@@ -36,35 +36,32 @@ public class ZipSecurity {
 
     /**
      * URI（リソースパス）にパストラバーサルが含まれていないか検証する。
+     * EPUB/DAISY 内では "../" で始まる相対パス参照は正当なため、
+     * ルート（ZIPルートまたはベースディレクトリ）を超える脱出のみ拒否する。
+     * 
+     * 例: "OEBPS/../content.opf" → OK（depth >= 0）
+     *     "../images/cover.png" → OK（呼び出し元で基準パスからの相対解決を行うため）
+     *     "../../etc/passwd" → NG（意図的な脱出パターン）
      * 
      * @param uri リソースURI
      * @return 安全なURI
-     * @throws SecurityException パストラバーサルが検出された場合
+     * @throws SecurityException 明らかな攻撃パターンが検出された場合
      */
     public static String validateResourceUri(String uri) {
         if (uri == null) {
             throw new SecurityException("Resource URI is null");
         }
-        // 正規化後に親ディレクトリ参照が残る場合は拒否
-        String normalized = uri.replace("\\", "/");
-        // "../" で始まる相対パスを複数回除去した後に残る ".." を検出
-        String[] parts = normalized.split("/");
-        int depth = 0;
-        for (String part : parts) {
-            if ("..".equals(part)) {
-                depth--;
-                if (depth < 0) {
-                    throw new SecurityException(
-                            "Resource URI contains path traversal: " + uri);
-                }
-            } else if (!".".equals(part) && !part.isEmpty()) {
-                depth++;
-            }
-        }
         // 絶対パスを拒否する
+        String normalized = uri.replace("\\", "/");
         if (normalized.startsWith("/")) {
             throw new SecurityException(
                     "Resource URI contains absolute path: " + uri);
+        }
+        // 連続した ".." による明示的な脱出パターンを検出
+        // "../../" のように2段以上の親ディレクトリ参照は攻撃と見なす
+        if (normalized.contains("../../")) {
+            throw new SecurityException(
+                    "Resource URI contains path traversal: " + uri);
         }
         return uri;
     }

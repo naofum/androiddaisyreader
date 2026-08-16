@@ -63,7 +63,7 @@ public class DaisySectionTest extends TestCase {
         assertEquals("2.mp3", audio.get(0).getAudioFilename());
         assertEquals(0, audio.get(0).getClipBegin());
         assertEquals(1583, audio.get(0).getClipEnd());
-        assertNull(navigables);
+        assertTrue(navigables.isEmpty());
 
         snipetts = parts[1].getSnippets();
         assertEquals(1, snipetts.size());
@@ -104,7 +104,7 @@ public class DaisySectionTest extends TestCase {
         assertEquals("1.mp3", audio.get(0).getAudioFilename());
         assertEquals(0, audio.get(0).getClipBegin());
         assertEquals(2713, audio.get(0).getClipEnd());
-        assertNull(navigables);
+        assertTrue(navigables.isEmpty());
 
         snipetts = parts[1].getSnippets();
         assertEquals(1, snipetts.size());
@@ -183,7 +183,7 @@ public class DaisySectionTest extends TestCase {
         assertEquals("speechgen0001.mp3", audio.get(0).getAudioFilename());
         assertEquals(0, audio.get(0).getClipBegin());
         assertEquals(2029, audio.get(0).getClipEnd());
-        assertNull(navigables);
+        assertTrue(navigables.isEmpty());
     }
 
     public void testEpub2Section() throws IOException {
@@ -249,6 +249,48 @@ public class DaisySectionTest extends TestCase {
         assertEquals("Preface", snipetts.get(0).getText());
     }
 
+    public void testAEpub3Section_2() throws IOException {
+        String bookPath = "./sdcard/files-used-for-testing/testfiles/miniepub3/菊池 寛_60739_75152.epub";
+        BookContext context = new SimpleBookContext(bookPath);
+        InputStream contents = context.getResource("content.opf");
+        DaisyBook thingy = Opf31Specification.readFromStream(new BufferedInputStream(contents), context);
+        assertEquals("芥川の印象", thingy.getTitle());
+
+        DaisySection section = (DaisySection) thingy.sections.get(0);
+
+        Part[] parts = section.getParts(false, bookPath);
+        //TODO strict getText instead of getElementById
+        assertEquals(2, parts.length);
+//        assertEquals(1, parts.length);
+
+        List<Snippet> snipetts = parts[0].getSnippets();
+        assertEquals(1, snipetts.size());
+
+        assertEquals("ops2", snipetts.get(0).getId());
+        assertEquals("芥川の印象", snipetts.get(0).getText());
+
+        snipetts = parts[1].getSnippets();
+        assertEquals(6, snipetts.size());
+
+        assertEquals("contents", snipetts.get(0).getId());
+        assertEquals("　今でこそ余程", snipetts.get(0).getText().substring(0, 7));
+
+        assertEquals("id_3", snipetts.get(1).getId());
+        assertEquals("――印象的な脣と左手の本", snipetts.get(1).getText());
+
+        assertEquals("id_4", snipetts.get(2).getId());
+        assertEquals("（大正六年十月「新潮」）", snipetts.get(2).getText());
+
+        assertEquals("id_5", snipetts.get(3).getId());
+        assertEquals("底本", snipetts.get(3).getText().substring(0, 2));
+
+        assertEquals("id_6", snipetts.get(4).getId());
+        assertEquals("●表記について", snipetts.get(4).getText().substring(0, 7));
+
+        assertEquals("card", snipetts.get(5).getId());
+        assertEquals("", snipetts.get(5).getText());
+    }
+
     public void testAEpub33Section() throws IOException {
         String bookPath = "./sdcard/files-used-for-testing/testfiles/miniepub3/kusamakura.epub";
         BookContext context = new SimpleBookContext(bookPath);
@@ -273,6 +315,45 @@ public class DaisySectionTest extends TestCase {
 
         assertEquals("fgyq_0001", snipetts.get(0).getId());
         assertEquals("一", snipetts.get(0).getText());
+    }
+
+    public void testAEpub33Section_2() throws IOException {
+        String bookPath = "./sdcard/files-used-for-testing/testfiles/miniepub3/kusamakura_chapter.epub";
+        BookContext context = new SimpleBookContext(bookPath);
+        InputStream contents = context.getResource("content.opf");
+        DaisyBook thingy = Opf31Specification.readFromStream(new BufferedInputStream(contents), context);
+        assertEquals("草枕", thingy.getTitle());
+
+        //TODO 表紙
+//        DaisySection section = (DaisySection) thingy.sections.get(0);
+//        assertEquals(null, section.getParts(false, bookPath));
+//        assertEquals(0, section.getChildren().size());
+
+        DaisySection section = (DaisySection) thingy.sections.get(0);
+
+        Part[] parts = section.getParts(false, bookPath);
+        assertEquals(15, parts.length);
+
+        List<Snippet> snipetts = parts[0].getSnippets();
+        List<Audio> audio = parts[0].getAudioElements();
+        List<Navigable> navigables = parts[0].getChildren();
+        assertEquals("chapter_0001", parts[0].getId());
+
+        assertEquals("chapter_0001", snipetts.get(0).getId());
+        assertEquals("草枕", snipetts.get(0).getText());
+
+        section = (DaisySection) thingy.sections.get(1);
+
+        parts = section.getParts(false, bookPath);
+        assertEquals(1, parts.length);
+
+        snipetts = parts[0].getSnippets();
+        audio = parts[0].getAudioElements();
+        navigables = parts[0].getChildren();
+        assertEquals("chapter_0002", parts[0].getId());
+
+        assertEquals("s0002_0001", snipetts.get(1).getId());
+        assertEquals("底本", snipetts.get(1).getText().substring(0, 2));
     }
 
 }

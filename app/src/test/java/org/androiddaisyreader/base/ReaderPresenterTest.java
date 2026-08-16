@@ -252,7 +252,250 @@ public class ReaderPresenterTest {
     }
 
     // ========================================================================
-    // ヘルパーメソッド
+    // handleCurrentInformation テスト
+    // ========================================================================
+
+    @Test
+    public void handleCurrentInformation_playerNull_noException() throws Exception {
+        setupPresenterWithBook();
+        // player を null に設定（TTS読み上げモード時を想定）
+        presenter.setPlayer(null);
+
+        // createCurrentInformation のモック設定
+        CurrentInformation created = new CurrentInformation();
+        when(mockBaseMode.createCurrentInformation(
+                anyString(), anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(created);
+
+        // NPE にならないことを確認
+        presenter.handleCurrentInformation();
+
+        verify(mockBaseMode).createCurrentInformation(
+                eq(""), eq("TestActivity"), eq(0), eq(0), eq(false));
+        verify(mockSql).addCurrentInformation(created);
+    }
+
+    @Test
+    public void handleCurrentInformation_withCurrent_callsUpdate() throws Exception {
+        setupPresenterWithBook();
+        when(mockPlayer.getCurrentPosition()).thenReturn(12345);
+        CurrentInformation current = new CurrentInformation();
+        current.setActivity("TestActivity");
+        presenter.setCurrent(current);
+
+        CurrentInformation updated = new CurrentInformation();
+        when(mockBaseMode.updateCurrentInformation(
+                any(CurrentInformation.class), anyString(), anyString(),
+                anyInt(), anyInt(), anyInt(), anyBoolean())).thenReturn(updated);
+
+        presenter.handleCurrentInformation();
+
+        verify(mockBaseMode).updateCurrentInformation(
+                eq(current), eq(""), eq("TestActivity"), eq(0), eq(0), eq(12345), eq(false));
+        verify(mockSql).updateCurrentInformation(updated);
+    }
+
+    // ========================================================================
+    // nextSentence / previousSentence テスト
+    // ========================================================================
+
+    @Test
+    public void nextSentence_midSection_incrementsPosition() throws Exception {
+        setupPresenterWithBookAndAudio();
+
+        int initial = presenter.getPositionSentence();
+        presenter.nextSentence();
+
+        assertEquals(initial + 1, presenter.getPositionSentence());
+        verify(mockPlayer).seekTo(1000);
+        verify(mockView).onSentenceChanged(1);
+    }
+
+    @Test
+    public void nextSentence_atEnd_callsNextSection() throws Exception {
+        setupPresenterWithBookAndAudio();
+        // セクション末尾まで進める
+        presenter.setPositionSentence(2);
+
+        presenter.nextSentence();
+
+        // nextSection が呼ばれて positionSection が増える
+        assertEquals(1, presenter.getPositionSection());
+    }
+
+    @Test
+    public void previousSentence_midSection_decrementsPosition() throws Exception {
+        setupPresenterWithBookAndAudio();
+        presenter.setPositionSentence(2);
+
+        presenter.previousSentence();
+
+        assertEquals(1, presenter.getPositionSentence());
+        verify(mockPlayer).seekTo(1000);
+        verify(mockView).onSentenceChanged(1);
+    }
+
+    @Test
+    public void previousSentence_atBegin_callsPreviousSection() throws Exception {
+        setupPresenterWithBookAndAudio();
+        presenter.setPositionSentence(0);
+        when(mockNavigator.hasPrevious()).thenReturn(true);
+
+        presenter.previousSentence();
+
+        // previousSection が呼ばれて positionSection が減る
+        assertEquals(-1, presenter.getPositionSection());
+    }
+
+    // ========================================================================
+    // TTS 読み上げテスト
+    // ========================================================================
+
+    @Test
+    public void startReadAloud_emptyText_doesNothing() throws Exception {
+        setupPresenterWithBook();
+
+        presenter.startReadAloud();
+
+        assertFalse(presenter.isReadAloudMode());
+        verify(mockView, never()).speakSentence(anyString(), anyInt());
+    }
+
+    @Test
+    public void startReadAloud_withText_speaksFirstSentence() throws Exception {
+        setupPresenterWithBookAndAudio();
+
+        presenter.startReadAloud();
+
+        assertTrue(presenter.isReadAloudMode());
+        assertEquals(0, presenter.getPositionSentence());
+        verify(mockView).applyReadAloudSettings();
+        verify(mockView).highlightSentence(0);
+        verify(mockView).speakSentence(anyString(), eq(0));
+    }
+
+    @Test
+    public void onUtteranceCompleted_midSection_advancesToNext() throws Exception {
+        setupPresenterWithBookAndAudio();
+        presenter.startReadAloud();
+
+        presenter.onUtteranceCompleted(0);
+
+        assertEquals(1, presenter.getPositionSentence());
+        verify(mockView).speakSentence(anyString(), eq(1));
+    }
+
+    @Test
+    public void onUtteranceCompleted_atEnd_callsNextSection() throws Exception {
+        setupPresenterWithBookAndAudio();
+        presenter.startReadAloud();
+
+        // 最後のセンテンス完了
+        presenter.onUtteranceCompleted(2);
+
+        // nextSection が呼ばれて positionSection が増える
+        assertEquals(1, presenter.getPositionSection());
+    }
+
+    @Test
+    public void nextSentence_inReadAloudMode_speaksNext() throws Exception {
+        setupPresenterWithBookAndAudio();
+        presenter.startReadAloud();
+
+        presenter.nextSentence();
+
+        assertEquals(1, presenter.getPositionSentence());
+        verify(mockView, atLeast(1)).stopReadAloud();
+    }
+
+    @Test
+    public void togglePlay_inReadAloudMode_pauses() throws Exception {
+        setupPresenterWithBookAndAudio();
+        presenter.startReadAloud();
+        presenter.setPlaying(true);
+
+        presenter.togglePlay();
+
+        assertFalse(presenter.isPlaying());
+        verify(mockView).showPausedState();
+    }
+
+    // ========================================================================
+    // ヘルパーメソッド（Audio付き）
+    // ========================================================================
+
+    /**
+     * テスト用にPresenterを構築する（listStringText/listTimeBegin付き）。
+     * nextSentence / TTS テスト用。
+     */
+    private void setupPresenterWithBookAndAudio() throws Exception {
+        Section mockSection = mock(Section.class);
+        when(mockSection.getHref()).thenReturn("section1.smil#text1");
+        when(mockNavigator.hasNext()).thenReturn(true);
+        when(mockNavigator.hasPrevious()).thenReturn(true);
+        when(mockNavigator.next()).thenReturn(mockSection);
+        when(mockNavigator.previous()).thenReturn(mockSection);
+
+        // 3つのPartを作成（各Part: テキスト1文 + Audio1つ）
+        // "テスト文1" / "テスト文2" / "テスト文3" を個別Partにして
+        // それぞれにAudio付き → listTimeBeginが3要素になる
+        Part mockPart1 = mock(Part.class);
+        Snippet mockSnippet1 = mock(Snippet.class);
+        when(mockSnippet1.getText()).thenReturn("テスト文1");
+        List<Snippet> snippets1 = new ArrayList<>();
+        snippets1.add(mockSnippet1);
+        when(mockPart1.getSnippets()).thenReturn(snippets1);
+        Audio audio1 = mock(Audio.class);
+        when(audio1.getClipBegin()).thenReturn(0);
+        when(audio1.getClipEnd()).thenReturn(1000);
+        when(audio1.getAudioFilename()).thenReturn("audio01.mp3");
+        List<Audio> audioElements1 = new ArrayList<>();
+        audioElements1.add(audio1);
+        when(mockPart1.getAudioElements()).thenReturn(audioElements1);
+
+        Part mockPart2 = mock(Part.class);
+        Snippet mockSnippet2 = mock(Snippet.class);
+        when(mockSnippet2.getText()).thenReturn("テスト文2");
+        List<Snippet> snippets2 = new ArrayList<>();
+        snippets2.add(mockSnippet2);
+        when(mockPart2.getSnippets()).thenReturn(snippets2);
+        Audio audio2 = mock(Audio.class);
+        when(audio2.getClipBegin()).thenReturn(1000);
+        when(audio2.getClipEnd()).thenReturn(2000);
+        when(audio2.getAudioFilename()).thenReturn("audio01.mp3");
+        List<Audio> audioElements2 = new ArrayList<>();
+        audioElements2.add(audio2);
+        when(mockPart2.getAudioElements()).thenReturn(audioElements2);
+
+        Part mockPart3 = mock(Part.class);
+        Snippet mockSnippet3 = mock(Snippet.class);
+        when(mockSnippet3.getText()).thenReturn("テスト文3");
+        List<Snippet> snippets3 = new ArrayList<>();
+        snippets3.add(mockSnippet3);
+        when(mockPart3.getSnippets()).thenReturn(snippets3);
+        Audio audio3 = mock(Audio.class);
+        when(audio3.getClipBegin()).thenReturn(2000);
+        when(audio3.getClipEnd()).thenReturn(3000);
+        when(audio3.getAudioFilename()).thenReturn("audio01.mp3");
+        List<Audio> audioElements3 = new ArrayList<>();
+        audioElements3.add(audio3);
+        when(mockPart3.getAudioElements()).thenReturn(audioElements3);
+
+        when(mockBaseMode.getPartsFromSection(any(Section.class), anyString(), anyBoolean()))
+                .thenReturn(new Part[]{mockPart1, mockPart2, mockPart3});
+
+        presenter = new ReaderPresenter(mockView, mockBaseMode, mockSql, TEST_PATH, true);
+        presenter.setBook(mockBook);
+        presenter.setNavigator(mockNavigator);
+        presenter.setNavigatorOfTableContents(mockNavigator);
+        presenter.setPlayer(mockPlayer);
+        presenter.setAudioPlayerController(mockAudioPlayer);
+
+        // onNavigationNext を呼んで listStringText / listTimeBegin を初期化
+        presenter.onNavigationNext(mockSection);
+    }
+
+    // ========================================================================
+    // 既存ヘルパーメソッド
     // ========================================================================
 
     /**

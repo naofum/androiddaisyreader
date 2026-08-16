@@ -15,6 +15,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.preference.PreferenceManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -74,9 +75,20 @@ public class DaisyEbookReaderWorker extends Worker {
         if (isSDPresent) {
             String localPath = Constants.folderContainMetadata
                     + Constants.META_DATA_SCAN_BOOK_FILE_NAME;
-            // API 29+: MediaStore.Downloads で自アプリDL分を検出
-            mMetaData.writeDataToXmlFile(getDataFromDownloads(), localPath);
+
+            // SAF URI が設定されていればそちらからスキャン
+            String safUri = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getString(Constants.SAF_SCAN_FOLDER_URI, null);
+            if (safUri != null) {
+                mMetaData.writeDataToXmlFile(getDataFromSafFolder(Uri.parse(safUri)), localPath);
+            } else {
+                // 従来のMediaStore.Downloads経由
+                mMetaData.writeDataToXmlFile(getDataFromDownloads(), localPath);
+            }
         }
+
+        // キャッシュされていない最近の書籍を削除
+        removeUncachedRecentBooks();
 
         finish();
         return Result.success();
@@ -94,6 +106,109 @@ public class DaisyEbookReaderWorker extends Worker {
     private void finish() {
         mEditor.putBoolean(Constants.SERVICE_DONE, true);
         mEditor.commit();
+    }
+
+    /**
+     * 最近の書籍一覧から、キャッシュファイルが存在しないエントリを削除する。
+     * キャッシュが evict されたり手動削除された書籍をクリーンアップする。
+     */
+    private void removeUncachedRecentBooks() {
+        try {
+            org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper sql =
+                    org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper.getInstance(context);
+            List<DaisyBookInfo> recentBooks = sql.getAllDaisyBook(Constants.TYPE_RECENT_BOOK);
+
+            for (DaisyBookInfo book : recentBooks) {
+                String path = book.getPath();
+                if (path == null || path.isEmpty()) {
+                    sql.deleteDaisyBook(book.getId());
+                    continue;
+                }
+
+                boolean accessible;
+                if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                    // content:// URI: キャッシュが存在するか確認
+                    accessible = org.androiddaisyreader.utils.CacheHelper
+                            .isCached(context, path);
+                } else {
+                    // ローカルパス: ファイルが存在するか確認
+                    accessible = new File(path).exists();
+                }
+
+                if (!accessible) {
+                    sql.deleteDaisyBook(book.getId());
+                    Log.d(TAG, "Removed uncached recent book: " + book.getTitle());
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error cleaning up recent books", e);
+        }
+    }
+
+    /**
+     * SAF URI のフォルダからZIP/EPUBファイルをスキャンする。
+     * ユーザーが選択したフォルダに対して永続パーミッションを取得済みであること。
+     *
+     * @param treeUri SAF で取得したフォルダ URI
+     * @return 検出された書籍情報のリスト
+     */
+    private List<DaisyBookInfo> getDataFromSafFolder(Uri treeUri) {
+        List<DaisyBookInfo> filesResult = new ArrayList<>();
+        try {
+            DocumentFile folder = DocumentFile.fromTreeUri(context, treeUri);
+            if (folder == null || !folder.exists()) {
+                Log.d(TAG, "SAF folder not accessible: " + treeUri);
+                return filesResult;
+            }
+
+            ContentResolver resolver = context.getContentResolver();
+            DocumentFile[] files = folder.listFiles();
+            for (DocumentFile file : files) {
+                if (!file.isFile()) continue;
+                String name = file.getName();
+                if (name == null) continue;
+                String lowerName = name.toLowerCase(Locale.ROOT);
+                if (!lowerName.endsWith(".zip") && !lowerName.endsWith(".epub")) {
+                    continue;
+                }
+
+                Uri fileUri = file.getUri();
+                DaisyBookInfo bookInfo = readBookInfoFromSafUri(resolver, fileUri, name);
+                if (bookInfo != null) {
+                    filesResult.add(bookInfo);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error scanning SAF folder", e);
+        }
+        return filesResult;
+    }
+
+    /**
+     * SAF URI からZIPストリームを読み取り、書籍メタデータを取得する。
+     */
+    private DaisyBookInfo readBookInfoFromSafUri(ContentResolver resolver, Uri uri, String displayName) {
+        try (InputStream input = new BufferedInputStream(resolver.openInputStream(uri))) {
+            DaisyBookInfo info = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
+            if (info != null) {
+                info.setPath(uri.toString());
+                return info;
+            }
+        } catch (IllegalArgumentException iae) {
+            // charset フォールバック
+            try (InputStream input = new BufferedInputStream(resolver.openInputStream(uri))) {
+                DaisyBookInfo info = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
+                if (info != null) {
+                    info.setPath(uri.toString());
+                    return info;
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "Fallback charset also failed: " + displayName, e);
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error reading SAF file: " + displayName, e);
+        }
+        return null;
     }
 
     /**

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.androiddaisyreader.adapter.DaisyBookAdapter;
 import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
@@ -19,13 +21,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,8 +36,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.github.naofum.androiddaisyreader.R;
 
@@ -49,7 +59,9 @@ import com.github.naofum.androiddaisyreader.R;
 public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
 
     private ListView mlistViewScanBooks;
-    private ProgressDialog mProgressDialog;
+    private ProgressBar mProgressBar;
+    private LinearLayout mFolderPromptLayout;
+    private Button mSelectFolderButton;
     private List<DaisyBookInfo> mListScanBook;
     private List<DaisyBookInfo> mListDaisyBookOriginal;
     private DaisyBookAdapter mDaisyBookAdapter;
@@ -58,6 +70,9 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
     private SQLiteDaisyBookHelper mSql;
     private EditText mTextSearch;
     private MetaDataHandler mMetadata;
+    private ExecutorService scanExecutor;
+
+    private ActivityResultLauncher<Uri> mFolderPickerLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +91,37 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
         mSql = SQLiteDaisyBookHelper.getInstance(DaisyReaderScanBooksActivity.this);
         // initial view
         mTextSearch = (EditText) findViewById(R.id.edit_text_search);
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar_scan);
+        mFolderPromptLayout = (LinearLayout) findViewById(R.id.layout_folder_prompt);
+        mSelectFolderButton = (Button) findViewById(R.id.button_select_folder);
         mlistViewScanBooks = (ListView) findViewById(R.id.list_view_scan_books);
         mlistViewScanBooks.setOnItemClickListener(onItemBookClick);
 
         mListScanBook = new ArrayList<DaisyBookInfo>();
         mMetadata = new MetaDataHandler();
+
+        // SAF folder picker launcher
+        mFolderPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.OpenDocumentTree(),
+                uri -> {
+                    if (uri != null) {
+                        // 永続的なパーミッションを取得
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        // URIをPreferencesに保存
+                        mPreferences.edit()
+                                .putString(Constants.SAF_SCAN_FOLDER_URI, uri.toString())
+                                .apply();
+                        // フォルダ選択UIを隠してスキャン開始
+                        mFolderPromptLayout.setVisibility(View.GONE);
+                        scanFromSafFolder(uri);
+                    }
+                });
+
+        mSelectFolderButton.setOnClickListener(v -> {
+            mFolderPickerLauncher.launch(null);
+        });
+
         deleteCurrentInformation();
         loadScanBooks();
     }
@@ -110,14 +151,8 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
 
     @Override
     protected void onDestroy() {
-        try {
-            if (mTts != null) {
-                mTts.stop();
-            }
-//            mTts.shutdown();
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderScanBooksActivity.this);
-            ex.writeLogException();
+        if (scanExecutor != null && !scanExecutor.isShutdown()) {
+            scanExecutor.shutdownNow();
         }
         super.onDestroy();
     }
@@ -161,25 +196,202 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
     }
 
     /**
-     * Scan books on SD card.
+     * Scan books — SAF URI が保存済みならそこからスキャン、
+     * なければ従来のMediaStore + フォルダ選択UIを表示。
      */
     private void loadScanBooks() {
+        String savedUri = mPreferences.getString(Constants.SAF_SCAN_FOLDER_URI, null);
+        if (savedUri != null) {
+            // 保存済みURIでスキャン
+            mFolderPromptLayout.setVisibility(View.GONE);
+            scanFromSafFolder(Uri.parse(savedUri));
+        } else {
+            // 従来のMediaStoreスキャン + フォルダ選択プロンプト表示
+            mFolderPromptLayout.setVisibility(View.VISIBLE);
+            loadBooksFromMediaStore();
+        }
+    }
+
+    /**
+     * SAF URI のフォルダからZIP/EPUBファイルをスキャンする。
+     */
+    private void scanFromSafFolder(Uri treeUri) {
+        mProgressBar.setVisibility(View.VISIBLE);
+
+        final Handler handler = new Handler(Looper.getMainLooper());
+        if (scanExecutor != null && !scanExecutor.isShutdown()) {
+            scanExecutor.shutdownNow();
+        }
+        scanExecutor = Executors.newSingleThreadExecutor();
+        scanExecutor.execute(() -> {
+            ArrayList<DaisyBookInfo> filesResult = new ArrayList<>();
+            try {
+                DocumentFile folder = DocumentFile.fromTreeUri(
+                        DaisyReaderScanBooksActivity.this, treeUri);
+                if (folder != null && folder.exists()) {
+                    DocumentFile[] files = folder.listFiles();
+                    for (DocumentFile file : files) {
+                        if (!file.isFile()) continue;
+                        String name = file.getName();
+                        if (name == null) continue;
+                        String lowerName = name.toLowerCase();
+                        if (!lowerName.endsWith(".zip") && !lowerName.endsWith(".epub")) {
+                            continue;
+                        }
+
+                        Uri fileUri = file.getUri();
+                        DaisyBookInfo bookInfo = readBookInfoFromSafUri(fileUri, name);
+                        if (bookInfo != null) {
+                            filesResult.add(bookInfo);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                PrivateException ex = new PrivateException(e, getApplicationContext());
+                ex.writeLogException();
+            }
+
+            final List<DaisyBookInfo> result = filesResult;
+            handler.post(() -> {
+                mListScanBook = result;
+                mListDaisyBookOriginal = new ArrayList<DaisyBookInfo>(result);
+                mDaisyBookAdapter = new DaisyBookAdapter(DaisyReaderScanBooksActivity.this,
+                        mListScanBook);
+                mlistViewScanBooks.setAdapter(mDaisyBookAdapter);
+                mProgressBar.setVisibility(View.GONE);
+            });
+        });
+        scanExecutor.shutdown();
+    }
+
+    /**
+     * SAF URI からZIPストリームを読み取り、書籍メタデータを取得する。
+     */
+    private DaisyBookInfo readBookInfoFromSafUri(Uri uri, String displayName) {
+        try (InputStream input = new java.io.BufferedInputStream(
+                getContentResolver().openInputStream(uri))) {
+            org.androiddaisyreader.model.DaisyBookInfo info =
+                    org.androiddaisyreader.model.ZippedBookInfo.readFromZipStream(
+                            input, java.nio.charset.Charset.forName("MS932"));
+            if (info != null) {
+                info.setPath(uri.toString());
+                return info;
+            }
+        } catch (IllegalArgumentException iae) {
+            // charset フォールバック
+            return readBookInfoWithFallbackCharset(uri, displayName);
+        } catch (Exception e) {
+            android.util.Log.d("ScanBooks", "Error reading: " + displayName, e);
+        }
+        return null;
+    }
+
+    /**
+     * デフォルト charset でフォールバック読み取り。
+     */
+    private DaisyBookInfo readBookInfoWithFallbackCharset(Uri uri, String displayName) {
+        try (InputStream input = new java.io.BufferedInputStream(
+                getContentResolver().openInputStream(uri))) {
+            org.androiddaisyreader.model.DaisyBookInfo info =
+                    org.androiddaisyreader.model.ZippedBookInfo.readFromZipStream(
+                            input, java.nio.charset.Charset.defaultCharset());
+            if (info != null) {
+                info.setPath(uri.toString());
+                return info;
+            }
+        } catch (Exception e) {
+            android.util.Log.d("ScanBooks", "Fallback also failed: " + displayName, e);
+        }
+        return null;
+    }
+
+    /**
+     * 従来のMediaStore経由でスキャン（自アプリDL分のみ）。
+     */
+    private void loadBooksFromMediaStore() {
         Boolean isSDPresent = Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED);
         if (isSDPresent) {
-            // fix bug "HONEYCOMB cannot be resolved or is not a field". Please
-            // change library android to version 3.0 or higher.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                new LoadingData().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                new LoadingData().execute();
-            }
+            loadBooksWithExecutor();
         } else {
             IntentController mIntentController = new IntentController(this);
             mIntentController.pushToDialog(getString(R.string.sd_card_not_present),
                     getString(R.string.error_title), R.raw.error, false, false, null);
         }
+    }
 
+    /**
+     * Load scan books using ExecutorService + Handler (MediaStore方式).
+     */
+    private void loadBooksWithExecutor() {
+        mProgressBar.setVisibility(View.VISIBLE);
+
+        final Handler handler = new Handler(Looper.getMainLooper());
+        if (scanExecutor != null && !scanExecutor.isShutdown()) {
+            scanExecutor.shutdownNow();
+        }
+        scanExecutor = Executors.newSingleThreadExecutor();
+        scanExecutor.execute(() -> {
+            // Background work
+            ArrayList<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
+            InputStream databaseInputStream = null;
+            try {
+                while (!mPreferences.getBoolean(Constants.SERVICE_DONE, false)) {
+                    Thread.sleep(1000);
+                }
+                if (mPreferences.getBoolean(Constants.SERVICE_DONE, false)) {
+                    databaseInputStream = new FileInputStream(
+                            Constants.folderContainMetadata
+                                    + Constants.META_DATA_SCAN_BOOK_FILE_NAME);
+                    NodeList nList = mMetadata.readDataScanFromXmlFile(databaseInputStream);
+                    for (int temp = 0; temp < nList.getLength(); temp++) {
+                        Node nNode = nList.item(temp);
+                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                            Element eElement = (Element) nNode;
+                            String author = eElement.getElementsByTagName(Constants.ATT_AUTHOR)
+                                    .item(0).getTextContent();
+                            String publisher = eElement
+                                    .getElementsByTagName(Constants.ATT_PUBLISHER).item(0)
+                                    .getTextContent();
+                            String path = eElement.getAttribute(Constants.ATT_PATH);
+                            String title = eElement.getElementsByTagName(Constants.ATT_TITLE)
+                                    .item(0).getTextContent();
+                            String date = eElement.getElementsByTagName(Constants.ATT_DATE).item(0)
+                                    .getTextContent();
+                            DaisyBookInfo daisyBook = new DaisyBookInfo("", title, path, author,
+                                    publisher, date, 1);
+                            filesResult.add(daisyBook);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                PrivateException ex = new PrivateException(e, getApplicationContext());
+                ex.writeLogException();
+            } finally {
+                try {
+                    if (databaseInputStream != null) {
+                        databaseInputStream.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
+            }
+
+            // Post to main thread (post-execute)
+            final List<DaisyBookInfo> result = filesResult;
+            handler.post(() -> {
+                if (result != null) {
+                    mListScanBook = result;
+                    mListDaisyBookOriginal = new ArrayList<DaisyBookInfo>(result);
+                    mDaisyBookAdapter = new DaisyBookAdapter(DaisyReaderScanBooksActivity.this,
+                            mListScanBook);
+                    mlistViewScanBooks.setAdapter(mDaisyBookAdapter);
+                }
+                mProgressBar.setVisibility(View.GONE);
+            });
+        });
+        scanExecutor.shutdown();
     }
 
     /** The on item book click. */
@@ -229,89 +441,6 @@ public class DaisyReaderScanBooksActivity extends DaisyEbookReaderBaseActivity {
         } else {
             IntentController intentController = new IntentController(this);
             intentController.pushToDaisyEbookReaderIntent(path);
-        }
-    }
-
-    /**
-     * Show dialog when data loading.
-     * 
-     * @author nguyen.le
-     * 
-     */
-    class LoadingData extends AsyncTask<Void, Void, List<DaisyBookInfo>> {
-
-        /** The list files. */
-        private static final int TIMESLEEP = 1000;
-
-        @Override
-        protected List<DaisyBookInfo> doInBackground(Void... params) {
-            ArrayList<DaisyBookInfo> filesResult = new ArrayList<DaisyBookInfo>();
-            InputStream databaseInputStream = null;
-            try {
-                while (!mPreferences.getBoolean(Constants.SERVICE_DONE, false)) {
-                    Thread.sleep(TIMESLEEP);
-                }
-                if (mPreferences.getBoolean(Constants.SERVICE_DONE, false)) {
-                    databaseInputStream = new FileInputStream(
-                            Constants.folderContainMetadata
-                                    + Constants.META_DATA_SCAN_BOOK_FILE_NAME);
-                    NodeList nList = mMetadata.readDataScanFromXmlFile(databaseInputStream);
-                    for (int temp = 0; temp < nList.getLength(); temp++) {
-                        Node nNode = nList.item(temp);
-                        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
-                            Element eElement = (Element) nNode;
-                            String author = eElement.getElementsByTagName(Constants.ATT_AUTHOR)
-                                    .item(0).getTextContent();
-                            String publisher = eElement
-                                    .getElementsByTagName(Constants.ATT_PUBLISHER).item(0)
-                                    .getTextContent();
-                            String path = eElement.getAttribute(Constants.ATT_PATH);
-                            String title = eElement.getElementsByTagName(Constants.ATT_TITLE)
-                                    .item(0).getTextContent();
-                            String date = eElement.getElementsByTagName(Constants.ATT_DATE).item(0)
-                                    .getTextContent();
-                            DaisyBookInfo daisyBook = new DaisyBookInfo("", title, path, author,
-                                    publisher, date, 1);
-                            filesResult.add(daisyBook);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                PrivateException ex = new PrivateException(e, getApplicationContext());
-                ex.writeLogException();
-            } finally {
-                try {
-                    if (databaseInputStream != null) {
-                        databaseInputStream.close();
-                    }
-                } catch (IOException e) {
-                    //
-                }
-            }
-            return filesResult;
-        }
-
-        @Override
-        protected void onPostExecute(List<DaisyBookInfo> result) {
-            if (result != null) {
-                mListScanBook = result;
-                mListDaisyBookOriginal = new ArrayList<DaisyBookInfo>(result);
-                mDaisyBookAdapter = new DaisyBookAdapter(DaisyReaderScanBooksActivity.this,
-                        mListScanBook);
-
-                mlistViewScanBooks.setAdapter(mDaisyBookAdapter);
-
-            }
-            mProgressDialog.dismiss();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mProgressDialog = new ProgressDialog(DaisyReaderScanBooksActivity.this);
-            mProgressDialog.setMessage(getString(R.string.waiting));
-            mProgressDialog.show();
-            super.onPreExecute();
         }
     }
 

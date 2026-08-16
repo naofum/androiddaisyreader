@@ -5,8 +5,8 @@
     >
 
     <string name="app_name">DaisyBook Reader</string>
-    <string name="atBegin">最初 - </string>
-    <string name="atEnd">最後 - </string>
+    <string name="atBegin">%s はじめ</string>
+    <string name="atEnd">%s おわり</string>
     <string name="brightness">輝度</string>
     <string name="change_text_color">文字色</string>
     <string name="change_background_color">背景色</string>
@@ -35,7 +35,7 @@
     <string name="menu_title">メニュー</string>
     <string name="message_bookmark">選択したオプション</string>
     <string name="message_exit_application">戻るボタンを押すと終了します</string>
-    <string name="message_downloading_file">ファイルのダウンロード中 &#x2026;</string>
+    <string name="message_downloading_file">ファイルをダウンロードしています &#x2026;</string>
     <string name="message_confirm_exit_download">ダウンロードを終了してもよろしいですか?</string>
     <string name="night_mode">夜間モード</string>
     <string name="next_section">次の章</string>
@@ -86,6 +86,7 @@
     <string name="downloaded_books">ダウンロード済の本</string>
     <string name="download_sites">ダウンロード サイト</string>
     <string name="search">検索</string>
+    <string name="open_books">本を開く</string>
     <string name="logo_of_book">本のロゴ</string>
     <string name="author">作者:</string>
     <string name="produced_date">出版日:</string>
@@ -100,4 +101,54 @@
     <string name="submenu_about">アプリについて</string>
     <string name="submenu_google_play">Google Playを表示</string>
     <string name="submenu_contact">お問い合わせ</string>
+    <string name="tts_read_aloud_language">読み上げ言語</string>
+    <string name="tts_language_default">端末の既定</string>
+    <string name="tts_read_aloud_speed">再生速度</string>
+    <string name="loading_book">本を開いています…</string>
+    <string name="scan_folder_prompt">スキャンするフォルダを選択してください</string>
+    <string name="scan_select_folder">フォルダを選択</string>
+    <string name="scan_change_folder">フォルダを変更</string>
+    <string name="scan_folder_label">スキャンフォルダ</string>
+    <string name="scan_folder_not_set">(未設定)</string>
+    <!-- ChattyLib -->
+    <string name="chattylib_settings_title">ChattyLib</string>
+    <string name="chattylib_login_id">ログインID</string>
+    <string name="chattylib_login_id_hint">ChattyLib ログインIDを入力</string>
+    <string name="chattylib_password">パスワード</string>
+    <string name="chattylib_password_hint">ChattyLib パスワードを入力</string>
+    <string name="chattylib_error_not_readable">この本は読むことができません</string>
+    <string name="chattylib_login_check">確認</string>
+    <string name="chattylib_login_checking">ログイン確認中 &#x2026;</string>
+    <string name="chattylib_login_success">ログインに成功しました</string>
+    <string name="chattylib_login_failure">ログインに失敗しました</string>
+    <string name="message_download_complete">ダウンロード完了</string>
+    <string name="clear_recent_books">すべてクリア</string>
+    <string name="clear_recent_books_confirm">最近開いた本の一覧とキャッシュをすべて削除しますか？</string>
+    <string name="clear_recent_books_done">最近開いた本とキャッシュを削除しました</string>
+    <string name="ruby_display_mode">ルビ表示</string>
+    <string name="ruby_mode_ruby">ルビ（よみがな）を使用</string>
+    <string name="ruby_mode_base">底字（漢字）を使用</string>
+    <!-- サピエ図書館 -->
+    <string name="sapie_settings_title">サピエ図書館</string>
+    <string name="sapie_login_id">サピエID</string>
+    <string name="sapie_login_id_hint">サピエIDを入力</string>
+    <string name="sapie_password">パスワード</string>
+    <string name="sapie_password_hint">パスワードを入力</string>
+    <string name="sapie_login_check">確認</string>
+    <string name="sapie_login_checking">ログイン確認中 &#x2026;</string>
+    <string name="sapie_login_success">ログインに成功しました</string>
+    <string name="sapie_login_failure">ログインに失敗しました</string>
+    <string name="sapie_search_title">タイトル</string>
+    <string name="sapie_search_author">著者</string>
+    <string name="sapie_search_no_result">該当する資料がありません</string>
+    <string name="sapie_books">サピエ図書館</string>
+    <string name="experimental_settings_title">実験的機能</string>
+    <string name="send_log">ログを送信</string>
+    <string name="send_log_no_log">ログがありません</string>
+    <string name="send_log_subject">DaisyReader ログ</string>
+    <string name="submenu_privacy_policy">プライバシーポリシー</string>
+    <string name="submenu_license">ライセンス</string>
+    <string name="privacy_policy_text">本アプリ（デイジーリーダー）は、以下の方針に基づき利用者の情報を扱います。\n\n1. 収集する情報\n本アプリは、原則として利用者の個人情報を収集しません。\n「ログを送信」機能を利用した場合のみ、問題解決のために端末情報（機種名・OSバージョン）・アプリバージョン・エラーログを開発者のメールアドレスへ送信します。\n\n2. 認証情報の取り扱い\n図書館にログインするID・パスワードは、端末内にのみ暗号化して保存され、外部に送信されることはありません。\n\n3. 第三者提供\n収集した情報を第三者に提供することはありません。\n\n4. お問い合わせ\n本ポリシーに関するお問い合わせは naofum@gmail.com までお願いします。</string>
+    <string name="license_text">本アプリは以下のオープンソースソフトウェアを使用しています。\n\n・OkHttp（Apache License 2.0）\n・jsoup（MIT License）\n・PDFBox / PdfBox-Android（Apache License 2.0）\n・JLayer（LGPL）\n・SLF4J（MIT License）\n・epublib（LGPL 3.0）\n・Apache Commons IO（Apache License 2.0）\n・Apache Commons Lang（Apache License 2.0）\n・AndroidX（Apache License 2.0）\n・Material Components（Apache License 2.0）\n・Android Directory Chooser（Apache License 2.0）\n\n本アプリ本体は GPLv3 でライセンスされています。\n各ライブラリの詳細はそれぞれのライセンス条項をご確認ください。</string>
+
 </resources>

@@ -36,9 +36,9 @@ public class ExtractTimingValues {
 
     private static String getTrimmedValue(String elementName, Attributes attributes) {
         String rawValue = ParserUtilities.getValueForName(elementName, attributes);
-//        if (rawValue == null) {
-//            rawValue = "0";
-//        }
+        if (rawValue == null) {
+            return "0";
+        }
         return rawValue.replace("npt=", "").replace("s", "");
     }
 
@@ -64,6 +64,9 @@ public class ExtractTimingValues {
      */
     private static double getTrimmedValueForDaisy30(String elementName, Attributes attributes) {
         String rawValue = ParserUtilities.getValueForName(elementName, attributes);
+        if (rawValue == null) {
+            return 0.0;
+        }
         rawValue = rawValue.replace("s", "");
         String[] splitRawValue = rawValue.split(":");
         if (splitRawValue.length == 1) {

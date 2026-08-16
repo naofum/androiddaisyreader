@@ -392,7 +392,6 @@ public class DaisyBookUtil {
         return fileName;
     }
 
-    private static List<String> sResult;
 
     /**
      * Gets the daisy book.
@@ -402,22 +401,24 @@ public class DaisyBookUtil {
      * @return the daisy book
      */
     public static List<String> getDaisyBook(File path, boolean isLoop) {
-        if (!isLoop) {
-            sResult = new ArrayList<String>();
-        }
+        List<String> result = new ArrayList<String>();
+        getDaisyBookRecursive(path, result);
+        return result;
+    }
+
+    private static void getDaisyBookRecursive(File path, List<String> result) {
         if (folderContainsDaisy202Book(path) || folderContainsDaisy30Book(path)) {
-            sResult.add(path.getAbsolutePath());
+            result.add(path.getAbsolutePath());
         } else if (path.listFiles() != null) {
             File[] files = path.listFiles();
             for (File file : files) {
                 if (folderContainsDaisy202Book(file) || folderContainsDaisy30Book(file)) {
-                    sResult.add(file.getAbsolutePath());
+                    result.add(file.getAbsolutePath());
                 } else if (file.isDirectory()) {
-                    getDaisyBook(file, true);
+                    getDaisyBookRecursive(file, result);
                 }
             }
         }
-        return sResult;
     }
 
     /**
@@ -469,8 +470,11 @@ public class DaisyBookUtil {
                 lastestIdRecentBooks = recentBooks.get(0).getSort();
             }
             if (sql.isExists(daisyBook.getTitle(), Constants.TYPE_RECENT_BOOK)) {
-                sql.deleteDaisyBook(sql.getDaisyBookByTitle(daisyBook.getTitle(),
-                        Constants.TYPE_RECENT_BOOK).getId());
+                DaisyBookInfo existing = sql.getDaisyBookByTitle(daisyBook.getTitle(),
+                        Constants.TYPE_RECENT_BOOK);
+                if (existing != null) {
+                    sql.deleteDaisyBook(existing.getId());
+                }
             }
             daisyBook.setSort(lastestIdRecentBooks + 1);
             sql.addDaisyBook(daisyBook, Constants.TYPE_RECENT_BOOK);
@@ -479,14 +483,14 @@ public class DaisyBookUtil {
 
     public String getBookTitle(String path, Context context) throws PrivateException {
         DaisyBook daisyBook = null;
-        String titleOfBook = null;
+        String titleOfBook = "";
         try {
             if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
                 // content:// URI はキャッシュ経由でZipFileとして読む
                 java.io.File cachedFile = CacheHelper.copyToCache(context, path);
                 try (InputStream input = new BufferedInputStream(new java.io.FileInputStream(cachedFile))) {
                     DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.forName("MS932"));
-                    titleOfBook = bookInfo.getTitle();
+                    titleOfBook = (bookInfo != null && bookInfo.getTitle() != null) ? bookInfo.getTitle() : "";
                 }
             } else {
                 if (DaisyBookUtil.findDaisyFormat(path) == Constants.DAISY_202_FORMAT) {
@@ -506,7 +510,7 @@ public class DaisyBookUtil {
                     java.io.File cachedFile = CacheHelper.copyToCache(context, path);
                     try (InputStream input = new BufferedInputStream(new java.io.FileInputStream(cachedFile))) {
                         DaisyBookInfo bookInfo = ZippedBookInfo.readFromZipStream(input, Charset.defaultCharset());
-                        titleOfBook = bookInfo.getTitle();
+                        titleOfBook = (bookInfo != null && bookInfo.getTitle() != null) ? bookInfo.getTitle() : "";
                     }
                 }
             } catch (IOException ie) {

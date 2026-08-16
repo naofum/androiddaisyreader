@@ -115,9 +115,9 @@ public class DaisyEbookReaderModeChoiceActivity extends DaisyEbookReaderBaseActi
     };
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected boolean onBackPressedHandled() {
         finish();
+        return true;
     }
 
     @Override

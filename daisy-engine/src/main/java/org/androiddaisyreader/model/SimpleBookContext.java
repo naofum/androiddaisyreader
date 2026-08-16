@@ -64,7 +64,7 @@ public class SimpleBookContext implements BookContext {
             if (!file.isDirectory()) {
                 throw new IllegalStateException("A valid directory is required");
             }
-            this.directoryName = directoryName;
+            this.directoryName = mediaUri;
             opfFileName = mediaUri + "/ncc.html";
             file = new File(opfFileName);
             if (file.exists()) {
@@ -76,6 +76,10 @@ public class SimpleBookContext implements BookContext {
                 }
             } else {
                 opfFileName = getOpfFileName(mediaUri);
+                if (opfFileName == null) {
+                    throw new IOException("OPF file not found in: " + mediaUri);
+                }
+                opfFileName = mediaUri + "/" + opfFileName;
                 try (InputStream input = new BufferedInputStream(new FileInputStream(opfFileName))) {
                     bookInfo = ZippedBookInfo.readFromStream(input);
                 }
@@ -170,6 +174,7 @@ public class SimpleBookContext implements BookContext {
             }
             entry = zipContents.getNextEntry();
         }
+        zipContents.close();
         return null;
     }
 

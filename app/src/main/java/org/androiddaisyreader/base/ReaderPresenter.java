@@ -15,9 +15,9 @@ import org.androiddaisyreader.model.Section;
 import org.androiddaisyreader.model.Snippet;
 import org.androiddaisyreader.apps.PrivateException;
 import org.androiddaisyreader.sqlite.SQLiteCurrentInformationHelper;
-import org.androiddaisyreader.utils.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +38,7 @@ public class ReaderPresenter {
     private Navigator navigator;
     private Navigator navigatorOfTableContents;
     private AudioPlayerController audioPlayer;
+    private org.androiddaisyreader.player.AndroidAudioPlayer androidAudioPlayer;
     private MediaPlayer player;
     private CurrentInformation current;
 
@@ -65,7 +66,7 @@ public class ReaderPresenter {
     private Map<String, List<Integer>> hashMapBegin = new LinkedHashMap<>();
     private Map<String, List<Integer>> hashMapEnd = new LinkedHashMap<>();
 
-    private static final int TIME_FOR_PROCESS = 400;
+    private float playbackSpeed = 1.0f;
 
     public ReaderPresenter(ReaderView view, DaisyEbookReaderBaseMode baseMode,
                            SQLiteCurrentInformationHelper sql, String path, boolean isFormat202) {
@@ -146,6 +147,31 @@ public class ReaderPresenter {
     void setAudioPlayerController(AudioPlayerController audioPlayer) { this.audioPlayer = audioPlayer; }
     void setPlayer(MediaPlayer player) { this.player = player; }
 
+    /**
+     * オーディオ再生速度を設定する。
+     * @param speed 再生速度（1.0 = 通常速度）
+     */
+    public void setPlaybackSpeed(float speed) {
+        this.playbackSpeed = speed;
+        applyPlaybackSpeed();
+        // AndroidAudioPlayerにも設定（セクション移動時のreset後も維持するため）
+        if (androidAudioPlayer != null) {
+            androidAudioPlayer.setPlaybackSpeed(speed);
+        }
+    }
+
+    private void applyPlaybackSpeed() {
+        if (player != null) {
+            try {
+                android.media.PlaybackParams params = player.getPlaybackParams();
+                params.setSpeed(playbackSpeed);
+                player.setPlaybackParams(params);
+            } catch (Exception e) {
+                // 一部の端末/状態ではsetPlaybackParamsが失敗する場合がある
+            }
+        }
+    }
+
     // ========================================================================
     // openBook - 本を開く
     // ========================================================================
@@ -182,7 +208,7 @@ public class ReaderPresenter {
      */
     protected void initAudioPlayer(String path) throws PrivateException {
         BookContext bookContext = baseMode.getBookContext(path);
-        org.androiddaisyreader.player.AndroidAudioPlayer androidAudioPlayer =
+        androidAudioPlayer =
                 new org.androiddaisyreader.player.AndroidAudioPlayer(bookContext);
         androidAudioPlayer.addCallbackListener(audioCallbackListener);
         audioPlayer = new AudioPlayerController(androidAudioPlayer);
@@ -323,9 +349,13 @@ public class ReaderPresenter {
             positionSentence = 0;
             positionSection += 1;
             isEndOf = false;
+            if (isReadAloudMode) {
+                view.stopReadAloud();
+            }
             Section section = (Section) navigator.next();
             onNavigationNext(section);
         } else {
+            // 最後のセクション: 状態を変更せずダイアログのみ表示
             view.onReachedEndOfBook();
         }
     }
@@ -346,22 +376,36 @@ public class ReaderPresenter {
     // ========================================================================
 
     public void nextSentence() {
-        if (isFormat202) {
-            nextSentenceDaisy202();
-        } else {
-            nextSentenceDaisy30();
+        if (isReadAloudMode) {
+            // TTS読み上げモード: 次のセンテンスを読み上げ
+            view.stopReadAloud();
+            if (positionSentence < listStringText.size() - 1) {
+                positionSentence++;
+                speakCurrentSentence();
+            } else {
+                nextSection();
+            }
+            return;
         }
+        nextSentenceInternal();
     }
 
     public void previousSentence() {
-        if (isFormat202) {
-            previousSentenceDaisy202();
-        } else {
-            previousSentenceDaisy30();
+        if (isReadAloudMode) {
+            // TTS読み上げモード: 前のセンテンスを読み上げ
+            view.stopReadAloud();
+            if (positionSentence > 0) {
+                positionSentence--;
+                speakCurrentSentence();
+            } else {
+                previousSection();
+            }
+            return;
         }
+        previousSentenceInternal();
     }
 
-    private void nextSentenceDaisy202() {
+    private void nextSentenceInternal() {
         if (positionSentence < listStringText.size() - 1) {
             positionSentence++;
             player.seekTo(listTimeBegin.get(positionSentence));
@@ -371,28 +415,7 @@ public class ReaderPresenter {
         }
     }
 
-    private void nextSentenceDaisy30() {
-        if (positionSentence < listStringText.size() - 1) {
-            positionSentence++;
-            player.seekTo(listTimeBegin.get(positionSentence));
-            view.onSentenceChanged(positionSentence);
-        } else {
-            // セクション末尾に達した場合
-            nextSection();
-        }
-    }
-
-    private void previousSentenceDaisy202() {
-        if (positionSentence > 0) {
-            positionSentence--;
-            player.seekTo(listTimeBegin.get(positionSentence));
-            view.onSentenceChanged(positionSentence);
-        } else {
-            previousSection();
-        }
-    }
-
-    private void previousSentenceDaisy30() {
+    private void previousSentenceInternal() {
         if (positionSentence > 0) {
             positionSentence--;
             player.seekTo(listTimeBegin.get(positionSentence));
@@ -418,7 +441,7 @@ public class ReaderPresenter {
     }
 
     public void playBookmarkOfDaisy30(String audioFileName) {
-        if (!isFormat202 && listAudio != null) {
+        if (!isFormat202 && listAudio != null && !listAudio.isEmpty()) {
             for (int i = 0; i < listAudio.size(); i++) {
                 Audio audio = listAudio.get(i);
                 if (audio.getAudioFilename().equals(audioFileName)) {
@@ -443,6 +466,14 @@ public class ReaderPresenter {
     }
 
     public void togglePlay() {
+        if (isReadAloudMode) {
+            if (isPlaying) {
+                setMediaPause();
+            } else {
+                setMediaPlay();
+            }
+            return;
+        }
         if (player != null && player.isPlaying()) {
             setMediaPause();
         } else {
@@ -451,8 +482,21 @@ public class ReaderPresenter {
     }
 
     public void setMediaPlay() {
+        if (isReadAloudMode) {
+            // TTS読み上げモード: MediaPlayerではなくTTSで再生
+            isRunnable = true;
+            isPlaying = true;
+            if (current != null) {
+                current.setPlaying(true);
+                updateCurrentInformationAsync(current);
+            }
+            view.showPlayingState();
+            speakCurrentSentence();
+            return;
+        }
         if (player != null) {
             player.start();
+            applyPlaybackSpeed();
             isRunnable = true;
             isPlaying = true;
             if (current != null) {
@@ -464,6 +508,18 @@ public class ReaderPresenter {
     }
 
     public void setMediaPause() {
+        if (isReadAloudMode) {
+            // TTS読み上げモード: TTSを一時停止
+            view.stopReadAloud();
+            isRunnable = false;
+            isPlaying = false;
+            if (current != null) {
+                current.setPlaying(false);
+                updateCurrentInformationAsync(current);
+            }
+            view.showPausedState();
+            return;
+        }
         if (player != null && player.isPlaying()) {
             timePause = player.getCurrentPosition();
             player.pause();
@@ -487,6 +543,66 @@ public class ReaderPresenter {
         } else {
             playFileSegmentForDaisy30();
         }
+    }
+
+    // ========================================================================
+    // TTS読み上げ制御（オーディオなし書籍用）
+    // ========================================================================
+
+    private boolean isReadAloudMode = false;
+
+    /**
+     * オーディオがないセクションのTTS読み上げを開始する。
+     * セクションロード後に呼ばれる。
+     */
+    public void startReadAloud() {
+        if (listStringText == null || listStringText.isEmpty()) {
+            return;
+        }
+        isReadAloudMode = true;
+        view.applyReadAloudSettings();
+        positionSentence = 0;
+        speakCurrentSentence();
+    }
+
+    /**
+     * TTS読み上げを停止する。
+     */
+    public void stopReadAloud() {
+        isReadAloudMode = false;
+        view.stopReadAloud();
+    }
+
+    /**
+     * 現在のセンテンスを読み上げる。
+     */
+    private void speakCurrentSentence() {
+        if (!isReadAloudMode) return;
+        if (positionSentence >= listStringText.size()) return;
+        view.highlightSentence(positionSentence);
+        view.speakSentence(listStringText.get(positionSentence), positionSentence);
+    }
+
+    /**
+     * TTS読み上げ完了コールバック。Viewから呼ばれる。
+     * 次のセンテンスに進むか、セクション末尾なら次のセクションに移動する。
+     */
+    public void onUtteranceCompleted(int sentenceIndex) {
+        if (!isReadAloudMode) return;
+        if (sentenceIndex < listStringText.size() - 1) {
+            positionSentence = sentenceIndex + 1;
+            speakCurrentSentence();
+        } else {
+            // セクション末尾 → 次のセクションへ
+            nextSection();
+        }
+    }
+
+    /**
+     * 現在のセクションがオーディオなし（TTS読み上げモード）かどうか。
+     */
+    public boolean isReadAloudMode() {
+        return isReadAloudMode;
     }
 
     // ========================================================================
@@ -526,10 +642,21 @@ public class ReaderPresenter {
         for (Part part : parts) {
             // テキスト・画像の抽出
             int sizeOfPart = part.getSnippets().size();
+            boolean partHasAudio = !part.getAudioElements().isEmpty();
             for (int i = 0; i < sizeOfPart; i++) {
                 Snippet snippet = part.getSnippets().get(i);
-                String text = snippet.getText().toString();
-                listStringText.add(text);
+                String text = snippet.getText();
+                if (partHasAudio) {
+                    // audioあり: Part単位でテキストを保持（タイミングと1:1対応）
+                    listStringText.add(text);
+                } else {
+                    // audioなし（TTS）: 長い文のみ句読点で分割
+                    if (text.length() >= 100) {
+                        Collections.addAll(listStringText, text.split("[、。,\\.\\n\u3000]+", -1));
+                    } else {
+                        listStringText.add(text);
+                    }
+                }
                 content.append(text).append("\n");
                 if (snippet instanceof DaisySnippet) {
                     String img = ((DaisySnippet) snippet).getImg();
@@ -547,32 +674,25 @@ public class ReaderPresenter {
                 listTimeBegin.add(audio.getClipBegin());
                 listTimeEnd.add(audioElements.get(audioElementsSize - 1).getClipEnd());
                 if (fileName == null || !fileName.equals(audio.getAudioFilename())) {
-                    hashMapBegin.put(fileName, listClipBegin);
-                    hashMapEnd.put(fileName, listClipEnd);
-                    listClipBegin = new ArrayList<>();
-                    listClipEnd = new ArrayList<>();
+                    if (fileName != null) {
+                        hashMapBegin.put(fileName, listClipBegin);
+                        hashMapEnd.put(fileName, listClipEnd);
+                        listClipBegin = new ArrayList<>();
+                        listClipEnd = new ArrayList<>();
+                    }
                     fileName = audio.getAudioFilename();
                 }
                 listClipBegin.add(audio.getClipBegin());
                 listClipEnd.add(audioElements.get(audioElementsSize - 1).getClipEnd());
             }
         }
-        hashMapBegin.put(fileName, listClipBegin);
-        hashMapEnd.put(fileName, listClipEnd);
+        if (fileName != null) {
+            hashMapBegin.put(fileName, listClipBegin);
+            hashMapEnd.put(fileName, listClipEnd);
+        }
 
-        // DAISY202: オーディオ再生
-        if (isFormat202) {
-            try {
-                for (Part part : parts) {
-                    for (Audio audioSegment : part.getAudioElements()) {
-                        audioPlayer.playFileSegment(audioSegment);
-                    }
-                }
-            } catch (Exception e) {
-                // audio not found
-            }
-        } else {
-            // DAISY30: オーディオリスト構築
+        // DAISY30: オーディオリスト構築
+        if (!isFormat202) {
             String audioFileName = "";
             listAudio = new ArrayList<>();
             countAudio = 0;
@@ -585,15 +705,33 @@ public class ReaderPresenter {
                     }
                 }
             }
+        }
+
+        // View にコンテンツ通知（大量テキストによるUI遅延を防止するため上限を設ける）
+        final String displayText = content.length() > 4000
+                ? content.substring(0, 4000) + "…"
+                : content.toString();
+        final String displayImage = imageSrc;
+        view.displayContent(displayText);
+        if (displayImage != null) {
+            view.displayImage(displayImage);
+        }
+
+        // オーディオ再生
+        if (isFormat202) {
+            try {
+                for (Part part : parts) {
+                    for (Audio audioSegment : part.getAudioElements()) {
+                        audioPlayer.playFileSegment(audioSegment);
+                    }
+                }
+            } catch (Exception e) {
+                // audio not found
+            }
+        } else {
             if (listAudio.size() > 0) {
                 audioPlayer.playFileSegment(listAudio.get(0));
             }
-        }
-
-        // View にコンテンツ通知
-        view.displayContent(content.toString());
-        if (imageSrc != null) {
-            view.displayImage(imageSrc);
         }
 
         // seek to time (モード切替時)
@@ -612,15 +750,16 @@ public class ReaderPresenter {
         if (!isFormat202 && listAudio != null && !listAudio.isEmpty()) {
             audioName = listAudio.get(countAudio).getAudioFilename();
         }
+        int currentPosition = (player != null) ? player.getCurrentPosition() : 0;
         String activity = view.getActivityName();
         CurrentInformation currentInformation;
         if (current == null) {
             currentInformation = baseMode.createCurrentInformation(audioName, activity,
-                    positionSection, player.getCurrentPosition(), isPlaying);
+                    positionSection, currentPosition, isPlaying);
             sql.addCurrentInformation(currentInformation);
         } else {
             currentInformation = baseMode.updateCurrentInformation(current, audioName, activity,
-                    positionSection, positionSentence, player.getCurrentPosition(), isPlaying);
+                    positionSection, positionSentence, currentPosition, isPlaying);
             sql.updateCurrentInformation(currentInformation);
         }
     }

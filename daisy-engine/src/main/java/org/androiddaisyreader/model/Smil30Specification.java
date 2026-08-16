@@ -198,6 +198,8 @@ public class Smil30Specification extends DefaultHandler {
         String uri = elements[0];
         String id = elements[1];
 
+        android.util.Log.i("Smil30Specification", "text src=\"" + src + "\" uri=\"" + uri + "\" id=\"" + id + "\"");
+
         // We need to create the jsoup document if it's not initialised, or if
         // the filename has changed (which means the contents are no longer
         // valid.
@@ -205,6 +207,10 @@ public class Smil30Specification extends DefaultHandler {
             InputStream contents = null;
             try {
                 contents = context.getResource(uri);
+                if (contents == null) {
+                    android.util.Log.w("Smil30Specification", "text resource not found: " + uri);
+                    return;
+                }
                 String encoding = obtainEncodingStringFromInputStream(contents);
                 doc = Jsoup.parse(contents, encoding, context.getBaseUri());
                 currentContentsFilename = uri;
@@ -251,6 +257,9 @@ public class Smil30Specification extends DefaultHandler {
         int clipEnd = ExtractTimingValues.extractTimingAsMilliSeconds("clipEnd", attributes,
                 DAISYFORMAT30);
         String id = ParserUtilities.getValueForName("id", attributes);
+
+        android.util.Log.i("Smil30Specification", "audio src=\"" + audioFilename
+                + "\" clipBegin=" + clipBegin + " clipEnd=" + clipEnd);
 
         Audio audio = new Audio(id, audioFilename, clipBegin, clipEnd);
         partBuilder.addAudio(audio);

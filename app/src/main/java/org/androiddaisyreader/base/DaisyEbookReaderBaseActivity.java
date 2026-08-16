@@ -19,7 +19,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings.System;
 import android.speech.tts.TextToSpeech;
@@ -27,9 +27,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.github.naofum.androiddaisyreader.R;
 
 //import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -39,15 +43,17 @@ import androidx.core.content.ContextCompat;
  * @date Jul 19, 2013
  */
 
-public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements OnClickListener,
-        TextToSpeech.OnInitListener {
+public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements OnClickListener {
     protected TextToSpeech mTts;
     private static final long DOUBLE_PRESS_INTERVAL = 1000;
-    private static final long DELAY_MILLIS = 500;
-    private static long lastPressTime;
-    private static int lastPositionClick = -1;
-    private static boolean mHasDoubleClicked = false;
+    private static final long DELAY_MILLIS = DOUBLE_PRESS_INTERVAL;
+    private long lastPressTime;
+    private int lastPositionClick = -1;
+    private boolean mHasDoubleClicked = false;
     private String mPendingSpeakText = null;
+    private Runnable mPendingSpeakCallback = null;
+    protected final Handler mSpeakHandler = new Handler(Looper.getMainLooper());
+    protected volatile boolean mTtsReady = false;
 //    protected FirebaseAnalytics mFirebaseAnalytics;
 
 
@@ -55,6 +61,18 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (onBackPressedHandled()) {
+                    return;
+                }
+
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
 
         // Obtain the FirebaseAnalytics instance.
 //        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
@@ -105,7 +123,9 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
 //            Constants.folderContainMetadata = Constants.folderRoot
 //                    + "/" + Constants.FOLDER_NAME + "/";
             Constants.folderContainMetadata = getFilesDir().getAbsolutePath() + "/";
-            startTts();
+            if (!mTtsReady) {
+                startTts();
+            }
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, getApplicationContext());
             ex.writeLogException();
@@ -114,13 +134,8 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
 
     @Override
     protected void onDestroy() {
-        if (mTts != null) {
-            if (mTts.isSpeaking()) {
-                mTts.stop();
-            }
-            mTts.shutdown();
-            mTts = null;
-        }
+        mSpeakHandler.removeCallbacksAndMessages(null);
+        mTtsReady = false;
         super.onDestroy();
     }
 
@@ -133,28 +148,48 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     }
 
     @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            mTts.setLanguage(checkTTSSupportLanguage() ? Locale.getDefault() : Locale.US);
-            // TTS初期化完了時にpendingテキストがあれば読み上げ
-            if (mPendingSpeakText != null) {
-                speakText(mPendingSpeakText);
-                mPendingSpeakText = null;
-            }
-        }
-    }
-
-    @Override
     public void onClick(View arg0) {
 
     }
 
     /**
-     * Start TTS.
+     * Application スコープの共有TTSインスタンスを取得する。
      */
     private void startTts() {
-        if (mTts == null) {
-            mTts = new TextToSpeech(getApplicationContext(), this);
+        android.util.Log.d("TTS_DEBUG", "startTts called from " + getClass().getSimpleName() + " mTtsReady=" + mTtsReady);
+        org.androiddaisyreader.apps.DaisyReaderApplication app =
+                org.androiddaisyreader.apps.DaisyReaderApplication.getInstance();
+        if (app != null) {
+            mTts = app.getTts();
+            if (app.isTtsReady()) {
+                mTtsReady = true;
+                onTtsReady();
+            } else {
+                app.setOnTtsReadyListener(() -> {
+                    mTtsReady = true;
+                    onTtsReady();
+                });
+            }
+        }
+    }
+
+    /**
+     * TTS初期化完了時のコールバック。Application経由で呼ばれる。
+     */
+    protected void onTtsReady() {
+        android.util.Log.d("TTS_DEBUG", "onTtsReady from " + getClass().getSimpleName() + " pendingText=" + mPendingSpeakText + " pendingCallback=" + (mPendingSpeakCallback != null));
+        // フォールバックタイマーをキャンセル
+        mSpeakHandler.removeCallbacksAndMessages(null);
+        // ペンディングがあれば処理
+        if (mPendingSpeakText != null && mPendingSpeakCallback != null) {
+            String text = mPendingSpeakText;
+            Runnable callback = mPendingSpeakCallback;
+            mPendingSpeakText = null;
+            mPendingSpeakCallback = null;
+            speakTextWithCallback(text, callback);
+        } else if (mPendingSpeakText != null) {
+            speakText(mPendingSpeakText);
+            mPendingSpeakText = null;
         }
     }
 
@@ -186,15 +221,29 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
      * 
      * @param textToSpeech the text to speech
      */
+    private String mLastSpokenText = null;
+    private long mLastSpokenTime = 0;
+    private static final long DUPLICATE_SPEAK_THRESHOLD = 500;
+
     public void speakText(String textToSpeech) {
-        if (mTts != null && checkTTSSupportLanguage()) {
-            if (mTts.isSpeaking()) {
-                mTts.stop();
-            }
+//        Exception e = new Exception("Current StackTrace");
+//        android.util.Log.e("TTS_DEBUG", "(duplicate)", e);
+        android.util.Log.d("TTS_DEBUG", "speakText called: \"" + textToSpeech + "\" from " + getClass().getSimpleName() + " mTtsReady=" + mTtsReady);
+        // 短時間内の同一テキスト重複発話を防止
+        long now = java.lang.System.currentTimeMillis();
+        if (textToSpeech.equals(mLastSpokenText) && (now - mLastSpokenTime) < DUPLICATE_SPEAK_THRESHOLD) {
+            android.util.Log.d("TTS_DEBUG", "speakText SKIPPED (duplicate): \"" + textToSpeech + "\"");
+            return;
+        }
+        if (mTts != null && mTtsReady && checkTTSSupportLanguage()) {
             if (!checkKeyguardMode()) {
+                android.util.Log.d("TTS_DEBUG", "speakText QUEUE_FLUSH: \"" + textToSpeech + "\"");
+                mLastSpokenText = textToSpeech;
+                mLastSpokenTime = now;
                 mTts.speak(textToSpeech, TextToSpeech.QUEUE_FLUSH, null);
             }
         } else {
+            android.util.Log.d("TTS_DEBUG", "speakText pending: \"" + textToSpeech + "\"");
             // TTS未初期化の場合はpendingに保存し、onInit完了後に読み上げる
             mPendingSpeakText = textToSpeech;
             if (mTts == null) {
@@ -204,31 +253,120 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     }
 
     public void speakText(String textToSpeech, int queue) {
-        if (mTts != null) {
+        android.util.Log.d("TTS_DEBUG", "speakText(queue=" + queue + ") called: \"" + textToSpeech + "\" from " + getClass().getSimpleName());
+        if (mTts != null && mTtsReady) {
             if (checkTTSSupportLanguage() && !checkKeyguardMode()) {
+                android.util.Log.d("TTS_DEBUG", "speakText queue=" + queue + ": \"" + textToSpeech + "\"");
                 mTts.speak(textToSpeech, queue, null);
             }
         } else {
-            startTts();
+            // TTS未初期化の場合はpendingに保存
+            mPendingSpeakText = textToSpeech;
+            if (mTts == null) {
+                startTts();
+            }
         }
     }
 
     /**
+     * テキストを読み上げ、完了後にコールバックを実行する。
+     * TTS未初期化の場合はコールバックを即座に実行する。
+     *
+     * @param textToSpeech 読み上げテキスト
+     * @param onComplete   読み上げ完了後に実行するRunnable
+     */
+    public void speakTextWithCallback(String textToSpeech, final Runnable onComplete) {
+        android.util.Log.d("TTS_DEBUG", "speakTextWithCallback called: \"" + textToSpeech + "\" from " + getClass().getSimpleName() + " mTtsReady=" + mTtsReady);
+        // 短時間内の同一テキスト重複呼び出しを防止
+        long now = java.lang.System.currentTimeMillis();
+        if (textToSpeech.equals(mLastSpokenText) && (now - mLastSpokenTime) < DUPLICATE_SPEAK_THRESHOLD) {
+            android.util.Log.d("TTS_DEBUG", "speakTextWithCallback SKIPPED (duplicate): \"" + textToSpeech + "\"");
+            return;
+        }
+        mLastSpokenText = textToSpeech;
+        mLastSpokenTime = now;
+        if (mTts != null && mTtsReady) {
+            if (checkTTSSupportLanguage() && !checkKeyguardMode()) {
+                final java.util.concurrent.atomic.AtomicBoolean callbackExecuted =
+                        new java.util.concurrent.atomic.AtomicBoolean(false);
+                final String utteranceId = "screen_name_" + java.lang.System.currentTimeMillis();
+
+                // サブクラスの統一リスナーで処理するためフィールドに保持
+                onSetScreenNameCallback(callbackExecuted, onComplete);
+
+                // 前画面のTTS操作が完了するのを待ってから発話
+//                Exception e = new Exception("Current StackTrace");
+//                android.util.Log.e("TTS_DEBUG", "(delayed)", e);
+                final String text = textToSpeech;
+                mSpeakHandler.postDelayed(() -> {
+                    android.util.Log.d("TTS_DEBUG", "speakTextWithCallback delayed speak: \"" + text + "\" utteranceId=" + utteranceId);
+                    if (!isFinishing() && mTts != null) {
+                        android.os.Bundle params = new android.os.Bundle();
+                        mTts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId);
+                    } else if (callbackExecuted.compareAndSet(false, true) && onComplete != null) {
+                        onComplete.run();
+                    }
+                }, 150);
+                // onDoneが来ない場合のフォールバック（5秒）
+                mSpeakHandler.postDelayed(() -> {
+                    if (callbackExecuted.compareAndSet(false, true)) {
+                        if (onComplete != null) {
+                            onComplete.run();
+                        }
+                    }
+                }, 5000);
+            } else {
+                // 言語非対応またはロック画面 → 即座にコールバック
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            }
+        } else {
+            // TTS未初期化の場合はペンディングに保存し、onInit完了後に発話+コールバック実行
+            mPendingSpeakText = textToSpeech;
+            mPendingSpeakCallback = onComplete;
+            if (mTts == null) {
+                startTts();
+            }
+            // TTS初期化が3秒以内に完了しなければコールバックを実行するフォールバック
+            final Runnable fallback = () -> {
+                if (mPendingSpeakCallback != null) {
+                    Runnable cb = mPendingSpeakCallback;
+                    mPendingSpeakText = null;
+                    mPendingSpeakCallback = null;
+                    cb.run();
+                }
+            };
+            mSpeakHandler.postDelayed(fallback, 3000);
+        }
+    }
+
+    /**
+     * screen_name_ utterance完了時のコールバックを設定する。
+     * BaseModeActivityでオーバーライドして統一リスナーに連携する。
+     * BaseActivityを直接継承する画面（Library等）ではデフォルト実装（何もしない）を使う。
+     */
+    protected void onSetScreenNameCallback(java.util.concurrent.atomic.AtomicBoolean callbackExecuted, Runnable onComplete) {
+        // デフォルト: BaseModeActivity以外の画面ではリスナーが別途設定されないため
+        // フォールバックタイマーに任せる
+    }
+
+    /**
      * Speak text on handler.
+     * ダブルタップ判定の待機後にシングルタップと確定した場合のみ発話する。
+     * 前回の待機中メッセージはキャンセルされるため二重発話しない。
      * 
      * @param textToSpeech the text to speech
      */
-    @SuppressLint("HandlerLeak")
     public void speakTextOnHandler(final String textToSpeech) {
-        Handler myHandler = new Handler() {
-            public void handleMessage(Message m) {
-                if (!mHasDoubleClicked) {
-                    speakText(textToSpeech);
-                }
+        android.util.Log.d("TTS_DEBUG", "speakTextOnHandler queued: \"" + textToSpeech + "\" from " + getClass().getSimpleName());
+        mSpeakHandler.removeCallbacksAndMessages(null);
+        mSpeakHandler.postDelayed(() -> {
+            android.util.Log.d("TTS_DEBUG", "speakTextOnHandler executing: \"" + textToSpeech + "\" mHasDoubleClicked=" + mHasDoubleClicked);
+            if (!mHasDoubleClicked) {
+                speakText(textToSpeech);
             }
-        };
-        Message m = new Message();
-        myHandler.sendMessageDelayed(m, DELAY_MILLIS);
+        }, DELAY_MILLIS);
     }
 
     /**
@@ -282,9 +420,16 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
         // If double click...
         if (pressTime - lastPressTime <= DOUBLE_PRESS_INTERVAL && lastPositionClick == position) {
             mHasDoubleClicked = true;
+            android.util.Log.d("TTS_DEBUG", "handleClickItem: DOUBLE TAP - stop TTS, remove callbacks");
+            // ダブルタップ確定: 待機中の発話をキャンセルし、現在の発話も停止
+            mSpeakHandler.removeCallbacksAndMessages(null);
+            if (mTts != null && mTtsReady) {
+                mTts.stop();
+            }
             // If not double click....
         } else {
             mHasDoubleClicked = false;
+            android.util.Log.d("TTS_DEBUG", "handleClickItem: SINGLE TAP");
         }
         // record the last time the menu button was pressed.
         lastPressTime = pressTime;
@@ -300,5 +445,32 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    /**
+     * エラーダイアログを表示する。「ログを送信」ボタンを備える。
+     * UIスレッドから呼ぶこと。
+     *
+     * @param messageResId 表示するメッセージの文字列リソースID
+     */
+    protected void showErrorWithLogSend(int messageResId) {
+        showErrorWithLogSend(getString(messageResId));
+    }
+
+    protected void showErrorWithLogSend(String message) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.error_title)
+                .setMessage(message)
+                .setPositiveButton(R.string.ok, null)
+                .setNeutralButton(R.string.send_log,
+                        (dialog, which) -> org.androiddaisyreader.utils.LogSender.shareLog(this))
+                .show();
+    }
+
+    /**
+     * default onBackPressedHandler
+     */
+    protected boolean onBackPressedHandled() {
+        return false;
     }
 }

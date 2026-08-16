@@ -71,10 +71,18 @@ public class Smil {
         XMLReader saxParser;
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
-            // XXE対策
-//            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            // XXE対策: 外部エンティティと外部DTDロードを無効化。
+            // disallow-doctype-decl は DAISY/SMIL の正当な DOCTYPE 宣言を
+            // 拒否するため使用しない。代わりに外部参照のみを完全にブロックする。
+            try {
+                factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            } catch (Exception ignored) {}
+            try {
+                factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            } catch (Exception ignored) {}
+            try {
+                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            } catch (Exception ignored) {}
             saxParser = factory.newSAXParser().getXMLReader();
             saxParser.setEntityResolver(XmlUtilities.dummyEntityResolver());
         } catch (SAXException e) {

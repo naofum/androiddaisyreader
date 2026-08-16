@@ -36,14 +36,20 @@
 			<publisher></publisher>
 			<date>September 2005</date>
 		</book>
-		<book link="http://www.daisy.org/samples/3full-text-full-audio/are-you-ready-z3986.zip">
+		<book link="https://dl.daisy.org/samples/202full-text-full-audio/valentin-hauy.zip">
+			<title>Valentin Hauy (118 MB)</title>
+			<author>Beatrice Christensen Sköld</author>
+			<publisher></publisher>
+			<date>February 2004</date>
+		</book>
+		<book link="https://dl.daisy.org/samples/202text-only/wipo-treaty-d202-text-only.zip">
 			<title>WBU WIPO Copyright Treaty (draft) (28 KB)</title>
 			<author>WBU</author>
 			<publisher></publisher>
 			<date>October 2008</date>
 		</book>
 		<book link="https://dl.daisy.org/samples/3full-text-full-audio/are-you-ready-z3986.zip">
-			<title>Are You Ready? (13 MB)</title>
+			<title>Are You Ready? Format:DAISY3 (13 MB)</title>
 			<author>wikiHow</author>
 			<publisher></publisher>
 			<date>April 2009</date>
@@ -55,7 +61,7 @@
 			<date>February 2009</date>
 		</book>
 		<book link="https://dl.daisy.org/samples/epub/valentin-hauy.epub">
-			<title>Valentin Hauy (68.9 KB)</title>
+			<title>Valentin Hauy Format:EPUB (68.9 KB)</title>
 			<author>Beatrice Christensen Sköld</author>
 			<publisher></publisher>
 			<date>February 2004</date>
@@ -119,7 +125,25 @@
 		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/bokuwakunarration_sr.zip">
 			<title>僕の惑星日記</title>
 			<author></author>
-			<publisher></publisher>
+			<publisher>音声訳ボランティア いずみ　提供</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/mametyan_no_itiniti_ra.zip">
+			<title>まめちゃんのいちにち</title>
+			<author></author>
+			<publisher>目黒朗読グループ・アイ</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/hitohusano_budou_sr.zip">
+			<title>一房の葡萄</title>
+			<author></author>
+			<publisher>目黒朗読グループ・アイ</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/download-daisy/miminashihooichi_sr.zip">
+			<title>耳なし芳一</title>
+			<author></author>
+			<publisher>目黒朗読グループ・アイ</publisher>
 			<date></date>
 		</book>
 		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/rainbow/01_tentokun/ten_japaneseP2.zip">
@@ -194,6 +218,30 @@
 			<publisher>茨城県立図書館</publisher>
 			<date></date>
 		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/33club/recipe_kaisetsu3P.zip">
+			<title>さんさんくらぶレシピブック（DAISY形式：57.1MB）</title>
+			<author></author>
+			<publisher>ＮＰＯ法人おひさま 障がい児通所支援（多機能型） さんさんくらぶ</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/33club/recipe_koma3P.zip">
+			<title>ちゃんちゃんやきのつくりかた（DAISY形式：57.2MB）</title>
+			<author></author>
+			<publisher>ＮＰＯ法人おひさま 障がい児通所支援（多機能型） さんさんくらぶ</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/boshi/boshiMD2019.zip">
+			<title>令和元年度母子健康手帳（DAISY形式：79.8MB）</title>
+			<author></author>
+			<publisher>社会福祉法人日本点字図書館</publisher>
+			<date></date>
+		</book>
+		<book link="https://www.normanet.ne.jp/wp-content/uploads/daisy/syogaihakusyo_R07/hakusho.zip">
+			<title>令和7年版 障害者白書（DAISY形式：487MB）</title>
+			<author></author>
+			<publisher>公益財団法人日本障害者リハビリテーション協会</publisher>
+			<date></date>
+		</book>
 	</website>
 	<website url="https://www.atdo.jp/76" name="特定非営利活動法人　支援技術開発機構">
 		<book link="https://www.atdo.jp/m/daisy/tsunami_urakawa_jp.zip">
@@ -232,12 +280,12 @@
 			<publisher>支援技術開発機構</publisher>
 			<date></date>
 		</book>
-		<!-- book link="http://atdo.sakura.ne.jp/files/DAISY/share/2012princess.zip">
+		<book link="http://atdo.sakura.ne.jp/files/DAISY/share/2012princess.zip">
 			<title>プリンセス・小公女セーラ (53.1 MB)</title>
 			<author></author>
 			<publisher>米沢ICT協働会</publisher>
 			<date></date>
-		</book-->
+		</book>
 	</website>
 	<website url="https://saccessnet.com/multimediadaisy/chattybooks_sample/" name="サイエンス・アクセシビリティ・ネット">
 		<book link="https://saccessnet.com/wp-content/multimedia/daisy/RashoumonR_MultimediaDAISY.zip">
@@ -309,14 +357,14 @@
 			<date></date>
 		</book>
 	</website -->
-	<website url="https://www.barifuri.com/tourcenter/daisy/daisy.html" name="伊勢志摩バリアフリーツアーセンター">
+	<!-- website url="https://www.barifuri.com/tourcenter/daisy/daisy.html" name="伊勢志摩バリアフリーツアーセンター">
 		<book link="https://www.barifuri.com/tourcenter/daisy/daisy_iseshima.zip">
 			<title>伊勢志摩の観光地情報 (2013年版)</title>
 			<author></author>
 			<publisher></publisher>
 			<date></date>
 		</book>
-	</website>
+	</website -->
 	<website url="http://pjui.com/daisy/" name="中国五県観光情報">
 		<book link="http://pjui.com/daisy/wp-content/uploads/d-date/shimane-daisy1.zip">
 			<title>島根県観光情報デイジー</title>
@@ -379,7 +427,7 @@
 			<date></date>
 		</book>
 	</website>
-	<!-- website url="http://www.barifuri.jp/portal/page/daisy.html" name="日本バリアフリー旅行情報">
+	<website url="https://www.barifuri.jp/portal/" name="日本バリアフリー旅行情報">
 		<book link="http://www.barifuri.jp/portal/system/daisy/daisy_asahikawa.zip">
 			<title>旭川の観光地情報 (8.2 MB)</title>
 			<author></author>
@@ -470,15 +518,15 @@
 			<publisher>日本バリアフリー観光推進機構</publisher>
 			<date></date>
 		</book>
-	</website -->
-	<!-- website url="http://www.nhk.or.jp/pr/daisy/" name="NHK">
-		<book link="http://www.nhk.or.jp/pr/daisy/bangumi.zip">
-			<title>ＮＨＫ音声版番組時刻表 (78.7 MB)</title>
+	</website>
+	<website url="https://www.nhk.or.jp/info/daisy/" name="NHK">
+		<book link="https://www.nhk.or.jp/info/daisy/bangumi26/timetable.zip">
+			<title>ＮＨＫ音声版番組時刻表 2026年4月 (45.7 MB)</title>
 			<author></author>
 			<publisher>NHK</publisher>
 			<date></date>
 		</book>
-	</website -->
+	</website>
 	<website url="https://www.lighthouse.or.jp/iccb/library/index_library/index_mmd/sample/" name="日本ライトハウス情報文化センター">
 		<book link="https://www.lighthouse.or.jp/iccb/wp-content/uploads/services/singoki.zip">
 			<title>おとがするしんごうき (10 MB)</title>
@@ -647,7 +695,7 @@
 			<date></date>
 		</book>
 	</website -->
-	<website url="https://www.dinf.ne.jp/doc/daisy/jdc/" name="日本DAISYコンソーシアム">
+	<!-- website url="https://www.dinf.ne.jp/doc/daisy/jdc/" name="日本DAISYコンソーシアム">
 		<book link="ftp://ftp.jsrpd.jp/pub/daisy/download/jdc/zip/kids.zip">
 			<title>よくわかる原子力（キッズページ） (71.5 MB)</title>
 			<author>原子力教育を考える会</author>
@@ -768,7 +816,7 @@
 			<publisher>日本DAISYコンソーシアム</publisher>
 			<date></date>
 		</book>
-	</website>
+	</website -->
 	<!-- website url="http://virginrose.com/daisy/index.html" name="米沢ICT協働会">
 		<book link="http://baishi.sakura.ne.jp/daisyup/2011guide02_rubi_ok.zip">
 			<title>障がい（児）者の福祉ガイド　ふりがな付き (30 MB)</title>
@@ -843,14 +891,14 @@
 			<date></date>
 		</book>
 	</website -->
-	<website url="https://www.city.mitaka.lg.jp/c_service/085/085863.html" name="三鷹市">
-		<book link="https://www.city.mitaka.lg.jp/daisy/20240915.zip">
-			<title>広報みたか（2024年9月15日号） (20MB)</title>
+	<!-- website url="https://www.city.mitaka.lg.jp/c_service/085/085863.html" name="三鷹市">
+		<book link="https://www.city.mitaka.lg.jp/daisy/20260802.zip">
+			<title>広報みたか（2026年8月2発行号） (20MB)</title>
 			<author></author>
 			<publisher>三鷹市</publisher>
 			<date></date>
 		</book>
-	</website>
+	</website -->
 	<website url="https://www.chofu-daisy.org/library.html" name="調布デイジー">
 		<book link="https://www.chofu-daisy.org/daisy/tanukitoyotaro.zip">
 			<title>狸と与太郎</title>
@@ -883,7 +931,7 @@
 			<date></date>
 		</book>
 	</website>
-	<!-- website url="http://www.city.katsushika.lg.jp/information/kouho/1005537/index.html" name="葛飾区">
+	<!-- website url="https://www.city.katsushika.lg.jp/information/kouho/1005537/index.html" name="葛飾区">
 		<book link="http://www.city.katsushika.lg.jp/_res/projects/default_project/_page_/001/020/148/0305daisy.zip">
 			<title>広報かつしか（2019年3月5日号） (50.7MB)</title>
 			<author></author>

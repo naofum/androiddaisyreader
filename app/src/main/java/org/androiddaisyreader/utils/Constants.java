@@ -84,6 +84,8 @@ public class Constants {
     public static final String NIGHT_MODE = "nightMode";
     /** storage root */
     public static final String STORAGE_ROOT = "storageRoot";
+    /** SAF scan folder URI (persistable) */
+    public static final String SAF_SCAN_FOLDER_URI = "safScanFolderUri";
     /** File ncc of daisy book format 2.02 not cap */
     public static final String FILE_NCC_NAME_NOT_CAPS = "ncc.html";
     /** File ncc of daisy book format 2.02 with cap */
@@ -149,6 +151,12 @@ public class Constants {
     public static final int SUBMENU_GOOGLE_PLAY = 9;
     /** Id item menu contact of sub menu */
     public static final int SUBMENU_CONTACT = 10;
+    /** Id item menu send log of sub menu */
+    public static final int SUBMENU_SEND_LOG = 11;
+    /** Id item menu privacy policy of sub menu */
+    public static final int SUBMENU_PRIVACY_POLICY = 12;
+    /** Id item menu license of sub menu */
+    public static final int SUBMENU_LICENSE = 13;
 
     // All message on simple mode activity.
     /** Id of message "simple mode" to speak by tts on simple mode */
@@ -173,12 +181,45 @@ public class Constants {
     public static final int PLAY = 12;
     /** Id of message "pause" to speak by tts on simple mode */
     public static final int PAUSE = 13;
+    /** Id of clear cache on recent book actvity */
+    public static final int CLEAR_RECENT = 14;
     // The type of daisy book in file metadata.xml will help us to distinguish
     // when we load daisy book from metadata file
     public static final String TYPE_DOWNLOAD_BOOK = "1";
     public static final String TYPE_RECENT_BOOK = "2";
     public static final String TYPE_SCAN_BOOK = "3";
     public static final String TYPE_DOWNLOADED_BOOK = "4";
+    public static final String TYPE_CHATTYLIB_BOOK = "5";
+
+    // ChattyLib
+    public static final String CHATTYLIB_SITE_NAME = "ChattyLib";
+    public static final String CHATTYLIB_SITE_URL = "chattylib://library";
+
+    // 青空文庫
+    public static final String TYPE_AOZORA_BOOK = "6";
+    public static final String AOZORA_SITE_NAME = "青空文庫";
+    public static final String AOZORA_SITE_URL = "aozora://library";
+    public static final String AOZORA_CATALOG_URL = "https://www.aozora.gr.jp/index_pages/list_person_all_utf8.zip";
+
+    // 広報紙
+    public static final String TYPE_KOHO_BOOK = "7";
+    public static final String KOHO_SITE_NAME = "広報紙";
+    public static final String KOHO_SITE_URL = "koho://library";
+
+    // マチイロ
+    public static final String TYPE_MACHIIRO_BOOK = "8";
+    public static final String MACHIIRO_SITE_NAME = "マチイロ";
+    public static final String MACHIIRO_SITE_URL = "machiiro://library";
+
+    // MY広報
+    public static final String TYPE_MYKOHO_BOOK = "9";
+    public static final String MYKOHO_SITE_NAME = "MY広報";
+    public static final String MYKOHO_SITE_URL = "mykoho://library";
+
+    // サピエ図書館
+    public static final String TYPE_SAPIE_BOOK = "10";
+    public static final String SAPIE_SITE_NAME = "サピエ図書館";
+    public static final String SAPIE_SITE_URL = "sapie://library";
 
     // All node in metadata.xml file.
     public static final String ATT_BOOKS = "books";
@@ -220,4 +261,15 @@ public class Constants {
     // The following section are used to record statistical data for Analytics
     public static final String RECORD_BOOK_DOWNLOAD_COMPLETED = "BookDownloadCompleted";
     public static final String RECORD_BOOK_DOWNLOAD_FAILED = "BookDownloadFailed";
+
+    /** 読み上げ言語設定キー（オーディオなし書籍のTTS用） */
+    public static final String TTS_READ_ALOUD_LANGUAGE = "ttsReadAloudLanguage";
+    /** 読み上げ速度設定キー（オーディオなし書籍のTTS用） 0.5〜3.0 */
+    public static final String TTS_READ_ALOUD_SPEED = "ttsReadAloudSpeed";
+    public static final float TTS_SPEED_DEFAULT = 1.0f;
+
+    /** ルビ表示モード設定キー: "ruby"=ルビを使用, "base"=底字を使用 */
+    public static final String RUBY_DISPLAY_MODE = "rubyDisplayMode";
+    public static final String RUBY_MODE_RUBY = "ruby";
+    public static final String RUBY_MODE_BASE = "base";
 }

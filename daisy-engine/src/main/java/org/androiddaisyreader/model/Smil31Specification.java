@@ -24,6 +24,7 @@ public class Smil31Specification extends DefaultHandler {
     private BookContext context;
 
     private boolean handlingPar = false;
+    private static final int DAISYFORMAT33 = 30;
 
     //    private XmlModel model;
 //    private List<XmlModel> listModel = new ArrayList<XmlModel>();
@@ -104,7 +105,7 @@ public class Smil31Specification extends DefaultHandler {
 
     private enum Element {
         H1, H2, H3, H4, H5, H6, SENT, LEVEL1, LEVEL2, LEVEL3, LEVEL4, LEVEL5, LEVEL6,
-        SPAN, DIV, P, SECTION, BODY;
+        SPAN, DIV, P, SECTION, BODY, PAR, SEQ, TEXT, AUDIO;
 
         @Override
         public String toString() {
@@ -139,6 +140,16 @@ public class Smil31Specification extends DefaultHandler {
                 handlingPar = false;
                 addPartToSection();
                 break;
+            case PAR:
+                handlingPar = false;
+                addPartToSection();
+                break;
+            case AUDIO:
+            case TEXT:
+                if (!handlingPar) {
+                    addPartToSection();
+                }
+                break;
             default:
                 break;
         }
@@ -171,10 +182,34 @@ public class Smil31Specification extends DefaultHandler {
                 partBuilder.setId(id);
                 handleTextElement(path + "#" + id);
                 break;
+            case PAR:
+                if (!isSmilMode()) break;
+                handlingPar = true;
+                handlePar(attributes);
+                break;
+            case TEXT:
+                if (!isSmilMode()) break;
+                if (!handlingPar) {
+                    newPart();
+                }
+                handleSmilTextElement(attributes);
+                break;
+            case AUDIO:
+                if (!isSmilMode()) break;
+                if (!handlingPar) {
+                    newPart();
+                }
+                handleAudio(attributes);
+                break;
+            case SEQ:
+                // do nothing
+                break;
             case SPAN:
             case P:
             case DIV:
-                handleTextElement(path + "#" + id);
+                if (getId(attributes) != null) {
+                    handleTextElement(path + "#" + id);
+                }
                 break;
             default:
                 // Record the element(s) we don't handle in case we can improve our
@@ -197,8 +232,78 @@ public class Smil31Specification extends DefaultHandler {
         partBuilder = new Part.Builder();
     }
 
+    /**
+     * SMIL内の&lt;text&gt;要素を処理する。src属性からテキスト参照を取得する。
+     * PAR内で呼ばれるため、同じIDの繰り返しも許可する。
+     */
+    private void handleSmilTextElement(Attributes attributes) {
+        String src = ParserUtilities.getValueForName("src", attributes);
+        if (src == null || !src.contains("#")) {
+            return;
+        }
+        if (partBuilder == null) {
+            newPart();
+            partBuilder.setId(id != null ? id : "");
+        }
+
+        String[] elements = DaisySnippet.parseCompositeReference(src);
+        String uri = elements[0];
+        String textId = elements[1];
+
+        if (doc == null || !uri.equalsIgnoreCase(currentContentsFilename)) {
+            InputStream contents = null;
+            try {
+                contents = context.getResource(uri);
+                if (contents == null) {
+                    return;
+                }
+                String encoding = obtainEncodingStringFromInputStream(contents);
+                doc = Jsoup.parse(contents, encoding, context.getBaseUri());
+                currentContentsFilename = uri;
+            } catch (IOException ioe) {
+                throw new RuntimeException("TODO fix me", ioe);
+            } finally {
+                try {
+                    if (contents != null) {
+                        contents.close();
+                    }
+                } catch (IOException e) {
+                    //
+                }
+            }
+        }
+        // SMIL par内のtext要素は重複IDでも常に追加する（繰り返し箇所対応）
+        partBuilder.addSnippet(new DaisySnippet(doc, textId));
+    }
+
+    /**
+     * SMIL内の&lt;audio&gt;要素を処理する。src, clipBegin, clipEnd属性から音声情報を取得する。
+     */
+    private void handleAudio(Attributes attributes) {
+        if (partBuilder == null) {
+            newPart();
+        }
+        String audioFilename = ParserUtilities.getValueForName("src", attributes);
+        int clipBegin = ExtractTimingValues.extractTimingAsMilliSeconds("clipBegin", attributes,
+                DAISYFORMAT33);
+        int clipEnd = ExtractTimingValues.extractTimingAsMilliSeconds("clipEnd", attributes,
+                DAISYFORMAT33);
+        String audioId = ParserUtilities.getValueForName("id", attributes);
+
+        Audio audio = new Audio(audioId, audioFilename, clipBegin, clipEnd);
+        partBuilder.addAudio(audio);
+    }
+
     private String getId(Attributes attributes) {
         return ParserUtilities.getValueForName("id", attributes);
+    }
+
+    /**
+     * 現在パース中のファイルがSMILかどうかを判定する。
+     * XHTMLパース時にはPAR/TEXT/AUDIO要素を処理しない。
+     */
+    private boolean isSmilMode() {
+        return path != null && path.endsWith(".smil");
     }
 
     /**
@@ -210,6 +315,11 @@ public class Smil31Specification extends DefaultHandler {
      * @param src
      */
     private void handleTextElement(String src) {
+        if (partBuilder == null) {
+            newPart();
+            partBuilder.setId(id != null ? id : "");
+        }
+
         // Create HTML Snippet Reader
         String[] elements = DaisySnippet.parseCompositeReference(src);
         String uri = elements[0];
@@ -222,6 +332,9 @@ public class Smil31Specification extends DefaultHandler {
             InputStream contents = null;
             try {
                 contents = context.getResource(uri);
+                if (contents == null) {
+                    return;
+                }
                 String encoding = obtainEncodingStringFromInputStream(contents);
                 doc = Jsoup.parse(contents, encoding, context.getBaseUri());
                 currentContentsFilename = uri;

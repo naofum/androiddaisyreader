@@ -5,6 +5,7 @@ import static org.androiddaisyreader.model.XmlUtilities.obtainEncodingStringFrom
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class OpfSpecification extends DefaultHandler {
     private Map<String, String> manifestItem = new HashMap<String, String>();
     // TODO 20120124 (jharty):replace with something that doesn't use Vector
     private StringBuilder buffer = new StringBuilder();
-    private List<XmlModel> listModel;
+    private List<XmlModel> listModel = new ArrayList<>();
     private DaisyBook.Builder bookBuilder = new DaisyBook.Builder();
     private BookContext bookContext;
 
@@ -88,7 +89,9 @@ public class OpfSpecification extends DefaultHandler {
             InputStream contents = null;
             try {
                 contents = bookContext.getResource(href);
-                listModel = XmlSpecification.readFromStream(contents);
+                if (contents != null) {
+                    listModel = XmlSpecification.readFromStream(contents);
+                }
             } catch (IOException e) {
 
             } finally {

@@ -103,7 +103,9 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
             List<DaisyBookInfo> existing = mSql.getAllDaisyBook(Constants.TYPE_DOWNLOADED_BOOK);
             for (DaisyBookInfo book : existing) {
                 if (cachedPath.equals(book.getPath())) {
-                    return; // 既に登録済み
+                    // ダウンロード済み登録は既にあるが、最近の書籍には登録する
+                    DaisyBookUtil.addRecentBookToSQLite(book, mNumberOfRecentBooks, mSql);
+                    return;
                 }
             }
 
@@ -119,7 +121,7 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
 
             if (bookInfo != null) {
                 bookInfo.setPath(cachedPath);
-                mSql.addDaisyBook(bookInfo, Constants.TYPE_DOWNLOADED_BOOK);
+                mSql.addOrReplaceDaisyBook(bookInfo, Constants.TYPE_DOWNLOADED_BOOK);
                 // 最近の書籍にも登録
                 DaisyBookUtil.addRecentBookToSQLite(bookInfo, mNumberOfRecentBooks, mSql);
             }
@@ -175,7 +177,6 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
 
         @Override
         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-            speakText(mlistDaisyBook.get(arg2).getTitle());
             final DaisyBookInfo daisyBook = mlistDaisyBook.get(arg2);
             boolean isDoubleTap = handleClickItem(arg2);
             if (isDoubleTap) {
@@ -231,14 +232,6 @@ public class DaisyReaderDownloadedBooks extends DaisyEbookReaderBaseActivity {
 
     @Override
     protected void onDestroy() {
-//        try {
-//            if (mTts != null) {
-//                mTts.shutdown();
-//            }
-//        } catch (Exception e) {
-//            PrivateException ex = new PrivateException(e, DaisyReaderDownloadedBooks.this);
-//            ex.writeLogException();
-//        }
         super.onDestroy();
     }
 }

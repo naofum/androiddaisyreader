@@ -24,6 +24,7 @@ import org.androiddaisyreader.sqlite.SQLiteCurrentInformationHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
@@ -55,6 +56,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
     private boolean mIsFirstNext = false;
     private boolean mIsFirstPrevious = true;
     private DaisyBook mBook;
+    private boolean mNeedReadBook = true;
     private Navigator mNavigator;
     private Navigator mNavigatorOfTableContents;
     private AudioPlayerController mAudioPlayer;
@@ -67,6 +69,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
     private boolean mIsRunable = true;
     private boolean mIsEndOf = false;
     private static final int TIME_FOR_PROCESS = 400;
+    private float mPlaybackSpeed = 1.0f;
     private boolean mIsFound = true;
     private int mOldMessage;
     private CurrentInformation mCurrent;
@@ -97,6 +100,18 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
         if (!validatePath(mPath)) {
             return;
         }
+        // content:// URI はキャッシュのローカルパスに変換する
+        if (mPath.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            try {
+                java.io.File cachedFile = org.androiddaisyreader.utils.CacheHelper
+                        .copyToCache(getApplicationContext(), mPath);
+                mPath = cachedFile.getAbsolutePath();
+            } catch (java.io.IOException e) {
+                showErrorDialog(e);
+                finish();
+                return;
+            }
+        }
         isFormat202 = DaisyBookUtil.findDaisyFormat(mPath, getApplicationContext()) == Constants.DAISY_202_FORMAT;
 
         // Presenter初期化
@@ -110,13 +125,17 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
         mNavigatorOfTableContents = presenter.getNavigatorOfTableContents();
         mAudioPlayer = presenter.getAudioPlayer();
         mPlayer = presenter.getPlayer();
+        // 再生速度をPreferencesから取得
+        mPlaybackSpeed = android.preference.PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getFloat(Constants.TTS_READ_ALOUD_SPEED, Constants.TTS_SPEED_DEFAULT);
 
         if (mBook != null && isFormat202 && !mBook.hasTotalTime()) {
             mIntentController.pushToDialog(getString(R.string.error_wrong_format_audio),
                     getString(R.string.error_title), R.raw.error, false, false, null);
         }
 
-        readBook();
+        // readBookはonResumeで画面名読み上げ完了後に呼ばれる
     }
 
     @Override
@@ -155,12 +174,53 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
     @Override
     protected void onResume() {
         super.onResume();
-        speakOut(Constants.SIMPLE_MODE);
-        speakOut(mOldMessage);
+        if (mNeedReadBook) {
+            mNeedReadBook = false;
+            // 初回: 画面名を読み上げ、完了後に再生開始
+            speakTextWithCallback(
+                    getString(R.string.title_activity_daisy_ebook_reader_simple_mode),
+                    () -> {
+                        if (!isFinishing()) {
+                            readBook();
+                        }
+                    });
+        } else {
+            // 画面復帰: 画面名を読み上げ、完了後に再生状態を復元
+            speakTextWithCallback(
+                    getString(R.string.title_activity_daisy_ebook_reader_simple_mode),
+                    () -> {
+                        if (!isFinishing()) {
+                            restorePlaybackState();
+                        }
+                    });
+        }
 
         if (mBook != null) {
             mNavigatorOfTableContents = new Navigator(mBook);
         }
+    }
+
+    /**
+     * 画面復帰時に再生状態を復元する。
+     */
+    private void restorePlaybackState() {
+        dbExecutor.execute(() -> {
+            final CurrentInformation current = mSql.getCurrentInformation();
+            mainHandler.post(() -> {
+                if (isFinishing()) return;
+                presenter.setCurrent(current);
+                if (current != null) {
+                    if (current.getPlaying()) {
+                        presenter.setMediaPlay();
+                    } else {
+                        presenter.setMediaPause();
+                    }
+                    if (!current.getActivity().equals(getActivityName())) {
+                        presenter.readBook();
+                    }
+                }
+            });
+        });
     }
 
     @Override
@@ -189,8 +249,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                         setMediaPause();
                     }
                     handleCurrentInformation(mCurrent);
-                    String path = getIntent().getStringExtra(Constants.DAISY_PATH);
-                    mIntentController.pushToTableOfContentsIntent(path, mNavigatorOfTableContents,
+                    mIntentController.pushToTableOfContentsIntent(mPath, mNavigatorOfTableContents,
                             getString(R.string.simple_mode));
                 } else {
                     switch (g) {
@@ -219,7 +278,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                         previousSentence();
                         if (mPositionSentence > 0) {
                             mPositionSentence -= 1;
-                            mHandler.removeCallbacks(mRunnalbe);
+                            mHandler.removeCallbacks(mRunnable);
                             mIsRunable = true;
                             getCurrentPositionSentence();
                         }
@@ -230,7 +289,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                         nextSentence();
                         if (mPositionSentence < mListTimeBegin.size() - 1) {
                             mPositionSentence += 1;
-                            mHandler.removeCallbacks(mRunnalbe);
+                            mHandler.removeCallbacks(mRunnable);
                             mIsRunable = true;
                             getCurrentPositionSentence();
                         }
@@ -255,6 +314,10 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      * Go to next sentence by seek to time of clip end nearest position.
      */
     private void nextSentence() {
+        if (presenter.isReadAloudMode()) {
+            presenter.nextSentence();
+            return;
+        }
         try {
             if (isFormat202) {
                 nextSentenceDaisy202();
@@ -355,7 +418,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      */
     private void nextSection() {
         boolean isPlaying = mPlayer != null && mPlayer.isPlaying();
-        mHandler.removeCallbacks(mRunnalbe);
+        mHandler.removeCallbacks(mRunnable);
         mIsRunable = true;
         presenter.nextSection();
         mPositionSection = presenter.getPositionSection();
@@ -369,6 +432,10 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      * Go to previous sentence by seek to time of clip end before two units.
      */
     private void previousSentence() {
+        if (presenter.isReadAloudMode()) {
+            presenter.previousSentence();
+            return;
+        }
         boolean isPlaying = mPlayer.isPlaying();
         if (mCurrent != null) {
             mIsEndOf = mCurrent.getAtTheEnd();
@@ -424,7 +491,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
         // this case for user press previous sentence at the begin of
         // section.
         else {
-            mHandler.removeCallbacks(mRunnalbe);
+            mHandler.removeCallbacks(mRunnable);
             mIsRunable = true;
             presenter.previousSection();
             mPositionSection = presenter.getPositionSection();
@@ -473,7 +540,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
         }
         // this case for user press previous sentence at the begin of section.
         else {
-            mHandler.removeCallbacks(mRunnalbe);
+            mHandler.removeCallbacks(mRunnable);
             mIsRunable = true;
             presenter.previousSection();
             mPositionSection = presenter.getPositionSection();
@@ -499,7 +566,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
             mSql.updateCurrentInformation(mCurrent);
             presenter.setCurrent(mCurrent);
         }
-        mHandler.removeCallbacks(mRunnalbe);
+        mHandler.removeCallbacks(mRunnable);
         mIsRunable = true;
         presenter.previousSection();
         mPositionSection = presenter.getPositionSection();
@@ -513,7 +580,12 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      * Set media pause and remove call back
      */
     private void setMediaPause() {
-        mHandler.removeCallbacks(mRunnalbe);
+        // TTS読み上げモードの場合はPresenter経由で制御
+        if (presenter.isReadAloudMode()) {
+            presenter.setMediaPause();
+            return;
+        }
+        mHandler.removeCallbacks(mRunnable);
         if (mPlayer != null) {
             mPlayer.pause();
         }
@@ -524,6 +596,11 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      * Set media play and post runnable
      */
     private void setMediaPlay() {
+        // TTS読み上げモードの場合はPresenter経由で制御
+        if (presenter.isReadAloudMode()) {
+            presenter.setMediaPlay();
+            return;
+        }
         mCurrent = mSql.getCurrentInformation();
         if (mCurrent != null) {
             mIsEndOf = mCurrent.getAtTheEnd();
@@ -545,7 +622,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                     mTimePause = mListTimeEnd.get(mPositionSentence) - mPlayer.getCurrentPosition();
                 }
                 // create call backs when you touch button start.
-                mHandler.post(mRunnalbe);
+                mHandler.post(mRunnable);
             }
         }
     }
@@ -554,6 +631,10 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      * Toggles the Media Player between Play and Pause states.
      */
     private void togglePlay() {
+        if (presenter.isReadAloudMode()) {
+            presenter.togglePlay();
+            return;
+        }
         mIsPlaying = mPlayer.isPlaying();
         if (mIsPlaying) {
             setMediaPause();
@@ -578,12 +659,14 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
      */
     private void getCurrentPositionSentence() {
         try {
-            mRunnalbe = new Runnable() {
+            mRunnable = new Runnable() {
                 @Override
                 public void run() {
                     if (mIsRunable) {
                         int sizeOfStringText = mListStringText.size();
-                        for (int i = mPositionSentence; i < sizeOfStringText; i++) {
+                        int sizeOfTimeData = Math.min(sizeOfStringText,
+                                Math.min(mListTimeBegin.size(), mListTimeEnd.size()));
+                        for (int i = mPositionSentence; i < sizeOfTimeData; i++) {
                             int currentPosition = mPlayer.getCurrentPosition();
                             if (mListTimeBegin.get(i) <= currentPosition + TIME_FOR_PROCESS
                                     && currentPosition < mListTimeEnd.get(i)) {
@@ -593,25 +676,30 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                             // This case for daisy 3.0. Some audio files won't
                             // play until it finish, it was splitted and move to
                             // the next chapter
-                            else if (mPositionSentence + 1 >= sizeOfStringText && !mIsEndOf) {
+                            else if (mPositionSentence + 1 >= sizeOfTimeData && !mIsEndOf) {
                                 nextSection();
                             }
                         }
                     }
+                    if (mPositionSentence >= mListTimeEnd.size()) {
+                        return;
+                    }
                     if (mTimePause == 0) {
                         int timeReadSentence = mListTimeEnd.get(mPositionSentence)
                                 - mListTimeBegin.get(mPositionSentence);
-                        mHandler.postDelayed(this, timeReadSentence);
+                        long delay = (long) (timeReadSentence / mPlaybackSpeed);
+                        mHandler.postDelayed(this, delay);
                     } else {
                         // If user choose pause and play. 400 is time delay
                         // when
                         // you touch on your phone.
-                        mHandler.postDelayed(this, mTimePause + TIME_FOR_PROCESS);
+                        long delay = (long) (mTimePause / mPlaybackSpeed) + TIME_FOR_PROCESS;
+                        mHandler.postDelayed(this, delay);
                     }
                     mTimePause = 0;
                 }
             };
-            mHandler.post(mRunnalbe);
+            mHandler.post(mRunnable);
         } catch (Exception e) {
             PrivateException ex = new PrivateException(e, DaisyEbookReaderSimpleModeActivity.this);
             ex.writeLogException();
@@ -635,10 +723,10 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
             speakText(getString(R.string.error_wrong_format_audio));
             break;
         case Constants.AT_THE_END:
-            speakText(getString(R.string.atEnd) + mBook.getTitle());
+            speakText(String.format(getString(R.string.atEnd), mBook.getTitle()));
             break;
         case Constants.AT_THE_BEGIN:
-            speakText(getString(R.string.atBegin) + mBook.getTitle());
+            speakText(String.format(getString(R.string.atBegin), mBook.getTitle()));
             break;
         case Constants.NEXT_SECTION:
             speakText(getString(R.string.next_section));
@@ -709,11 +797,13 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                             }
                         }
                     });
-                    if (mTts.isSpeaking()) {
+                    if (mTts != null && mTtsReady && mTts.isSpeaking()) {
                         mTts.stop();
                     }
                     Bundle ttsParams = new Bundle();
-                    mTts.speak(helpText, android.speech.tts.TextToSpeech.QUEUE_FLUSH, ttsParams, "help_utterance");
+                    if (mTts != null && mTtsReady) {
+                        mTts.speak(helpText, android.speech.tts.TextToSpeech.QUEUE_FLUSH, ttsParams, "help_utterance");
+                    }
                 }
             }
         });
@@ -741,6 +831,11 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
 
     @Override
     public void onReachedEndOfBook() {
+        if (presenter.isReadAloudMode()) {
+            // TTS読み上げモード: 状態を壊さずダイアログのみ表示
+            speakText(getString(R.string.atEnd));
+            return;
+        }
         speakOut(Constants.AT_THE_END);
         int currentTime = mPlayer.getCurrentPosition();
         if (currentTime == -1 || currentTime == mPlayer.getDuration() || currentTime == 0) {
@@ -783,6 +878,9 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
                 }
             }
             getCurrentPositionSentence();
+        } else if (mListStringText != null && !mListStringText.isEmpty()) {
+            // オーディオなし → TTS読み上げ
+            presenter.startReadAloud();
         }
     }
 

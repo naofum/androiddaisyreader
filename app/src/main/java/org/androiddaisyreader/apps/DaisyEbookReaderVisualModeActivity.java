@@ -73,6 +73,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
 
     private boolean mIsFirstNext = false;
     private boolean mIsFirstPrevious = true;
+    private boolean mNeedReadBook = true;
     private DaisyBook mBook;
     private Navigator mNavigator;
     private Navigator mNavigatorOfTableContents;
@@ -97,6 +98,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
     private int mPositionSection = 0;
     private int mPositionSentence = 0;
     private static final int TIME_FOR_PROCESS = 400;
+    private float mPlaybackSpeed = 1.0f;
     private long mLastClickTime = 0;
     private boolean mIsRunable = true;
     private boolean mIsCancel = false;
@@ -121,6 +123,18 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         if (!validatePath(mPath)) {
             return;
         }
+        // content:// URI はキャッシュのローカルパスに変換する
+        if (mPath.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            try {
+                java.io.File cachedFile = org.androiddaisyreader.utils.CacheHelper
+                        .copyToCache(getApplicationContext(), mPath);
+                mPath = cachedFile.getAbsolutePath();
+            } catch (java.io.IOException e) {
+                showErrorDialog(e);
+                finish();
+                return;
+            }
+        }
         isFormat202 = DaisyBookUtil.findDaisyFormat(mPath, getApplicationContext()) == Constants.DAISY_202_FORMAT;
         baseMode = new DaisyEbookReaderBaseMode(mPath, this);
         presenter = new org.androiddaisyreader.base.ReaderPresenter(this, baseMode, mSql, mPath, isFormat202);
@@ -134,6 +148,10 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         mNavigatorOfTableContents = presenter.getNavigatorOfTableContents();
         mAudioPlayer = presenter.getAudioPlayer();
         mPlayer = presenter.getPlayer();
+        // 再生速度をPreferencesから取得
+        mPlaybackSpeed = android.preference.PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getFloat(Constants.TTS_READ_ALOUD_SPEED, Constants.TTS_SPEED_DEFAULT);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (mBook != null) {
@@ -142,7 +160,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
             mImgButton = (ImageButton) this.findViewById(R.id.btnPlay);
             mImgButton.setOnClickListener(imgButtonClick);
             setEventForNavigationButtons();
-            readBook();
+            // readBookはonResumeで画面名読み上げ完了後に呼ばれる
         } else {
             mIntentController.pushToDialog(
                     String.format(getString(R.string.error_no_path_found), mPath),
@@ -353,7 +371,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
     }
 
     @Override
-    public void onBackPressed() {
+    protected boolean onBackPressedHandled() {
         if (mBook != null && mPlayer != null) {
             mIsPlaying = mPlayer.isPlaying();
             if (mIsPlaying) {
@@ -361,11 +379,11 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
             }
 //            mTts.setOnUtteranceCompletedListener(null);
             mIsCancel = true;
-            super.onBackPressed();
             handleCurrentInformation(mCurrent);
             finish();
+            return true;
         } else {
-            super.onBackPressed();
+            return false;
         }
 
     }
@@ -414,24 +432,83 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
     @Override
     protected void onResume() {
         super.onResume();
-        speakText(getString(R.string.title_activity_daisy_ebook_reader_visual_mode),
-                TextToSpeech.QUEUE_ADD);
+        // 即座にボタン表示を実態に合わせる
+        if (presenter != null && presenter.isReadAloudMode()) {
+            // TTS モードでは復帰時は常に停止状態
+            mImgButton.setImageResource(R.drawable.media_play);
+        } else if (mPlayer != null && mPlayer.isPlaying()) {
+            mImgButton.setImageResource(R.drawable.media_pause);
+        } else {
+            mImgButton.setImageResource(R.drawable.media_play);
+        }
+
+        if (mBook != null && mNeedReadBook) {
+            mNeedReadBook = false;
+            // 初回: 画面名を読み上げ、完了後に再生開始
+            speakTextWithCallback(
+                    getString(R.string.title_activity_daisy_ebook_reader_visual_mode),
+                    () -> {
+                        if (!isFinishing()) {
+                            readBook();
+                        }
+                    });
+        } else {
+            // 画面復帰: 画面名を読み上げ、完了後に再生状態を復元
+            speakTextWithCallback(
+                    getString(R.string.title_activity_daisy_ebook_reader_visual_mode),
+                    () -> {
+                        if (!isFinishing()) {
+                            restorePlaybackState();
+                        }
+                    });
+        }
         if (mBook != null) {
             getValueFromSetting();
             setNightMode();
             mNavigatorOfTableContents = new Navigator(mBook);
         }
-
-        getStatusOfAudio();
     }
 
     /**
      * Handle current information.
      */
+    /**
+     * 画面復帰時に再生状態を復元する。
+     */
+    private void restorePlaybackState() {
+        dbExecutor.execute(() -> {
+            final org.androiddaisyreader.model.CurrentInformation current = mSql.getCurrentInformation();
+            mainHandler.post(() -> {
+                if (isFinishing()) return;
+                presenter.setCurrent(current);
+                if (current != null) {
+                    // 文位置を復元
+                    presenter.setPositionSentence(current.getSentence());
+                    mPositionSentence = current.getSentence();
+
+                    if (presenter.isReadAloudMode()) {
+                        // TTS読み上げモード: 停止状態で復帰（再ロード不要）
+                        presenter.setMediaPause();
+                    } else if (!current.getActivity().equals(getActivityName())) {
+                        // 別画面からの復帰: セクション再読み込み
+                        presenter.readBook();
+                    } else if (current.getPlaying()) {
+                        presenter.setMediaPlay();
+                    } else {
+                        presenter.setMediaPause();
+                    }
+                }
+            });
+        });
+    }
+
     private void getStatusOfAudio() {
         mCurrent = mSql.getCurrentInformation();
         if (mCurrent != null) {
-            if (mCurrent.getPlaying()) {
+            if (presenter.isReadAloudMode()) {
+                // TTS読み上げモード: バックグラウンドから戻った時はTTS停止済み
+                presenter.setMediaPause();
+            } else if (mCurrent.getPlaying()) {
                 presenter.setMediaPlay();
             } else {
                 presenter.setMediaPause();
@@ -505,7 +582,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
      */
     private void autoHighlightAndScroll() {
         mWordtoSpan = (Spannable) mContents.getText();
-        mRunnalbe = new Runnable() {
+        mRunnable = new Runnable() {
 
             @Override
             public void run() {
@@ -522,12 +599,14 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
                         if (!mListTimeBegin.isEmpty()) {
                             int timeReadSentence = mListTimeEnd.get(mPositionSentence)
                                     - mListTimeBegin.get(mPositionSentence);
-                            mHandler.postDelayed(this, timeReadSentence);
+                            long delay = (long) (timeReadSentence / mPlaybackSpeed);
+                            mHandler.postDelayed(this, delay);
                         } else {
-                            mHandler.postDelayed(this, mTimePause + TIME_FOR_PROCESS);
+                            mHandler.postDelayed(this, TIME_FOR_PROCESS);
                         }
                     } else {
-                        mHandler.postDelayed(this, mTimePause + TIME_FOR_PROCESS);
+                        long delay = (long) (mTimePause / mPlaybackSpeed) + TIME_FOR_PROCESS;
+                        mHandler.postDelayed(this, delay);
                     }
                     mTimePause = 0;
                 } catch (Exception e) {
@@ -537,7 +616,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
                 }
             }
         };
-        mHandler.post(mRunnalbe);
+        mHandler.post(mRunnable);
     }
 
     /**
@@ -584,13 +663,29 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         }
     }
 
+    private int mLastHighlightedLine = -1;
+
     private void highlight(final int line) {
         try {
             mWordtoSpan = (Spannable) mContents.getText();
             mFullTextOfBook = mContents.getText().toString();
+            if (line >= mListStringText.size()) {
+                return;
+            }
+            // 前に戻る場合は検索開始位置をリセット
+            if (line <= mLastHighlightedLine) {
+                mStartOfSentence = 0;
+            }
+            mLastHighlightedLine = line;
             mStartOfSentence = mFullTextOfBook.indexOf(mListStringText.get(line), mStartOfSentence);
-//            Preconditions.checkArgument(mStartOfSentence > -1);
-            Validate.isTrue(mStartOfSentence > -1);
+            if (mStartOfSentence < 0) {
+                // テキストが見つからない場合、先頭から再検索
+                mStartOfSentence = mFullTextOfBook.indexOf(mListStringText.get(line));
+            }
+            if (mStartOfSentence < 0) {
+                // それでも見つからない場合はハイライトをスキップ
+                return;
+            }
             mNumberOfChar = mStartOfSentence + mListStringText.get(line).length();
             // set color is transparent for all text before.
             runOnUiThread(new Runnable() {
@@ -705,7 +800,8 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
      * Toggles the Media Player between Play and Pause states.
      */
     public void togglePlay() {
-        if (mPlayer.isPlaying() || mTts.isSpeaking()) {
+        boolean ttsPlaying = mTts != null && mTtsReady && mTts.isSpeaking();
+        if (mPlayer.isPlaying() || ttsPlaying) {
             setMediaPause();
         } else {
             try {
@@ -725,8 +821,8 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
      */
     private void setMediaPause() {
         // VisualMode固有: Runnable停止、TTS停止
-        mHandler.removeCallbacks(mRunnalbe);
-        if (mTts != null) {
+        mHandler.removeCallbacks(mRunnable);
+        if (mTts != null && mTtsReady) {
             mTts.stop();
         }
         mIsRunable = false;
@@ -760,10 +856,42 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
                     mTimePause = mListTimeEnd.get(mPositionSentence) - mPlayer.getCurrentPosition()
                             + TIME_FOR_PROCESS;
                 }
-                mHandler.post(mRunnalbe);
+                mHandler.post(mRunnable);
             } else {
-                readAloud();
+                presenter.startReadAloud();
             }
+        }
+    }
+
+    /**
+     * 設定で指定された読み上げ言語と速度をTTSに適用する。
+     * 未設定の場合は端末の既定言語・通常速度を使用する。
+     */
+    private void applyReadAloudLanguage() {
+        if (mTts == null) return;
+        android.content.SharedPreferences prefs = android.preference.PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        // 言語設定
+        String langTag = prefs.getString(Constants.TTS_READ_ALOUD_LANGUAGE, "");
+        if (langTag.isEmpty()) {
+            mTts.setLanguage(checkTTSSupportLanguage() ? java.util.Locale.getDefault() : java.util.Locale.US);
+        } else {
+            java.util.Locale locale = parseLocaleString(langTag);
+            mTts.setLanguage(locale);
+        }
+        // 速度設定
+        float speed = prefs.getFloat(Constants.TTS_READ_ALOUD_SPEED, Constants.TTS_SPEED_DEFAULT);
+        mTts.setSpeechRate(speed);
+    }
+
+    private java.util.Locale parseLocaleString(String localeStr) {
+        String[] parts = localeStr.split("_");
+        if (parts.length == 1) {
+            return new java.util.Locale(parts[0]);
+        } else if (parts.length == 2) {
+            return new java.util.Locale(parts[0], parts[1]);
+        } else {
+            return new java.util.Locale(parts[0], parts[1], parts[2]);
         }
     }
 
@@ -775,6 +903,8 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
     @SuppressWarnings("deprecation")
     private void readAloud() {
         if (mListStringText != null && !mListStringText.isEmpty()) {
+            // 設定で指定された読み上げ言語を適用
+            applyReadAloudLanguage();
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,
                     String.valueOf(mPositionSentence));
 //            try {
@@ -828,6 +958,10 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
                 return;
             }
             mLastClickTime = SystemClock.elapsedRealtime();
+            if (presenter.isReadAloudMode()) {
+                presenter.nextSentence();
+                return;
+            }
             if (mListTimeBegin != null && mListTimeBegin.size() > 0) { // hasAudio
                 nextSentence();
             } else if (mPositionSentence < mListStringText.size() - 1) {
@@ -840,7 +974,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
 //            Preconditions.checkArgument(mPositionSentence < mListTimeBegin.size() - 1);
                 Validate.isTrue(mPositionSentence < mListTimeBegin.size() - 1);
                 mPositionSentence += 1;
-                mHandler.removeCallbacks(mRunnalbe);
+                mHandler.removeCallbacks(mRunnable);
                 mIsRunable = true;
                 autoHighlightAndScroll();
             } catch (Exception e) {
@@ -966,10 +1100,14 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
                 return;
             }
             mLastClickTime = SystemClock.elapsedRealtime();
+            if (presenter.isReadAloudMode()) {
+                presenter.previousSentence();
+                return;
+            }
             previousSentence();
             if (mPositionSentence > 0) {
                 mPositionSentence -= 1;
-                mHandler.removeCallbacks(mRunnalbe);
+                mHandler.removeCallbacks(mRunnable);
                 mIsRunable = true;
                 autoHighlightAndScroll();
             }
@@ -1054,7 +1192,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         // this case for user press previous sentence at the begin of
         // section.
         else {
-            mHandler.removeCallbacks(mRunnalbe);
+            mHandler.removeCallbacks(mRunnable);
             presenter.previousSection();
             mPositionSection = presenter.getPositionSection();
             mPositionSentence = mListTimeBegin.size() - 1;
@@ -1111,7 +1249,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         }
         // this case for user press previous sentence at the begin of section.
         else {
-            mHandler.removeCallbacks(mRunnalbe);
+            mHandler.removeCallbacks(mRunnable);
             presenter.previousSection();
             mPositionSection = presenter.getPositionSection();
             mPositionSentence = mListTimeBegin.size() - 1;
@@ -1134,11 +1272,18 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
      */
     private void nextSection() {
         mStartOfSentence = 0;
-        if (mTts.isSpeaking()) {
+        mLastHighlightedLine = -1;
+        if (presenter.isReadAloudMode()) {
+            presenter.nextSection();
+            mPositionSection = presenter.getPositionSection();
+            mPositionSentence = 0;
+            return;
+        }
+        if (mTts != null && mTtsReady && mTts.isSpeaking()) {
             mTts.stop();
         }
         boolean isPlaying = mPlayer.isPlaying();
-        mHandler.removeCallbacks(mRunnalbe);
+        mHandler.removeCallbacks(mRunnable);
         presenter.nextSection();
         mPositionSection = presenter.getPositionSection();
         mPositionSentence = 0;
@@ -1165,7 +1310,13 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
     private void previousSection() {
         mCurrent = mSql.getCurrentInformation();
         mStartOfSentence = 0;
-        if (mTts.isSpeaking()) {
+        mLastHighlightedLine = -1;
+        if (presenter.isReadAloudMode()) {
+            mIsEndOf = false;
+            presenter.previousSection();
+            return;
+        }
+        if (mTts != null && mTtsReady && mTts.isSpeaking()) {
             mTts.stop();
         }
         mIsEndOf = false;
@@ -1213,6 +1364,13 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
 
     @Override
     public void onReachedEndOfBook() {
+        if (presenter.isReadAloudMode()) {
+            // TTS読み上げモード: 状態を壊さずダイアログのみ表示
+            mIntentController.pushToDialog(
+                    String.format(getString(R.string.atEnd), mBook.getTitle()),
+                    String.format(getString(R.string.atEnd), mBook.getTitle()), R.raw.error, false, false, null);
+            return;
+        }
         mIsRunable = false;
         mIsEndOf = true;
         if (mCurrent != null) {
@@ -1220,15 +1378,15 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
             mSql.updateCurrentInformation(mCurrent);
         }
         mIntentController.pushToDialog(
-                getString(R.string.atEnd),
-                getString(R.string.atEnd), R.raw.error, false, false, null);
+                String.format(getString(R.string.atEnd), mBook.getTitle()),
+                String.format(getString(R.string.atEnd), mBook.getTitle()), R.raw.error, false, false, null);
     }
 
     @Override
     public void onReachedBeginOfBook() {
         mIntentController.pushToDialog(
-                getString(R.string.atBegin),
-                getString(R.string.atBegin), R.raw.error, false, false, null);
+                String.format(getString(R.string.atBegin), mBook.getTitle()),
+                String.format(getString(R.string.atBegin), mBook.getTitle()), R.raw.error, false, false, null);
     }
 
     @Override
@@ -1240,7 +1398,7 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         listAudio = presenter.getListAudio();
         countAudio = presenter.getCountAudio();
         mCurrent = presenter.getCurrent();
-        mPositionSentence = 0;
+        mPositionSentence = presenter.getPositionSentence();
 
         // ハイライト用のスクロール値リストを初期化
         mListValueScroll = new ArrayList<>();
@@ -1251,34 +1409,34 @@ public class DaisyEbookReaderVisualModeActivity extends DaisyEbookReaderBaseMode
         mNumberOfChar = 0;
         mPositionOfScrollView = 0;
         mStartOfSentence = 0;
+        mLastHighlightedLine = -1;
 
         // VisualMode: ハイライト/スクロールの開始
         if (mListTimeEnd != null && mListTimeEnd.size() > 0) {
-            autoHighlightAndScroll();
-            if (mCurrent != null) {
-                mSql.updateCurrentInformation(mCurrent);
-                if (mPlayer != null) {
-                    if (mCurrent.getPlaying()) {
-                        setMediaPlay();
-                    } else {
-                        setMediaPause();
-                    }
-                }
+            // 実際のプレイヤー状態に基づいてUI表示とRunnable制御
+            if (mPlayer != null && mPlayer.isPlaying()) {
+                mImgButton.setImageResource(R.drawable.media_pause);
+                mIsRunable = true;
+                mIsCancel = false;
+                autoHighlightAndScroll();
             } else {
-                // 初回起動時（CurrentInformationがない場合）は自動再生
-                if (mPlayer != null) {
-                    setMediaPlay();
-                }
+                mImgButton.setImageResource(R.drawable.media_play);
             }
         } else if (mListStringText != null && !mListStringText.isEmpty()) {
-            // オーディオなし → TTS読み上げにフォールバック
-            readAloud();
+            // オーディオなし → TTS読み上げ（Presenter経由）
+            presenter.startReadAloud();
+            mImgButton.setImageResource(R.drawable.media_pause);
         }
     }
 
     @Override
     public void onSentenceChanged(int positionSentence) {
         mPositionSentence = positionSentence;
+    }
+
+    @Override
+    public void highlightSentence(int sentenceIndex) {
+        runOnUiThread(() -> highlight(sentenceIndex));
     }
 
     @Override

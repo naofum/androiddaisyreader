@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-        android:focusable="true"
+    android:focusable="true"
     android:focusableInTouchMode="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/edit_text_search"
@@ -18,17 +18,16 @@
         android:drawablePadding="10dp"
         android:background="@drawable/border_text_view"
         android:textColor="@android:color/black"
-        android:singleLine="true" >
+        android:singleLine="true" />
 
-    </EditText>
-    <ListView
-        android:id="@+id/list_view_download_books"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_download_books"
         android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:layout_height="wrap_content" >
+        android:clipToPadding="false" />
 
-    </ListView>
-    
 </LinearLayout>

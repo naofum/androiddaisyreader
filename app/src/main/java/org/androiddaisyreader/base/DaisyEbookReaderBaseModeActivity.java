@@ -34,7 +34,7 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
     protected IntentController mIntentController;
     protected SQLiteCurrentInformationHelper mSql;
     protected SafeHandler mHandler;
-    protected Runnable mRunnalbe;
+    protected Runnable mRunnable;
     protected String mPath;
     protected boolean isFormat202;
     protected DaisyEbookReaderBaseMode baseMode;
@@ -52,6 +52,18 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
         mHandler = new SafeHandler(this);
     }
 
+    @Override
+    protected void onTtsReady() {
+        super.onTtsReady();
+        initReadAloudListener();
+    }
+
+    @Override
+    protected void onSetScreenNameCallback(java.util.concurrent.atomic.AtomicBoolean callbackExecuted, Runnable onComplete) {
+        mScreenNameCallbackExecuted = callbackExecuted;
+        mScreenNameCallback = onComplete;
+    }
+
     /**
      * Presenterを初期化する。サブクラスのonCreateで呼び出す。
      */
@@ -59,6 +71,18 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
         mPath = getIntent().getStringExtra(Constants.DAISY_PATH);
         if (!validatePath(mPath)) {
             return;
+        }
+        // content:// URI はキャッシュのローカルパスに変換する
+        if (mPath.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+            try {
+                java.io.File cachedFile = org.androiddaisyreader.utils.CacheHelper
+                        .copyToCache(getApplicationContext(), mPath);
+                mPath = cachedFile.getAbsolutePath();
+            } catch (java.io.IOException e) {
+                showErrorDialog(e);
+                finish();
+                return;
+            }
         }
         isFormat202 = DaisyBookUtil.findDaisyFormat(mPath, getApplicationContext()) == Constants.DAISY_202_FORMAT;
         baseMode = new DaisyEbookReaderBaseMode(mPath, this);
@@ -124,41 +148,26 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
     @Override
     protected void onResume() {
         super.onResume();
-        if (presenter.getBook() != null) {
-            presenter.refreshNavigator();
+        if (presenter != null) {
+            if (presenter.getBook() != null) {
+                presenter.refreshNavigator();
+            }
+            // 設定から再生速度を読み取り適用
+            android.content.SharedPreferences prefs = android.preference.PreferenceManager
+                    .getDefaultSharedPreferences(getApplicationContext());
+            float speed = prefs.getFloat(Constants.TTS_READ_ALOUD_SPEED, Constants.TTS_SPEED_DEFAULT);
+            presenter.setPlaybackSpeed(speed);
         }
     }
 
     @Override
     protected void onRestart() {
-        dbExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                final CurrentInformation current = mSql.getCurrentInformation();
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isFinishing()) return;
-                        presenter.setCurrent(current);
-                        if (current != null) {
-                            if (current.getPlaying()) {
-                                presenter.setMediaPlay();
-                            } else {
-                                presenter.setMediaPause();
-                            }
-                            if (!current.getActivity().equals(getActivityName())) {
-                                presenter.readBook();
-                            }
-                        }
-                    }
-                });
-            }
-        });
+        // 再生状態の復元は onResume の画面名読み上げ完了後に行う
         super.onRestart();
     }
 
     @Override
-    public void onBackPressed() {
+    protected boolean onBackPressedHandled() {
         if (presenter.getBook() != null) {
             presenter.setPlaying(presenter.getPlayer() != null && presenter.getPlayer().isPlaying());
             if (presenter.isPlaying()) {
@@ -171,8 +180,9 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
                 }
             });
             finish();
+            return true;
         } else {
-            super.onBackPressed();
+            return false;
         }
     }
 
@@ -214,7 +224,7 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
 
     @Override
     public void stopSpeaking() {
-        if (mTts != null && mTts.isSpeaking()) {
+        if (mTts != null && mTtsReady && mTts.isSpeaking()) {
             mTts.stop();
         }
     }
@@ -227,6 +237,116 @@ public abstract class DaisyEbookReaderBaseModeActivity extends DaisyEbookReaderB
     @Override
     public void displayImage(String imageSrc) {
         // デフォルトは何もしない。SimpleModeでオーバーライド。
+    }
+
+    private volatile int mExpectedSentenceIndex = -1;
+    private volatile String mExpectedScreenNameId = null;
+    private volatile java.util.concurrent.atomic.AtomicBoolean mScreenNameCallbackExecuted = null;
+    private volatile Runnable mScreenNameCallback = null;
+
+    @Override
+    public void speakSentence(String text, int sentenceIndex) {
+        android.util.Log.d("TTS_DEBUG", "speakSentence called: index=" + sentenceIndex + " text=\"" + text.substring(0, Math.min(text.length(), 20)) + "...\" from " + getClass().getSimpleName());
+        if (mTts == null || !mTtsReady) return;
+        mExpectedSentenceIndex = sentenceIndex;
+        android.os.Bundle params = new android.os.Bundle();
+        mTts.speak(text, android.speech.tts.TextToSpeech.QUEUE_FLUSH, params,
+                "sentence_" + sentenceIndex);
+    }
+
+    /**
+     * TTS読み上げ用の統一UtteranceProgressListenerを設定する。
+     * onTtsReadyで1回だけ呼ぶ。sentence_とscreen_name_の両方を処理する。
+     */
+    private void initReadAloudListener() {
+        if (mTts == null) return;
+        mTts.setOnUtteranceProgressListener(new android.speech.tts.UtteranceProgressListener() {
+            @Override
+            public void onStart(String utteranceId) {
+                android.util.Log.d("TTS_DEBUG", "onStart: " + utteranceId);
+            }
+
+            @Override
+            public void onDone(String utteranceId) {
+                android.util.Log.d("TTS_DEBUG", "onDone: " + utteranceId);
+                if (utteranceId == null) return;
+                if (utteranceId.startsWith("sentence_")) {
+                    int index = Integer.parseInt(utteranceId.substring("sentence_".length()));
+                    if (index == mExpectedSentenceIndex) {
+                        runOnUiThread(() -> {
+                            if (presenter != null && !isFinishing()) {
+                                presenter.onUtteranceCompleted(index);
+                            }
+                        });
+                    }
+                } else if (utteranceId.startsWith("screen_name_")) {
+                    if (mScreenNameCallbackExecuted != null
+                            && mScreenNameCallbackExecuted.compareAndSet(false, true)) {
+                        mSpeakHandler.removeCallbacksAndMessages(null);
+                        if (mScreenNameCallback != null) {
+                            Runnable cb = mScreenNameCallback;
+                            mScreenNameCallback = null;
+                            runOnUiThread(cb);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+                android.util.Log.d("TTS_DEBUG", "onError: " + utteranceId);
+                if (utteranceId != null && utteranceId.startsWith("screen_name_")) {
+                    if (mScreenNameCallbackExecuted != null
+                            && mScreenNameCallbackExecuted.compareAndSet(false, true)) {
+                        mSpeakHandler.removeCallbacksAndMessages(null);
+                        if (mScreenNameCallback != null) {
+                            Runnable cb = mScreenNameCallback;
+                            mScreenNameCallback = null;
+                            runOnUiThread(cb);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void stopReadAloud() {
+        if (mTts != null && mTtsReady && mTts.isSpeaking()) {
+            mTts.stop();
+        }
+    }
+
+    @Override
+    public void applyReadAloudSettings() {
+        if (mTts == null || !mTtsReady) return;
+        android.content.SharedPreferences prefs = android.preference.PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        // 言語設定
+        String langTag = prefs.getString(Constants.TTS_READ_ALOUD_LANGUAGE, "");
+        if (langTag.isEmpty()) {
+            mTts.setLanguage(checkTTSSupportLanguage()
+                    ? java.util.Locale.getDefault() : java.util.Locale.US);
+        } else {
+            String[] parts = langTag.split("_");
+            java.util.Locale locale;
+            if (parts.length == 1) {
+                locale = new java.util.Locale(parts[0]);
+            } else if (parts.length == 2) {
+                locale = new java.util.Locale(parts[0], parts[1]);
+            } else {
+                locale = new java.util.Locale(parts[0], parts[1], parts[2]);
+            }
+            mTts.setLanguage(locale);
+        }
+        // 速度設定
+        float speed = prefs.getFloat(Constants.TTS_READ_ALOUD_SPEED, Constants.TTS_SPEED_DEFAULT);
+        mTts.setSpeechRate(speed);
+    }
+
+    @Override
+    public void highlightSentence(int sentenceIndex) {
+        // デフォルトは何もしない。VisualModeでオーバーライド。
     }
 
     // ========================================================================

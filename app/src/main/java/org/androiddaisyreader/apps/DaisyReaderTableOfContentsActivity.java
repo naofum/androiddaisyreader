@@ -147,22 +147,13 @@ public class DaisyReaderTableOfContentsActivity extends DaisyEbookReaderBaseActi
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected boolean onBackPressedHandled() {
         finish();
+        return true;
     }
 
     @Override
     protected void onDestroy() {
-        try {
-            if (mTts != null) {
-                mTts.stop();
-            }
-//            mTts.shutdown();
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderTableOfContentsActivity.this);
-            ex.writeLogException();
-        }
         super.onDestroy();
     }
 

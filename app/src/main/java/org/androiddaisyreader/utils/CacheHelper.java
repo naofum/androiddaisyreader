@@ -145,11 +145,32 @@ public class CacheHelper {
     /**
      * URI からキャッシュファイル名を生成する。
      * ContentResolver からMIMEタイプを取得し、正しい拡張子を決定する。
+     * SHA-256ハッシュでファイル名を一意にする（hashCode衝突回避）。
      */
     private static String generateCacheFileName(Context context, Uri uri) {
         String uriString = uri.toString();
 
         // MIMEタイプから拡張子を判定
+        String extension = determineExtension(context, uri, uriString);
+
+        // SHA-256ハッシュ値でファイル名を一意にする
+        String hashHex;
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(uriString.getBytes("UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 8; i++) {
+                sb.append(String.format("%02x", digest[i]));
+            }
+            hashHex = sb.toString();
+        } catch (Exception e) {
+            // フォールバック: hashCode使用
+            hashHex = Integer.toHexString(uriString.hashCode());
+        }
+        return "book_" + hashHex + extension;
+    }
+
+    private static String determineExtension(Context context, Uri uri, String uriString) {
         String extension = ".zip"; // デフォルト
         try {
             String mimeType = context.getContentResolver().getType(uri);
@@ -158,22 +179,17 @@ public class CacheHelper {
                     extension = ".epub";
                 }
             } else {
-                // MIMEタイプが取れない場合はURI文字列で推定
                 if (uriString.toLowerCase().contains("epub")) {
                     extension = ".epub";
                 }
             }
         } catch (Exception e) {
             Log.w(TAG, "Failed to get MIME type for: " + uri + ", falling back to URI inspection", e);
-            // ContentResolver失敗時はURI文字列で推定
             if (uriString.toLowerCase().contains("epub")) {
                 extension = ".epub";
             }
         }
-
-        // ハッシュ値でファイル名を一意にする
-        int hash = uriString.hashCode();
-        return "book_" + Integer.toHexString(hash) + extension;
+        return extension;
     }
 
     /**

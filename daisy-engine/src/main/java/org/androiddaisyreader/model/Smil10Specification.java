@@ -209,6 +209,9 @@ public class Smil10Specification extends DefaultHandler {
             InputStream contents = null;
             try {
                 contents = context.getResource(uri);
+                if (contents == null) {
+                    return;
+                }
                 String encoding = obtainEncodingStringFromInputStream(contents);
                 doc = Jsoup.parse(contents, encoding, context.getBaseUri());
                 currentContentsFilename = uri;

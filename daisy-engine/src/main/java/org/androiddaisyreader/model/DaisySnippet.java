@@ -118,6 +118,28 @@ public class DaisySnippet extends Snippet {
     @Override
     public String getText() {
         Element element = doc.getElementById(id);
+        if (element == null) return "";
+        if (element.text().isEmpty()) {
+            element = element.nextElementSibling();
+            if (element == null) return "";
+        }
+        if (RubyConfig.isRubyMode()) {
+            // ルビモード: 底字を除去し、ルビ（rt）のみ残す
+            for (Element ruby : element.select("ruby")) {
+                String rubyText = ruby.select("rt").text();
+                ruby.replaceWith(new TextNode(rubyText));
+            }
+        } else {
+            // 底字モード: ルビ（rt）と括弧（rp）を除去し、底字のみ残す
+            element.select("rt").remove();
+            element.select("rp").remove();
+            element.select("rb").unwrap();
+        }
+        return element.text();
+    }
+
+    public String getText_bak() {
+        Element element = doc.getElementById(id);
         element.getElementsByTag("rb").remove();
         element.getElementsByTag("rp").remove();
         return element.text();
@@ -175,6 +197,7 @@ public class DaisySnippet extends Snippet {
         Element element = doc.getElementById(id);
         stringBuilder = new StringBuilder(100);
         List<String> list = new ArrayList<>();
+        final java.util.Set<String> idSet = new java.util.HashSet<>(idList);
         fin = false;
         imgSrc = "";
         while (!fin) {
@@ -193,7 +216,7 @@ public class DaisySnippet extends Snippet {
                         }
                         String tmpid = node.attr("id");
                         if (!tmpid.isEmpty() && !tmpid.equals(id)) {
-                            if (!idList.contains(tmpid)) {
+                            if (!idSet.contains(tmpid)) {
                                 fin = true;
                             } else {
                                 list.add(stringBuilder.toString());
@@ -237,6 +260,9 @@ public class DaisySnippet extends Snippet {
 
     public String getImg() {
         Element element = doc.getElementsByTag("img").first();
+        if (element == null) {
+            return null;
+        }
         return element.attr("src");
     }
 

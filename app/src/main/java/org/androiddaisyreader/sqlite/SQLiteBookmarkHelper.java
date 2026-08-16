@@ -158,18 +158,21 @@ public class SQLiteBookmarkHelper extends SQLiteHandler {
                     TIME_KEY_BOOKMARK, SECTION_KEY_BOOKMARK, SORT_KEY_BOOKMARK, ID_KEY_BOOKMARK },
                     PATH_KEY_BOOKMARK + "=?", new String[] { path }, null, null, SORT_KEY_BOOKMARK);
             if (mCursor.moveToFirst()) {
+                int idxAudioFileName = mCursor.getColumnIndex(AUDIO_FILE_NAME_KEY_BOOKMARK);
+                int idxPath = mCursor.getColumnIndex(PATH_KEY_BOOKMARK);
+                int idxText = mCursor.getColumnIndex(TEXT_KEY_BOOKMARK);
+                int idxTime = mCursor.getColumnIndex(TIME_KEY_BOOKMARK);
+                int idxSection = mCursor.getColumnIndex(SECTION_KEY_BOOKMARK);
+                int idxSort = mCursor.getColumnIndex(SORT_KEY_BOOKMARK);
+                int idxId = mCursor.getColumnIndex(ID_KEY_BOOKMARK);
                 do {
-                    String audioFileName = mCursor.getString(mCursor
-                            .getColumnIndex(AUDIO_FILE_NAME_KEY_BOOKMARK));
-                    String valuePath = mCursor.getString(mCursor.getColumnIndex(PATH_KEY_BOOKMARK));
-                    String text = mCursor.getString(mCursor.getColumnIndex(TEXT_KEY_BOOKMARK));
-                    int time = Integer.valueOf(mCursor.getString(mCursor
-                            .getColumnIndex(TIME_KEY_BOOKMARK)));
-                    int section = Integer.valueOf(mCursor.getString(mCursor
-                            .getColumnIndex(SECTION_KEY_BOOKMARK)));
-                    int sort = Integer.valueOf(mCursor.getString(mCursor
-                            .getColumnIndex(SORT_KEY_BOOKMARK)));
-                    String valueId = mCursor.getString(mCursor.getColumnIndex(ID_KEY_BOOKMARK));
+                    String audioFileName = mCursor.getString(idxAudioFileName);
+                    String valuePath = mCursor.getString(idxPath);
+                    String text = mCursor.getString(idxText);
+                    int time = Integer.valueOf(mCursor.getString(idxTime));
+                    int section = Integer.valueOf(mCursor.getString(idxSection));
+                    int sort = Integer.valueOf(mCursor.getString(idxSort));
+                    String valueId = mCursor.getString(idxId);
                     arrBookmark.add(new Bookmark(audioFileName, valuePath, text, time, section,
                             sort, valueId));
                 } while (mCursor.moveToNext());

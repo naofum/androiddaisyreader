@@ -10,10 +10,12 @@ import org.androiddaisyreader.base.DaisyEbookReaderBaseActivity;
 import org.androiddaisyreader.player.IntentController;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.worker.DaisyEbookReaderWorker;
+import org.androiddaisyreader.worker.ChattyLibSyncWorker;
+import org.androiddaisyreader.worker.AozoraSyncWorker;
+import org.androiddaisyreader.worker.KohoSyncWorker;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -28,7 +30,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
@@ -52,6 +54,15 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
 //    private BroadcastReceiver broadcastReceiver;
     private WorkManager workManager;
 
+    private final androidx.activity.result.ActivityResultLauncher<Intent> bookPickerLauncher =
+            registerForActivityResult(
+                    new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            handleBookPickerResult(result.getData().getData());
+                        }
+                    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +73,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         findViewById(R.id.btnRecentBooks).setOnClickListener(this);
         findViewById(R.id.btnScanBooks).setOnClickListener(this);
         findViewById(R.id.btnDownloadBooks).setOnClickListener(this);
+        findViewById(R.id.btnOpenBooks).setOnClickListener(this);
 
 // 20180710
 //        Constants.folderContainMetadata = Environment.getExternalStorageDirectory().toString()
@@ -75,6 +87,42 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         workManager = WorkManager.getInstance(getApplication());
         workManager.enqueue(OneTimeWorkRequest.from(DaisyEbookReaderWorker.class));
 
+        // ChattyLib 図書一覧の同期（ネットワーク接続時のみ、重複起動防止）
+        androidx.work.Constraints chattyConstraints = new androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build();
+        OneTimeWorkRequest chattyWork = new OneTimeWorkRequest.Builder(ChattyLibSyncWorker.class)
+                .setConstraints(chattyConstraints)
+                .build();
+        workManager.enqueueUniqueWork(
+                "ChattyLibSync",
+                androidx.work.ExistingWorkPolicy.KEEP,
+                chattyWork);
+
+        // 青空文庫 図書一覧の同期（ネットワーク接続時のみ、重複起動防止）
+        androidx.work.Constraints aozoraConstraints = new androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build();
+        OneTimeWorkRequest aozoraWork = new OneTimeWorkRequest.Builder(AozoraSyncWorker.class)
+                .setConstraints(aozoraConstraints)
+                .build();
+        workManager.enqueueUniqueWork(
+                "AozoraBunkoSync",
+                androidx.work.ExistingWorkPolicy.KEEP,
+                aozoraWork);
+
+        // マチイロ 図書一覧の同期（ネットワーク接続時のみ、重複起動防止）
+        androidx.work.Constraints machiiroConstraints = new androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build();
+        OneTimeWorkRequest machiiroWork = new OneTimeWorkRequest.Builder(KohoSyncWorker.class)
+                .setConstraints(machiiroConstraints)
+                .build();
+        workManager.enqueueUniqueWork(
+                "MachiiroSync",
+                androidx.work.ExistingWorkPolicy.KEEP,
+                machiiroWork);
+
     }
 
     @Override
@@ -85,6 +133,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
                 R.raw.settings);
         subMenu.add(0, Constants.SUBMENU_GOOGLE_PLAY, order++, R.string.submenu_google_play);
         subMenu.add(0, Constants.SUBMENU_CONTACT, order++, R.string.submenu_contact);
+        subMenu.add(0, Constants.SUBMENU_SEND_LOG, order++, R.string.send_log);
+        subMenu.add(0, Constants.SUBMENU_PRIVACY_POLICY, order++, R.string.submenu_privacy_policy);
+        subMenu.add(0, Constants.SUBMENU_LICENSE, order++, R.string.submenu_license);
         subMenu.add(0, Constants.SUBMENU_ABOUT, order++, R.string.submenu_about);
 
         MenuItem subMenuItem = subMenu.getItem();
@@ -120,6 +171,15 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
                 contactIntent.putExtra(Intent.EXTRA_TEXT, "こんにちは。\nこちらにお問い合わせの内容を記入してください。\n");
                 startActivity(Intent.createChooser(contactIntent, null));
                 return true;
+            case Constants.SUBMENU_SEND_LOG:
+                org.androiddaisyreader.utils.LogSender.shareLog(this);
+                return true;
+            case Constants.SUBMENU_PRIVACY_POLICY:
+                showScrollableTextDialog(R.string.submenu_privacy_policy, R.string.privacy_policy_text);
+                return true;
+            case Constants.SUBMENU_LICENSE:
+                showScrollableTextDialog(R.string.submenu_license, R.string.license_text);
+                return true;
             case Constants.SUBMENU_ABOUT:
                 String version = "";
                 try {
@@ -128,15 +188,60 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
-                new AlertDialog.Builder(DaisyReaderLibraryActivity.this)
-                        .setTitle(R.string.submenu_about)
-                        .setMessage(getText(R.string.app_name) + "\nVersion: " + version + "\nLicense: GPLv3")
-                        .setPositiveButton("OK", null)
-                        .show();
+                showAboutDialog(version);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * アプリについてダイアログを表示する。GitHub URL はリンク形式にする。
+     */
+    private void showAboutDialog(String version) {
+        String sourceUrl = "https://github.com/naofum/androiddaisyreader";
+        String message = getText(R.string.app_name) + "\nVersion: " + version
+                + "\nSource Code: " + sourceUrl
+                + "\nLicense: GPLv3\n\n" + getText(R.string.copyright);
+
+        android.text.SpannableString spannable = new android.text.SpannableString(message);
+        int start = message.indexOf(sourceUrl);
+        int end = start + sourceUrl.length();
+        spannable.setSpan(new android.text.style.URLSpan(sourceUrl), start, end,
+                android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        android.widget.TextView textView = new android.widget.TextView(this);
+        textView.setText(spannable);
+        textView.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        textView.setPadding(padding, padding, padding, padding);
+        textView.setTextSize(16);
+
+        new AlertDialog.Builder(DaisyReaderLibraryActivity.this)
+                .setTitle(R.string.submenu_about)
+                .setView(textView)
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    /**
+     * 長文テキストをスクロール可能なダイアログで表示する。
+     */
+    private void showScrollableTextDialog(int titleResId, int textResId) {
+        android.widget.TextView textView = new android.widget.TextView(this);
+        textView.setText(textResId);
+        textView.setTextSize(15);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        textView.setPadding(padding, padding, padding, padding);
+
+        android.widget.ScrollView scrollView = new android.widget.ScrollView(this);
+        scrollView.addView(textView);
+
+        new AlertDialog.Builder(DaisyReaderLibraryActivity.this)
+                .setTitle(titleResId)
+                .setView(scrollView)
+                .setPositiveButton("OK", null)
+                .show();
     }
 
     /**
@@ -251,6 +356,10 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
             // push to Download Books Screen.
         } else if (activityID == R.id.btnDownloadBooks) {
             intent = new Intent(this, DaisyReaderDownloadSiteActivity.class);
+            // open a book from device
+        } else if (activityID == R.id.btnOpenBooks) {
+            openBookPicker();
+            return;
         } else {
             return;
         }
@@ -263,9 +372,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         super.onRestart();
     }
 
+
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected boolean onBackPressedHandled() {
         // do not allow user press button many times at the same time.
         if (SystemClock.elapsedRealtime() - mLastPressTime < Constants.TIME_WAIT_TO_EXIT_APPLICATION
                 && mIsExit) {
@@ -274,6 +383,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
 //            Intent serviceIntent = new Intent(DaisyReaderLibraryActivity.this,
 //                    DaisyEbookReaderService.class);
 //            stopService(serviceIntent);
+            return false;
         } else {
             Toast.makeText(DaisyReaderLibraryActivity.this,
                     this.getString(R.string.message_exit_application), Toast.LENGTH_SHORT).show();
@@ -281,39 +391,49 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
             mIsExit = true;
         }
         mLastPressTime = SystemClock.elapsedRealtime();
+        return true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         speakText(getString(R.string.title_activity_daisy_reader_library));
-// 20180710
-//        Constants.folderContainMetadata = Environment.getExternalStorageDirectory().toString()
-//                + "/" + Constants.FOLDER_NAME + "/";
         createFolderContainXml();
         deleteCurrentInformation();
     }
 
+    /**
+     * メディアピッカーを起動してZIP/EPUBファイルを選択する。
+     */
+    private void openBookPicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        String[] mimeTypes = {
+                "application/zip",
+                "application/x-zip-compressed",
+                "application/epub+zip",
+                "application/octet-stream"
+        };
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        bookPickerLauncher.launch(intent);
+    }
+
+    /**
+     * メディアピッカーで選択されたファイルをDaisyEbookLauncherに委譲して開く。
+     */
+    private void handleBookPickerResult(android.net.Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        android.content.Intent intent = new android.content.Intent(
+                android.content.Intent.ACTION_VIEW, uri, this, DaisyEbookLauncher.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onDestroy() {
-        try {
-            if (mTts != null) {
-                if (mTts.isSpeaking()) {
-                    mTts.stop();
-                }
-                mTts.shutdown();
-            }
-        } catch (Exception e) {
-            PrivateException ex = new PrivateException(e, DaisyReaderLibraryActivity.this);
-            ex.writeLogException();
-        }
         super.onDestroy();
-
-//        if (broadcastReceiver != null) {
-//            broadcastManager = LocalBroadcastManager.getInstance(getApplication());
-//            broadcastManager.unregisterReceiver(broadcastReceiver);
-//        }
-
     }
 
 }

@@ -1,0 +1,30 @@
+<books type="1">
+	<website url="https://example.com/books/" name="テストサイト">
+		<book link="https://example.com/books/test-book1.zip">
+			<title>テスト書籍1</title>
+			<author>テスト著者1</author>
+			<publisher>テスト出版社</publisher>
+			<date>2024-01-01</date>
+		</book>
+		<book link="https://example.com/books/test-book2.epub">
+			<title>テスト書籍2</title>
+			<author>テスト著者2</author>
+			<publisher></publisher>
+			<date>2024-06-15</date>
+		</book>
+		<book link="https://example.com/books/test-book3.zip">
+			<title>テスト書籍3</title>
+			<author></author>
+			<publisher>テスト出版社3</publisher>
+			<date></date>
+		</book>
+	</website>
+	<website url="https://other-site.org/daisy/" name="別サイト">
+		<book link="https://other-site.org/daisy/book-a.zip">
+			<title>別サイトの書籍A</title>
+			<author>著者A</author>
+			<publisher>出版社A</publisher>
+			<date>2023-12-01</date>
+		</book>
+	</website>
+</books>

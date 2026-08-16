@@ -118,31 +118,29 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
                     FIRST_NEXT_KEY_CURRENT_INFORMATION, FIRST_PREVIOUS_KEY_CURRENT_INFORMATION,
                     AT_THE_END_KEY_CURRENT_INFORMATION }, null, null, null, null, null);
             if (mCursor != null && mCursor.moveToFirst()) {
-                String audioName = mCursor.getString(mCursor
-                        .getColumnIndex(AUDIO_NAME_KEY_CURRENT_INFORMATION));
-                String path = mCursor.getString(mCursor
-                        .getColumnIndex(PATH_KEY_CURRENT_INFORMATION));
-                int section = Integer.valueOf(mCursor.getString(mCursor
-                        .getColumnIndex(SECTION_KEY_CURRENT_INFORMATION)));
-                int time = Integer.valueOf(mCursor.getString(mCursor
-                        .getColumnIndex(TIME_KEY_CURRENT_INFORMATION)));
-                boolean playing = mCursor.getString(
-                        mCursor.getColumnIndex(PLAYING_KEY_CURRENT_INFORMATION)).contains(
-                        valueOfTrue);
-                int sentence = Integer.valueOf(mCursor.getString(mCursor
-                        .getColumnIndex(SENTENCE_KEY_CURRENT_INFORMATION)));
-                String activity = mCursor.getString(mCursor
-                        .getColumnIndex(ACTIVITY_KEY_CURRENT_INFORMATION));
-                String id = mCursor.getString(mCursor.getColumnIndex(ID_KEY_CURRENT_INFORMATION));
-                boolean firstNext = mCursor.getString(
-                        mCursor.getColumnIndex(FIRST_NEXT_KEY_CURRENT_INFORMATION)).contains(
-                        valueOfTrue);
-                boolean firstPrevious = mCursor.getString(
-                        mCursor.getColumnIndex(FIRST_PREVIOUS_KEY_CURRENT_INFORMATION)).contains(
-                        valueOfTrue);
-                boolean atTheEnd = mCursor.getString(
-                        mCursor.getColumnIndex(AT_THE_END_KEY_CURRENT_INFORMATION)).contains(
-                        valueOfTrue);
+                int idxAudioName = mCursor.getColumnIndex(AUDIO_NAME_KEY_CURRENT_INFORMATION);
+                int idxPath = mCursor.getColumnIndex(PATH_KEY_CURRENT_INFORMATION);
+                int idxSection = mCursor.getColumnIndex(SECTION_KEY_CURRENT_INFORMATION);
+                int idxTime = mCursor.getColumnIndex(TIME_KEY_CURRENT_INFORMATION);
+                int idxPlaying = mCursor.getColumnIndex(PLAYING_KEY_CURRENT_INFORMATION);
+                int idxSentence = mCursor.getColumnIndex(SENTENCE_KEY_CURRENT_INFORMATION);
+                int idxActivity = mCursor.getColumnIndex(ACTIVITY_KEY_CURRENT_INFORMATION);
+                int idxId = mCursor.getColumnIndex(ID_KEY_CURRENT_INFORMATION);
+                int idxFirstNext = mCursor.getColumnIndex(FIRST_NEXT_KEY_CURRENT_INFORMATION);
+                int idxFirstPrevious = mCursor.getColumnIndex(FIRST_PREVIOUS_KEY_CURRENT_INFORMATION);
+                int idxAtTheEnd = mCursor.getColumnIndex(AT_THE_END_KEY_CURRENT_INFORMATION);
+
+                String audioName = mCursor.getString(idxAudioName);
+                String path = mCursor.getString(idxPath);
+                int section = Integer.valueOf(mCursor.getString(idxSection));
+                int time = Integer.valueOf(mCursor.getString(idxTime));
+                boolean playing = mCursor.getString(idxPlaying).contains(valueOfTrue);
+                int sentence = Integer.valueOf(mCursor.getString(idxSentence));
+                String activity = mCursor.getString(idxActivity);
+                String id = mCursor.getString(idxId);
+                boolean firstNext = mCursor.getString(idxFirstNext).contains(valueOfTrue);
+                boolean firstPrevious = mCursor.getString(idxFirstPrevious).contains(valueOfTrue);
+                boolean atTheEnd = mCursor.getString(idxAtTheEnd).contains(valueOfTrue);
                 current = new CurrentInformation(audioName, path, section, time, playing, sentence,
                         activity, id, firstNext, firstPrevious, atTheEnd);
             }

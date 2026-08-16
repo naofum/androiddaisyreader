@@ -1,0 +1,14 @@
+<books>
+	<book path="/sdcard/books/test1">
+		<title>スキャン書籍1</title>
+		<author>スキャン著者1</author>
+		<publisher>スキャン出版社1</publisher>
+		<date>2024-03-01</date>
+	</book>
+	<book path="/sdcard/books/test2">
+		<title>スキャン書籍2</title>
+		<author>スキャン著者2</author>
+		<publisher></publisher>
+		<date></date>
+	</book>
+</books>

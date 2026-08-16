@@ -6,6 +6,40 @@
     android:focusableInTouchMode="true"
     android:orientation="vertical" >
 
+    <ProgressBar
+        android:id="@+id/progress_bar_scan"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/layout_folder_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/text_folder_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_folder_prompt"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/button_select_folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_select_folder" />
+
+    </LinearLayout>
+
     <EditText
         android:id="@+id/edit_text_search"
         android:layout_width="match_parent"

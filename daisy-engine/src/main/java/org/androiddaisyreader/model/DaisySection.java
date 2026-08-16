@@ -38,6 +38,10 @@ public class DaisySection extends Section {
                         bookContext.getResource(getSmilFilename()));
             } else {
                 String smilFilename = getSmilFilename();
+                android.util.Log.i("DaisySection",
+                        "getParts: href=" + href + " smilFilename=" + smilFilename
+                                + " bookPath=" + bookPath
+                                + " baseUri=" + (bookContext != null ? bookContext.getBaseUri() : "null"));
                 if ((bookContext instanceof SimpleBookContext) && ((SimpleBookContext)bookContext).getMediaFormat() == 31) {
                     if (smilFilename.endsWith("smil")) {
                         return Smil30Specification.getParts(bookContext,

@@ -55,7 +55,8 @@ public class Opf31Specification extends DefaultHandler {
 
     @Override
     public void startElement(String uri, String localName, String name, Attributes attributes) {
-        current = elementMap.get(ParserUtilities.getName(localName, name));
+        String nm = (name.indexOf(':') < 0 ? name : name.substring(name.indexOf(':') + 1));
+        current = elementMap.get(ParserUtilities.getName(localName, nm));
 
         if (name.contains("dc")) {
             buffer.setLength(0);
@@ -115,6 +116,7 @@ public class Opf31Specification extends DefaultHandler {
         // Create the new header
         String id = getIdRef(attributes);
         String linear = getLinear(attributes);
+        android.util.Log.i("Opf31Specification", "itemref idref=\"" + id + "\" linear=\"" + linear + "\"");
         if (linear != null && linear.equals("no")) {
             return;
         }
@@ -131,6 +133,9 @@ public class Opf31Specification extends DefaultHandler {
             model.setSmilHref(smilHref + "#" + model.getId());
 //            model.setSmilHref(smilHref + "#" + (model.getId() == null ? "" : model.getId()));
             attachSectionToParent(model);
+        } else {
+            android.util.Log.w("Opf31Specification",
+                    "No model with non-null id for idref=\"" + id + "\" (model=" + model + ")");
         }
 
 //        for (XmlModel model : listModel) {
@@ -157,6 +162,9 @@ public class Opf31Specification extends DefaultHandler {
             builder.setHref(model.getSmilHref());
             Section sibbling = builder.build();
             bookBuilder.addSection(sibbling);
+            android.util.Log.i("Opf31Specification",
+                    "attachSection: id=\"" + model.getId() + "\" title=\"" + model.getText()
+                            + "\" href=\"" + model.getSmilHref() + "\"");
             listModel.remove(model);
         }
     }
@@ -239,7 +247,8 @@ public class Opf31Specification extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String name) throws SAXException {
-        current = elementMap.get(ParserUtilities.getName(localName, name));
+        String nm = (name.indexOf(':') < 0 ? name : name.substring(name.indexOf(':') + 1));
+        current = elementMap.get(ParserUtilities.getName(localName, nm));
         if (name.contains("dc")) {
             handleMetadata(name);
         }
