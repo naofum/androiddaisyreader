@@ -764,7 +764,7 @@ public class DaisyEbookReaderSimpleModeActivity extends DaisyEbookReaderBaseMode
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final boolean current = mCurrent.getPlaying();
+                final boolean current = mCurrent != null && mCurrent.getPlaying();
                 setMediaPause();
                 String helpText = "この画面の使い方を説明します。画面をタップすると再生と一時停止を切り替えます。ダブルタップすると目次を表示します。下にスライドすると次の章に移動します。うえにスライドすると前の章に移動します。右にスライドすると次のぶんに移動します。左にスライドすると前のぶんに移動します。";
                 if (mTts != null) {

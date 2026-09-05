@@ -1,5 +1,5 @@
 [versions]
-agp = "9.3.1"
+agp = "9.3.2"
 apacheCommonsLang3 = "3.9"
 appcompatVersion = "1.0.2"
 commonsIo = "2.13.0"
@@ -14,23 +14,30 @@ guava = "25.1-android"
 httpclientAndroid = "4.3.5.1"
 jakartaXmlBindApi = "4.0.2"
 javaxXmlStream = "1.0.1.v201004272200"
+jlayer = "1.0.1.4"
 jsoup = "1.18.1"
 jsoupVersion = "1.7.2"
+junitJupiter = "6.1.3"
+junitPlatformLauncher = "6.1.3"
 kotlin = "2.2.10"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.7.0"
+kxml2 = "2.3.0"
 legacySupportV4 = "1.0.0"
 library = "3.2"
 material = "1.12.0"
 mockitoCore = "5.13.0"
+mockwebserver = "5.5.0"
 okhttpMockwebserver = "4.12.0"
 option = "1.3"
 compilercommon = "3.2.0-alpha11"
+pdfboxAndroid = "2.0.27.0"
 preference = "1.2.1"
 slf4jAndroid = "1.7.25"
+slf4jSimple = "2.0.19"
 staxApi = "1.0-2"
 workRuntime = "2.9.1"
 paging = "3.3.6"
@@ -58,19 +65,28 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 httpclient-android = { module = "org.apache.httpcomponents:httpclient-android", version.ref = "httpclientAndroid" }
 jakarta-xml-bind-api = { module = "jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jakartaXmlBindApi" }
 javax-xml-stream = { module = "javax.xml.stream:javax.xml.stream", version.ref = "javaxXmlStream" }
+jlayer = { module = "com.googlecode.soundlibs:jlayer", version.ref = "jlayer" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 jsoup-v172 = { module = "org.jsoup:jsoup", version = "1.23.1" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.3.0" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.7.0" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.7.1" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitPlatformLauncher" }
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 library = { module = "net.rdrei.android.dirchooser:library", version.ref = "library" }
 material = { group = "com.google.android.material", name = "material", version = "1.12.0" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockwebserver-v550 = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttpMockwebserver" }
 okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttpMockwebserver" }
 option = { module = "com.gu:option", version.ref = "option" }
 androidx-compilercommon = { group = "androidx.databinding", name = "compilerCommon", version.ref = "compilercommon" }
+pdfbox-android = { module = "com.tom-roush:pdfbox-android", version.ref = "pdfboxAndroid" }
 slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4jAndroid" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jSimple" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
 stax-api = { module = "javax.xml.stream:stax-api", version.ref = "staxApi" }
 xmlpull = { module = "org.xmlpull:xmlpull", version.ref = "xmlpull" }
 xmlpull-xmlpull = { module = "xmlpull:xmlpull", version.ref = "xmlpullVersion" }
