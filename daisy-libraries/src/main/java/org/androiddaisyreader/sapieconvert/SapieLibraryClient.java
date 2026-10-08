@@ -27,7 +27,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,6 +47,8 @@ public class SapieLibraryClient implements Closeable {
     private static final String MEMBER_BASE_URL = "https://member.sapie.or.jp";
     private static final String CN1MN1_URL = LIBRARY_BASE_URL + "/cgi-bin/CN1MN1";
     private static final String LOGIN_URL = MEMBER_BASE_URL + "/login";
+    // ダウンロードフォームの送信先URLをMapに格納する際の予約キー。
+    static final String FORM_ACTION_KEY = "__action__";
 
     // ゲストアクセス用の固定パラメータ（付けないと会員ログイン画面に遷移する）
     private static final String GUEST_S00102 = "dy3v$J$XP17";
@@ -52,7 +56,6 @@ public class SapieLibraryClient implements Closeable {
 
     // CN1MN1 のアクションコード
     private static final String ACT_LIST = "J01LST11"; // 検索結果一覧
-    private static final String ACT_DOWNLOAD = "J00DTL34"; // デイジーデータダウンロード
 
     private static final int PAGE_SIZE = 50;
 
@@ -256,12 +259,23 @@ public class SapieLibraryClient implements Closeable {
                 if (cells.size() < 7) {
                     continue;
                 }
-                String bookId = null;
                 String title = "";
                 Element titleLink = cells.get(1).selectFirst("a[href]");
                 if (titleLink != null) {
-                    bookId = extractQueryParam(titleLink.attr("href"), "S00222");
                     title = titleLink.text().trim();
+                }
+
+                // 各行のダウンロードボタンのフォーム(hidden input 一式)を抽出する。
+                // 会員セッションでは download.aspx、ゲストでは CN1MN1 を指すため、
+                // フォームの action も含めてそのまま保持し、ダウンロード時に辿る。
+                Map<String, String> downloadForm = extractDownloadForm(row);
+
+                // 図書IDは詳細リンク(J00DTL14)の S00222 から取得する。
+                // ダウンロードフォームの S00222/S00224 はセッション状態で意味が変わる
+                // （ゲストでは行番号など）ため当てにしない。
+                String bookId = null;
+                if (titleLink != null) {
+                    bookId = extractQueryParam(titleLink.attr("href"), "S00222");
                 }
                 if (bookId == null || bookId.isEmpty()) {
                     continue;
@@ -271,7 +285,8 @@ public class SapieLibraryClient implements Closeable {
                 String time = cells.get(4).text().trim();
                 String publisher = cells.get(5).text().trim();
                 String library = cells.get(6).text().trim();
-                books.add(new Book(bookId, title, author, type, time, publisher, library));
+                books.add(new Book(bookId, title, author, type, time, publisher,
+                        library, downloadForm));
             }
         }
 
@@ -302,6 +317,52 @@ public class SapieLibraryClient implements Closeable {
         return input != null ? input.attr("value") : "";
     }
 
+    /**
+     * 検索結果の1行から、ダウンロードボタン(「ダウン」submit)を持つフォームの
+     * input を全て抽出する。会員セッションでは action=download.aspx(S00101=J31DWN21)、
+     * ゲストセッションでは action=CN1MN1(S00101=J01LST31) など、
+     * セッション状態によってフォームの内容が変わるため、行のフォームをそのまま保持する。
+     *
+     * <p>フォームの送信先URLは予約キー {@value #FORM_ACTION_KEY} に解決済み絶対URLとして格納する。</p>
+     *
+     * @param row テーブルの1行(tr)要素
+     * @return input name -> value のマップ（順序保持）。フォームが無ければ空。
+     */
+    private Map<String, String> extractDownloadForm(Element row) {
+        Map<String, String> params = new LinkedHashMap<>();
+        // 「ダウン」submit を含むフォームを探す（行には他のフォームが無い前提だが堅牢に）
+        Element form = null;
+        for (Element f : row.select("form")) {
+            if (f.selectFirst("input[type=submit]") != null) {
+                form = f;
+                break;
+            }
+        }
+        if (form == null) {
+            return params;
+        }
+        // action を絶対URLに解決して保持する
+        String action = form.attr("action");
+        HttpUrl base = HttpUrl.parse(CN1MN1_URL);
+        HttpUrl resolved = (base != null && action != null && !action.isEmpty())
+                ? base.resolve(action) : base;
+        params.put(FORM_ACTION_KEY, resolved != null ? resolved.toString() : CN1MN1_URL);
+
+        for (Element input : form.select("input")) {
+            String type = input.attr("type");
+            if ("submit".equalsIgnoreCase(type) || "button".equalsIgnoreCase(type)
+                    || "image".equalsIgnoreCase(type)) {
+                continue;
+            }
+            String name = input.attr("name");
+            if (name == null || name.isEmpty()) {
+                continue;
+            }
+            params.put(name, input.attr("value"));
+        }
+        return params;
+    }
+
     private String extractQueryParam(String url, String name) {
         if (url == null) {
             return null;
@@ -317,38 +378,61 @@ public class SapieLibraryClient implements Closeable {
     // ========== ダウンロード処理 ==========
 
     /**
-     * 図書をダウンロードしてファイルとして保存する。
-     * ダウンロード前にログイン（会員セッション）が必要。
+     * 検索結果の図書のダウンロードフォーム(download.aspx 用)をPOSTして
+     * ファイルをダウンロード・保存する。
      *
-     * @param bookId       図書ID（S00222）
-     * @param sessionToken 検索セッショントークン（S00221）
-     * @param rtnme        RTNTME トークン
+     * <p>サピエのダウンロードは、検索結果一覧の各行に埋め込まれた
+     * {@code <form action="https://cntdwn.sapie.or.jp/download/download.aspx">} を
+     * そのままPOSTする仕組みになっている。フォームにはセッション固有の
+     * S00102 / S00103 / RTNTME や図書ごとの S00215 / S00224 等が含まれる。
+     * 検索時のゲストセッション(Cookie)のまま、そのフォームを送信するだけでよく、
+     * 会員ログインや資料詳細ページの経由は不要。</p>
+     *
+     * @param downloadForm 検索結果から抽出したダウンロードフォームの hidden input 一式
      * @param outputDir    出力先ディレクトリ
      * @return 保存されたファイル
      * @throws SapieLibraryException ダウンロード失敗時
      */
-    public synchronized File download(String bookId, String sessionToken, String rtnme,
-                                      File outputDir) throws SapieLibraryException {
-        ensureLoggedIn();
-        logger.info("ダウンロード処理を開始します: bookId={}", bookId);
+    public synchronized File download(Map<String, String> downloadForm, File outputDir)
+            throws SapieLibraryException {
+        if (downloadForm == null || downloadForm.isEmpty()) {
+            throw new SapieLibraryException("ダウンロードフォームが取得できていません。再検索してください。");
+        }
+        return submitDownloadForm(downloadForm, outputDir, 0);
+    }
 
-        FormBody.Builder builder = new FormBody.Builder()
-                .add("S00101", ACT_DOWNLOAD)
-                .add("S00102", GUEST_S00102)
-                .add("S00103", GUEST_S00103)
-                .add("S00211", "")
-                .add("S00212", "")
-                .add("S00221", sessionToken != null ? sessionToken : "")
-                .add("S00222", bookId)
-                .add("S00223", "")
-                .add("S00231", "")
-                .add("S00238", "");
-        if (rtnme != null && !rtnme.isEmpty()) {
-            builder.add("RTNTME", rtnme);
+    private static final int MAX_DOWNLOAD_HOPS = 4;
+
+    /**
+     * ダウンロードフォームをPOSTする。レスポンスがファイルならそれを保存し、
+     * HTML（次のダウンロードフォームを含む中間ページ、またはログイン要求）なら
+     * 次のフォームを辿る/ログインして再試行する。
+     */
+    private File submitDownloadForm(Map<String, String> form, File outputDir, int hop)
+            throws SapieLibraryException {
+        if (hop > MAX_DOWNLOAD_HOPS) {
+            throw new SapieLibraryException("ダウンロードの遷移が多すぎます（中断）");
         }
 
+        String actionUrl = form.get(FORM_ACTION_KEY);
+        if (actionUrl == null || actionUrl.isEmpty()) {
+            actionUrl = CN1MN1_URL;
+        }
+        String bookId = form.containsKey("S00224") ? form.get("S00224") : "download";
+
+        FormBody.Builder builder = new FormBody.Builder();
+        for (Map.Entry<String, String> e : form.entrySet()) {
+            if (FORM_ACTION_KEY.equals(e.getKey())) {
+                continue;
+            }
+            builder.add(e.getKey(), e.getValue() != null ? e.getValue() : "");
+        }
+
+        logger.info("ダウンロードフォーム送信(hop={}): url={}, params={}", hop, actionUrl, form.keySet());
+
         Request request = new Request.Builder()
-                .url(CN1MN1_URL)
+                .url(actionUrl)
+                .header("Referer", CN1MN1_URL)
                 .post(builder.build())
                 .build();
 
@@ -362,25 +446,103 @@ public class SapieLibraryClient implements Closeable {
             }
 
             String contentType = response.header("Content-Type", "").toLowerCase();
+            String disposition = response.header("Content-Disposition");
             boolean downloadable = contentType.contains("zip")
                     || contentType.contains("octet-stream")
                     || contentType.contains("pdf")
-                    || contentType.contains("daisy");
+                    || contentType.contains("daisy")
+                    || (disposition != null && disposition.toLowerCase().contains("attachment"));
 
-            if (downloadable || contentType.isEmpty()) {
+            logger.info("ダウンロードレスポンス(hop={}): HTTP {}, Content-Type={}, Content-Disposition={}",
+                    hop, response.code(), contentType, disposition);
+
+            if (downloadable || (contentType.isEmpty() && disposition != null)) {
                 return saveDownloadedFile(body, bookId, response, outputDir);
             }
 
-            // HTMLが返る場合は、ログイン画面への遷移かエラー
+            // HTMLが返った場合: ログイン要求 or 次のダウンロードフォームを含む中間ページ
             String html = decodeResponseBody(body);
             Document doc = Jsoup.parse(html);
+
+            // ログインフォームが返ったらログインして同じフォームを再送信する
             if (doc.selectFirst("input[name=uid], input#uid") != null) {
-                throw new SapieLibraryException("ダウンロードにはログインが必要です");
+                if (loggedIn) {
+                    throw new SapieLibraryException("ログイン済みですがダウンロードにログインが要求されました");
+                }
+                logger.info("ダウンロードにログインが必要。ログインして再試行します");
+                login();
+                return submitDownloadForm(form, outputDir, hop + 1);
             }
-            throw new SapieLibraryException("ダウンロードに失敗しました（ファイルを取得できません）");
+
+            // 次のダウンロードフォーム（「ダウン」submit を持つフォーム）を探して辿る
+            Map<String, String> nextForm = extractFormFromDoc(doc);
+            if (!nextForm.isEmpty()) {
+                logger.info("中間ページから次のダウンロードフォームを取得(hop={}): keys={}",
+                        hop, nextForm.keySet());
+                return submitDownloadForm(nextForm, outputDir, hop + 1);
+            }
+
+            // それ以外はエラー
+            String serverMessage = extractErrorMessage(doc);
+            String htmlSummary = summarizeHtml(doc);
+            logger.error("ダウンロード失敗(hop={})。HTTP {}, CT={}, CD={}, 本文抜粋: {}",
+                    hop, response.code(), contentType, disposition, htmlSummary);
+            String diag = "[hop=" + hop + ", HTTP " + response.code() + ", CT=" + contentType
+                    + ", CD=" + disposition + "] 本文抜粋: " + htmlSummary;
+            if (serverMessage != null && !serverMessage.isEmpty()) {
+                throw new SapieLibraryException("ダウンロードに失敗しました: " + serverMessage + " / " + diag);
+            }
+            throw new SapieLibraryException(
+                    "ダウンロードに失敗しました（ファイルを取得できません） / " + diag);
         } catch (IOException e) {
             throw new SapieLibraryException("ダウンロード中にネットワークエラーが発生しました", e);
         }
+    }
+
+    /**
+     * 任意のDocumentから「ダウン」submit を持つフォームを1つ抽出する。
+     * 中間ページ上のダウンロードフォーム追跡に使う。
+     */
+    private Map<String, String> extractFormFromDoc(Document doc) {
+        Map<String, String> params = new LinkedHashMap<>();
+        Element form = null;
+        for (Element f : doc.select("form")) {
+            if (f.selectFirst("input[type=submit]") != null) {
+                // ダウンロードらしきフォームを優先（action に download を含む、または submit値がダウン）
+                Element submit = f.selectFirst("input[type=submit]");
+                String submitVal = submit != null ? submit.attr("value") : "";
+                String action = f.attr("action");
+                if ((action != null && action.contains("download"))
+                        || (submitVal != null && submitVal.contains("ダウン"))) {
+                    form = f;
+                    break;
+                }
+                if (form == null) {
+                    form = f; // フォールバック
+                }
+            }
+        }
+        if (form == null) {
+            return params;
+        }
+        String action = form.attr("action");
+        HttpUrl base = HttpUrl.parse(CN1MN1_URL);
+        HttpUrl resolved = (base != null && action != null && !action.isEmpty())
+                ? base.resolve(action) : base;
+        params.put(FORM_ACTION_KEY, resolved != null ? resolved.toString() : CN1MN1_URL);
+        for (Element input : form.select("input")) {
+            String type = input.attr("type");
+            if ("submit".equalsIgnoreCase(type) || "button".equalsIgnoreCase(type)
+                    || "image".equalsIgnoreCase(type)) {
+                continue;
+            }
+            String name = input.attr("name");
+            if (name == null || name.isEmpty()) {
+                continue;
+            }
+            params.put(name, input.attr("value"));
+        }
+        return params;
     }
 
     private File saveDownloadedFile(ResponseBody body, String bookId, Response response,
@@ -427,6 +589,46 @@ public class SapieLibraryClient implements Closeable {
     }
 
     // ========== 内部ヘルパー ==========
+
+    /**
+     * サピエのエラーHTMLからメッセージらしきテキストを抽出する。
+     * よくあるパターン（font color=red、class=error、em、strong 等）を順に探す。
+     */
+    private String extractErrorMessage(Document doc) {
+        String[] selectors = {
+                "font[color=red]", "font[color=#ff0000]",
+                ".error", ".err", ".message", ".msg",
+                "em", "p.caution"
+        };
+        for (String sel : selectors) {
+            Element el = doc.selectFirst(sel);
+            if (el != null) {
+                String text = el.text().trim();
+                if (!text.isEmpty()) {
+                    return text;
+                }
+            }
+        }
+        // 「ダウンロード」「エラー」「できません」等を含む行を探す
+        for (Element el : doc.select("td, p, div, span")) {
+            String text = el.ownText().trim();
+            if (!text.isEmpty() && text.length() <= 120
+                    && (text.contains("エラー") || text.contains("できません")
+                        || text.contains("ありません") || text.contains("失敗"))) {
+                return text;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * HTML本文を短く要約してログ出力用に整形する（最大500文字）。
+     */
+    private String summarizeHtml(Document doc) {
+        String text = doc.body() != null ? doc.body().text() : doc.text();
+        text = text.replaceAll("\\s+", " ").trim();
+        return text.length() > 500 ? text.substring(0, 500) + "..." : text;
+    }
 
     /**
      * レスポンスボディをShift_JIS(MS932)でデコードする。

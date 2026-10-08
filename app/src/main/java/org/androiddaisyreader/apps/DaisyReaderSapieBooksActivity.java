@@ -59,6 +59,53 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
     private volatile int currentPage = 0;
     private volatile String currentSessionToken = "";
     private volatile String currentRtnme = "";
+    // 検索世代カウンター。新しいreset検索が始まると加算し、
+    // 古い検索の結果やトーストが遅れて反映されるのを防ぐ。
+    private volatile int searchGeneration = 0;
+
+    // 検索とダウンロードで同一のセッション(Cookie)を共有するためのクライアント。
+    // サピエのトークン(S00221)は発行時のCookieセッションに紐づくため、
+    // 検索時とダウンロード時で別インスタンスを使うと「セッションが無効」になる。
+    private volatile SapieLibraryClient sharedClient;
+
+    // bookId -> ダウンロードフォーム(download.aspx 用の hidden input 一式)。
+    // 検索結果パース時に保持し、ダウンロード時にそのままPOSTする。
+    private final java.util.Map<String, java.util.Map<String, String>> downloadForms =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * 共有クライアントを取得する（なければ生成）。
+     * 認証情報があればログイン可能なクライアントを、なければゲストクライアントを返す。
+     */
+    private synchronized SapieLibraryClient getSharedClient() {
+        if (sharedClient == null) {
+            String loginId = SapiePreferences.getLoginId(getApplicationContext());
+            String password = SapiePreferences.getPassword(getApplicationContext());
+            Log.i(TAG, "getSharedClient: creating client, hasCredentials="
+                    + (loginId != null && !loginId.isEmpty()));
+            // 検索はゲストセッションで行う（会員ログイン後のセッションだと
+            // ゲスト用検索CGIが0件を返すため、ここではログインしない）。
+            // ログインはダウンロード時に同一クライアント上で遅延実行し、
+            // 同一Cookieセッションを維持することでトークン整合性を保つ。
+            sharedClient = new SapieLibraryClient(
+                    loginId != null ? loginId : "",
+                    password != null ? password : "");
+        }
+        return sharedClient;
+    }
+
+    /**
+     * 共有クライアントを破棄する（検索条件リセット時などにセッションを作り直すため）。
+     */
+    private synchronized void resetSharedClient() {
+        if (sharedClient != null) {
+            try {
+                sharedClient.close();
+            } catch (Exception ignored) {
+            }
+            sharedClient = null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +148,11 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
             }
         });
 
+        // 検索窓のウォッチャーは onCreate で一度だけ設定する。
+        // onResume で設定すると画面復帰のたびに多重登録され、
+        // 1回の入力で複数回検索が走ってしまう。
+        setupSearchWatchers();
+
         // 初回データロード（空検索）
         loadPagingData();
 
@@ -130,7 +182,8 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 searchHandler.removeCallbacksAndMessages(null);
-                searchHandler.postDelayed(() -> loadPagingData(), 300);
+                // デバウンス: 入力が落ち着いてから検索する（連打でAPIを叩かない）
+                searchHandler.postDelayed(() -> loadPagingData(), 500);
             }
 
             @Override
@@ -147,7 +200,8 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
     private void loadPagingData() {
         final String title = mTextSearchTitle.getText().toString().trim();
         final String author = mTextSearchAuthor.getText().toString().trim();
-        pagingExecutor.execute(() -> doSearch(title, author, true));
+        final int generation = ++searchGeneration;
+        pagingExecutor.execute(() -> doSearch(title, author, true, generation));
     }
 
     /**
@@ -156,7 +210,8 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
     private void loadMoreData() {
         final String title = mTextSearchTitle.getText().toString().trim();
         final String author = mTextSearchAuthor.getText().toString().trim();
-        pagingExecutor.execute(() -> doSearch(title, author, false));
+        final int generation = searchGeneration;
+        pagingExecutor.execute(() -> doSearch(title, author, false, generation));
     }
 
     /**
@@ -165,22 +220,46 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
      *
      * @param reset true の場合は1ページ目から検索し直す
      */
-    private void doSearch(String title, String author, boolean reset) {
+    private void doSearch(String title, String author, boolean reset, int generation) {
+        // 既に新しい検索が始まっていれば、この(古い)検索は破棄する
+        if (generation != searchGeneration) {
+            return;
+        }
         if (reset) {
             currentPage = 0;
             currentSessionToken = "";
             currentRtnme = "";
             hasMoreData = true;
             isLoadingMore = false;
+            // 検索条件が変わると旧ダウンロードフォーム(セッション固有値)は無効になるのでクリア
+            downloadForms.clear();
+            // 注意: ここでセッション(sharedClient)は破棄しない。
+            // 破棄すると検索条件を変えるたびにブロッキングな再ログインが走り、
+            // 検索結果の表示が極端に遅くなる。トークンのみリセットすれば十分。
         } else {
             if (isLoadingMore || !hasMoreData) return;
             isLoadingMore = true;
         }
 
         int page = reset ? 1 : currentPage + 1;
-        try (SapieLibraryClient client = new SapieLibraryClient("", "")) {
+        try {
+            // 検索とダウンロードで同一セッションを共有する（クライアントは閉じない）
+            Log.i(TAG, "doSearch: start title='" + title + "' author='" + author
+                    + "' page=" + page + " reset=" + reset + " gen=" + generation);
+            SapieLibraryClient client = getSharedClient();
+            long t0 = System.currentTimeMillis();
             SearchResult result = client.search(title, author, page,
                     currentSessionToken, currentRtnme);
+            Log.i(TAG, "doSearch: search returned " + result.getBooks().size()
+                    + " books (total=" + result.getTotalCount() + ", hasNext="
+                    + result.isHasNext() + ") in " + (System.currentTimeMillis() - t0) + "ms");
+
+            // 検索中に新しい検索が始まっていたら結果を捨てる
+            if (generation != searchGeneration) {
+                isLoadingMore = false;
+                return;
+            }
+
             currentPage = result.getPage();
             currentSessionToken = result.getSessionToken();
             currentRtnme = result.getRtnme();
@@ -189,6 +268,10 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
 
             List<DaisyBookInfo> books = toDaisyBooks(result, page);
             runOnUiThread(() -> {
+                // UI反映直前にも世代を確認する
+                if (generation != searchGeneration) {
+                    return;
+                }
                 if (reset) {
                     mPagingAdapter.submitList(books);
                     if (books.isEmpty()) {
@@ -206,7 +289,13 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
             Log.e(TAG, "Search failed", e);
             org.androiddaisyreader.utils.LogFile.e(TAG, "Search failed", e);
             isLoadingMore = false;
+            if (generation != searchGeneration) {
+                return;
+            }
             runOnUiThread(() -> {
+                if (generation != searchGeneration) {
+                    return;
+                }
                 Toast.makeText(DaisyReaderSapieBooksActivity.this,
                         getString(R.string.error_cannot_dowload), Toast.LENGTH_LONG).show();
             });
@@ -230,6 +319,11 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
                     sort++
             );
             books.add(info);
+            // ダウンロードフォームを bookId で引けるよう保持する
+            java.util.Map<String, String> form = book.getDownloadForm();
+            if (form != null && !form.isEmpty()) {
+                downloadForms.put(book.getId(), form);
+            }
         }
         return books;
     }
@@ -237,7 +331,6 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
     @Override
     protected void onResume() {
         super.onResume();
-        setupSearchWatchers();
     }
 
     @Override
@@ -246,6 +339,7 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
         searchHandler.removeCallbacksAndMessages(null);
         pagingExecutor.shutdown();
         downloadExecutor.shutdown();
+        resetSharedClient();
     }
 
     private void downloadABook(int position) {
@@ -265,24 +359,26 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
         if (bookPath == null || !bookPath.startsWith("sapie://")) return;
 
         final String bookId = bookPath.replace("sapie://", "");
-        final String sessionToken = currentSessionToken;
-        final String rtnme = currentRtnme;
+        final java.util.Map<String, String> downloadForm = downloadForms.get(bookId);
+        if (downloadForm == null || downloadForm.isEmpty()) {
+            Log.e(TAG, "No download form for bookId=" + bookId + " (再検索が必要)");
+            speakText(getString(R.string.error_cannot_dowload));
+            showErrorWithLogSend(R.string.error_cannot_dowload);
+            return;
+        }
 
         Toast.makeText(this, getString(R.string.message_downloading_file), Toast.LENGTH_SHORT).show();
         speakText(getString(R.string.message_downloading_file));
 
         downloadExecutor.execute(() -> {
             try {
-                String loginId = SapiePreferences.getLoginId(getApplicationContext());
-                String password = SapiePreferences.getPassword(getApplicationContext());
-
                 File tempDir = new File(getCacheDir(), "sapie");
                 if (!tempDir.exists()) tempDir.mkdirs();
 
-                File downloadedFile;
-                try (SapieLibraryClient client = new SapieLibraryClient(loginId, password)) {
-                    downloadedFile = client.download(bookId, sessionToken, rtnme, tempDir);
-                }
+                // 検索と同一のセッション(Cookie)を使って、検索結果に埋め込まれていた
+                // ダウンロードフォームをそのまま download.aspx へPOSTする。
+                SapieLibraryClient client = getSharedClient();
+                File downloadedFile = client.download(downloadForm, tempDir);
 
                 String safeTitle = mDaisyBook.getTitle().replaceAll("[\\\\/:*?\"<>|]", "_");
                 String fileName = safeTitle + fileExtensionOf(downloadedFile);

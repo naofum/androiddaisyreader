@@ -48,6 +48,16 @@ class SapieLibraryClientTest {
         assertEquals("3時間19分", books.get(0).getTime());
         assertEquals("2016年", books.get(0).getPublisher());
         assertEquals("府立図書館", books.get(0).getLibrary());
+
+        // ダウンロードフォームが抽出され、S00224 が bookId と一致すること
+        java.util.Map<String, String> form = books.get(0).getDownloadForm();
+        assertNotNull(form);
+        assertEquals("J31DWN21", form.get("S00101"));
+        assertEquals("4828134", form.get("S00224"));
+        assertEquals("ASaTW4QRir2", form.get("S00102"));
+        assertEquals("1", form.get("S00215"));
+        // submit ボタンは除外されること
+        assertFalse(form.containsValue("ダウン"));
     }
 
     @Test
@@ -85,7 +95,7 @@ class SapieLibraryClientTest {
                        String time, String publisher, String library) {
         return "<tr>"
                 + "<td class=\"RIGHT\">1</td>"
-                + "<td><a href=\"CN1MN1?S00101=J00DTL14&amp;S00102=dy3v$J$XP17&amp;S00103=UZQHCU46kd"
+                + "<td><a href=\"CN1MN1?S00101=J00DTL14&amp;S00102=ASaTW4QRir2&amp;S00103=7op3EJ!0MN"
                 + "&amp;S00221=139348240&amp;S00222=" + bookId + "&amp;RTNTME=121048300\">"
                 + title + "</a></td>"
                 + "<td>" + author + "</td>"
@@ -93,7 +103,17 @@ class SapieLibraryClientTest {
                 + "<td>" + time + "</td>"
                 + "<td>" + publisher + "</td>"
                 + "<td>" + library + "</td>"
-                + "<td><form method=\"post\" action=\"CN1MN1\"></form></td>"
+                + "<td><form method=\"post\" action=\"https://cntdwn.sapie.or.jp/download/download.aspx\">"
+                + "<input type=\"hidden\" name=\"S00101\" value=\"J31DWN21\">"
+                + "<input type=\"hidden\" name=\"S00102\" value=\"ASaTW4QRir2\">"
+                + "<input type=\"hidden\" name=\"S00103\" value=\"7op3EJ!0MN\">"
+                + "<input type=\"hidden\" name=\"RTNTME\" value=\"061249381\">"
+                + "<input type=\"hidden\" name=\"S00202\" value=\"22\">"
+                + "<input type=\"hidden\" name=\"S00215\" value=\"1\">"
+                + "<input type=\"hidden\" name=\"S00224\" value=\"" + bookId + "\">"
+                + "<input type=\"hidden\" name=\"S00263\" value=\"J01LST11\">"
+                + "<input type=\"submit\" value=\"ダウン\">"
+                + "</form></td>"
                 + "</tr>";
     }
 }
