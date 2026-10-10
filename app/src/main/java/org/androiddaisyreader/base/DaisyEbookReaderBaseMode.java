@@ -273,27 +273,35 @@ public class DaisyEbookReaderBaseMode {
                 return tempParts;
             }
             List<Part> listPart = new ArrayList<Part>();
+            String currentTarget = listId.get(positionSection - 1);
+            String nextTarget = (positionSection < listId.size()) ? listId.get(positionSection) : null;
+            // 次のセクションのフラグメントIDが同じ場合（異なるSMILの同じ位置を指している）、
+            // 同じSMIL内で break せず全 part を含める。
+            boolean canBreak = nextTarget != null && !nextTarget.equals(currentTarget);
+
+            boolean foundCurrent = false;
             for (Part part : tempParts) {
-                if (part.getId().equals(listId.get(positionSection - 1))) {
-                    isCurrentPart = true;
-                } else if (part.getSnippets().get(0).getId().equals(listId.get(positionSection - 1))) {
-                    //epub
-                    isCurrentPart = true;
-//                    if (section.getHref().contains("/")) {
-//                        String dir = section.getHref().substring(0, section.getHref().lastIndexOf("/") + 1);
-//                        String fname = part.getAudioElements().get(0).getAudioFilename();
-//                        part.getAudioElements().get(0).setAudioFileName(dir + fname);
-//                    }
-                }
-                if (isCurrentPart) {
-                    if (listId.size() == positionSection) {
-                        listPart.add(part);
-                    } else if (!part.getId().equals(listId.get(positionSection))) {
-                        listPart.add(part);
+                if (!foundCurrent) {
+                    String snippetId = (part.getSnippets() != null && !part.getSnippets().isEmpty())
+                            ? part.getSnippets().get(0).getId() : null;
+                    if (currentTarget.equals(part.getId()) || currentTarget.equals(snippetId)) {
+                        foundCurrent = true;
                     } else {
+                        continue;
+                    }
+                }
+                if (canBreak) {
+                    String snippetId = (part.getSnippets() != null && !part.getSnippets().isEmpty())
+                            ? part.getSnippets().get(0).getId() : null;
+                    if (nextTarget.equals(part.getId()) || nextTarget.equals(snippetId)) {
                         break;
                     }
                 }
+                listPart.add(part);
+            }
+            // 該当フラグメントが見つからなければフィルタリングせず全 part を返す
+            if (!foundCurrent) {
+                return tempParts;
             }
             parts = listPart.toArray(new Part[0]);
             return parts;

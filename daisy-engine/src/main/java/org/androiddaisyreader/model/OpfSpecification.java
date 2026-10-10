@@ -90,7 +90,7 @@ public class OpfSpecification extends DefaultHandler {
             try {
                 contents = bookContext.getResource(href);
                 if (contents != null) {
-                    listModel = XmlSpecification.readFromStream(contents);
+                    listModel.addAll(XmlSpecification.readFromStream(contents));
                 }
             } catch (IOException e) {
 
