@@ -238,7 +238,12 @@ public class Smil30Specification extends DefaultHandler {
                 textProdNote = null;
             }
             idPrevious = id;
-            partBuilder.addSnippet(new DaisySnippet(doc, id));
+            DaisySnippet snippet = new DaisySnippet(doc, id);
+            partBuilder.addSnippet(snippet);
+            String epubType = snippet.getEpubType();
+            if (epubType != null) {
+                partBuilder.setEpubType(epubType);
+            }
         } else {
             textProdNote = doc.getElementById(id).text();
         }
@@ -261,6 +266,14 @@ public class Smil30Specification extends DefaultHandler {
         int clipEnd = ExtractTimingValues.extractTimingAsMilliSeconds("clipEnd", attributes,
                 DAISYFORMAT30);
         String id = ParserUtilities.getValueForName("id", attributes);
+
+        // EPUB3等で clipEnd が省略されている場合は全ファイル再生を意味する。
+        // 再生位置追跡（clipEnd=0 とみなされる）でセクションが即スキップされるのを防ぐため、
+        // センチネル値（実質無限）を設定する。AndroidAudioPlayer は clipEnd を使わず
+        // ファイル末尾まで再生するため、実再生には影響しない。
+        if (ParserUtilities.getValueForName("clipEnd", attributes) == null) {
+            clipEnd = Integer.MAX_VALUE;
+        }
 
         android.util.Log.i("Smil30Specification", "audio src=\"" + audioFilename
                 + "\" clipBegin=" + clipBegin + " clipEnd=" + clipEnd);

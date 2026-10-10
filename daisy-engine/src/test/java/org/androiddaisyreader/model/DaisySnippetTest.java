@@ -68,4 +68,28 @@ public class DaisySnippetTest extends TestCase {
 		assertEquals(testStr1, snippet.getText());
 	}
 
+	public void testGetEpubType() {
+		String source = "<span id=\"pg1\" epub:type=\"pagebreak\">3</span>";
+		Document doc = Jsoup.parse(source, "");
+		DaisySnippet snippet = new DaisySnippet(doc, "pg1");
+
+		assertEquals("pagebreak", snippet.getEpubType());
+	}
+
+	public void testGetEpubTypeFromAncestor() {
+		String source = "<aside epub:type=\"footnote\"><span id=\"fn1\">note text</span></aside>";
+		Document doc = Jsoup.parse(source, "");
+		DaisySnippet snippet = new DaisySnippet(doc, "fn1");
+
+		assertEquals("footnote", snippet.getEpubType());
+	}
+
+	public void testGetEpubTypeNone() {
+		String source = "<span id=\"plain\">plain text</span>";
+		Document doc = Jsoup.parse(source, "");
+		DaisySnippet snippet = new DaisySnippet(doc, "plain");
+
+		assertNull(snippet.getEpubType());
+	}
+
 }

@@ -273,7 +273,12 @@ public class Smil31Specification extends DefaultHandler {
             }
         }
         // SMIL par内のtext要素は重複IDでも常に追加する（繰り返し箇所対応）
-        partBuilder.addSnippet(new DaisySnippet(doc, textId));
+        DaisySnippet snippet = new DaisySnippet(doc, textId);
+        partBuilder.addSnippet(snippet);
+        String epubType = snippet.getEpubType();
+        if (epubType != null) {
+            partBuilder.setEpubType(epubType);
+        }
     }
 
     /**
@@ -353,7 +358,12 @@ public class Smil31Specification extends DefaultHandler {
             }
         }
         if (previousHandleId == null || !previousHandleId.equals(id)) {
-            partBuilder.addSnippet(new DaisySnippet(doc, id));
+            DaisySnippet snippet = new DaisySnippet(doc, id);
+            partBuilder.addSnippet(snippet);
+            String epubType = snippet.getEpubType();
+            if (epubType != null) {
+                partBuilder.setEpubType(epubType);
+            }
             previousHandleId = id;
         }
     }

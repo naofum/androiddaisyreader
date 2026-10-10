@@ -638,7 +638,8 @@ public class ReaderPresenter {
         }
         List<Part> filtered = new ArrayList<>();
         for (Part part : parts) {
-            if (SkippableConfig.isPageNumberCustomTest(part.getCustomTest())) {
+            if (SkippableConfig.isPageNumberCustomTest(part.getCustomTest())
+                    || SkippableConfig.isSkippableEpubType(part.getEpubType())) {
                 continue;
             }
             filtered.add(part);

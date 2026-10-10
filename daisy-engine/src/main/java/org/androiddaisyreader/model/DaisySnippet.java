@@ -283,4 +283,23 @@ public class DaisySnippet extends Snippet {
         return id;
     }
 
+    /**
+     * 参照要素（およびその祖先）に付与された epub:type を返す。
+     * EPUB3 のスキッパブル構造（pagebreak, note, sidebar など）の判定に使う。
+     *
+     * @return epub:type の値。見つからなければ null。
+     */
+    public String getEpubType() {
+        Element element = doc.getElementById(id);
+        Element current = element;
+        while (current != null) {
+            String type = current.attr("epub:type");
+            if (type != null && !type.isEmpty()) {
+                return type;
+            }
+            current = current.parent();
+        }
+        return null;
+    }
+
 }

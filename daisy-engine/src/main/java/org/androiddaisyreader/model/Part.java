@@ -14,6 +14,7 @@ public class Part implements Navigable {
     private String id;
     private String timingMode;
     private String customTest;
+    private String epubType;
 
     private Part() {
     }
@@ -28,6 +29,10 @@ public class Part implements Navigable {
 
     public String getCustomTest() {
         return customTest;
+    }
+
+    public String getEpubType() {
+        return epubType;
     }
 
     public Image getImage() {
@@ -100,6 +105,11 @@ public class Part implements Navigable {
 
         public Builder setCustomTest(String customTest) {
             newInstance.customTest = customTest;
+            return this;
+        }
+
+        public Builder setEpubType(String epubType) {
+            newInstance.epubType = epubType;
             return this;
         }
 

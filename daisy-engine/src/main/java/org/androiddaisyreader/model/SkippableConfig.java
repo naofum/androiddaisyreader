@@ -1,5 +1,9 @@
 package org.androiddaisyreader.model;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * スキッパブル構造（ページ番号など）の読み飛ばし設定を保持するグローバル設定クラス。
  * アプリ層から設定値をセットし、ReaderPresenter 等から参照する。
@@ -39,5 +43,41 @@ public class SkippableConfig {
         return "normal".equals(customTest)
                 || "front".equals(customTest)
                 || "special".equals(customTest);
+    }
+
+    /** EPUB3 でスキッパブルとみなす epub:type の値。 */
+    private static final Set<String> SKIPPABLE_EPUB_TYPES = new HashSet<>(Arrays.asList(
+            "pagebreak",
+            "note",
+            "footnote",
+            "endnote",
+            "rearnote",
+            "annotation",
+            "sidebar",
+            "marginalia",
+            "bibliography",
+            "biblioentry",
+            "biblioref",
+            "glossary",
+            "glossdef",
+            "glossref",
+            "index-entry",
+            "index-group",
+            "index-headnotes",
+            "index-legend",
+            "practice"
+    ));
+
+    /**
+     * 指定された epub:type がスキッパブル構造かどうか。
+     *
+     * @param epubType EPUB3 の epub:type 属性値
+     * @return スキッパブルなら true
+     */
+    public static boolean isSkippableEpubType(String epubType) {
+        if (epubType == null) {
+            return false;
+        }
+        return SKIPPABLE_EPUB_TYPES.contains(epubType);
     }
 }

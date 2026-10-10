@@ -59,6 +59,25 @@ class VoiceEpubConverterTest {
     }
 
     @Test
+    void convert_emitsClipTimingsForRealMp3() throws Exception {
+        var url = VoiceEpubConverterTest.class.getResource("/sample.mp3");
+        assertNotNull(url, "test mp3 resource must exist");
+        File mp3 = new File(url.toURI());
+
+        List<VoiceEpubConverter.AudioItem> items = new ArrayList<>();
+        items.add(new VoiceEpubConverter.AudioItem("テスト面", mp3));
+
+        File output = tempDir.resolve("clip.epub").toFile();
+        new VoiceEpubConverter().convert("テスト書籍", items, output);
+
+        try (ZipFile zip = new ZipFile(output)) {
+            String smil = readEntry(zip, "OEBPS/smil/chapter_0001.smil");
+            assertTrue(smil.contains("clipBegin=\"0.000s\""), "clipBegin must be emitted");
+            assertTrue(smil.contains("clipEnd=\""), "clipEnd must be emitted");
+        }
+    }
+
+    @Test
     void convert_emptyItemsThrows() throws Exception {
         File output = tempDir.resolve("empty.epub").toFile();
         java.io.IOException ex = org.junit.jupiter.api.Assertions.assertThrows(

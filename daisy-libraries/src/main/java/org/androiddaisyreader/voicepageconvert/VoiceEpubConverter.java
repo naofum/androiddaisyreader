@@ -7,6 +7,7 @@ import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubWriter;
 import nl.siegmann.epublib.service.MediatypeService;
+import org.androiddaisyreader.util.Mp3Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,9 @@ public class VoiceEpubConverter {
             book.getResources().add(xhtmlResource);
 
             // 章SMIL（smil/ 配下に置くため、参照は ../ を付与）
-            String smilContent = buildChapterSmil("../" + xhtmlHref, spanId, "../" + audioHref);
+            double durationSeconds = Mp3Duration.readSeconds(item.file);
+            String smilContent = buildChapterSmil(
+                    "../" + xhtmlHref, spanId, "../" + audioHref, durationSeconds);
             Resource smilResource = new Resource(smilId,
                     smilContent.getBytes(StandardCharsets.UTF_8), smilHref,
                     MediatypeService.SMIL, StandardCharsets.UTF_8.name());
@@ -132,7 +135,8 @@ public class VoiceEpubConverter {
         return sb.toString();
     }
 
-    private String buildChapterSmil(String xhtmlHref, String spanId, String audioHref) {
+    private String buildChapterSmil(String xhtmlHref, String spanId, String audioHref,
+                                    double durationSeconds) {
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         sb.append("<smil xmlns=\"http://www.w3.org/ns/SMIL\" version=\"3.0\" ")
@@ -143,11 +147,22 @@ public class VoiceEpubConverter {
                 .append("epub:type=\"bodymatter chapter\">\n");
         sb.append("<par id=\"par_1\">\n");
         sb.append("<text src=\"").append(xhtmlHref).append('#').append(spanId).append("\"/>\n");
-        sb.append("<audio src=\"").append(audioHref).append("\"/>\n");
+        sb.append("<audio src=\"").append(audioHref).append("\"");
+        if (durationSeconds > 0) {
+            sb.append(" clipBegin=\"0.000s\" clipEnd=\"").append(formatClock(durationSeconds)).append("\"");
+        }
+        sb.append("/>\n");
         sb.append("</par>\n");
         sb.append("</seq>\n");
         sb.append("</body>\n</smil>");
         return sb.toString();
+    }
+
+    /**
+     * 秒数をSMILのclip値形式（例: 5.000s）に変換する。
+     */
+    private static String formatClock(double seconds) {
+        return String.format(Locale.ROOT, "%.3fs", seconds);
     }
 
     private String buildNav(List<AudioItem> items) {
