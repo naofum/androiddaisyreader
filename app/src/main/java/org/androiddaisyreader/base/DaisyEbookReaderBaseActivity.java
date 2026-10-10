@@ -1,6 +1,8 @@
 package org.androiddaisyreader.base;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.androiddaisyreader.apps.DaisyReaderLibraryActivity;
 import org.androiddaisyreader.apps.PrivateException;
@@ -454,10 +456,26 @@ public class DaisyEbookReaderBaseActivity extends AppCompatActivity implements O
      * @param messageResId 表示するメッセージの文字列リソースID
      */
     protected void showErrorWithLogSend(int messageResId) {
-        showErrorWithLogSend(getString(messageResId));
+        showErrorWithLogSend(getString(messageResId), null, null);
+    }
+
+    protected void showErrorWithLogSend(int messageResId, Throwable t, Map<String, String> extras) {
+        showErrorWithLogSend(getString(messageResId), t, extras);
     }
 
     protected void showErrorWithLogSend(String message) {
+        showErrorWithLogSend(message, null, null);
+    }
+
+    protected void showErrorWithLogSend(String message, Throwable t, Map<String, String> extras) {
+        Map<String, String> snapshotExtras = new HashMap<>();
+        snapshotExtras.put("message", message);
+        if (extras != null) {
+            snapshotExtras.putAll(extras);
+        }
+        org.androiddaisyreader.utils.LogFile.writeErrorSnapshot(
+                this, getClass().getSimpleName(), t, snapshotExtras);
+
         new android.app.AlertDialog.Builder(this)
                 .setTitle(R.string.error_title)
                 .setMessage(message)

@@ -37,7 +37,9 @@ import org.androiddaisyreader.utils.SapiePreferences;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -445,10 +447,11 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                     startActivity(downloaded);
                 });
             } catch (Exception e) {
-                org.androiddaisyreader.utils.LogFile.e(TAG, "Sapie DODP download failed: " + contentId, e);
+                org.androiddaisyreader.utils.LogFile.e(TAG, "Sapie DODP download failed", e);
                 runOnUiThread(() -> {
                     speakText(getString(R.string.error_cannot_dowload));
-                    showErrorWithLogSend(R.string.error_cannot_dowload);
+                    showErrorWithLogSend(R.string.error_cannot_dowload, e,
+                            createDodpErrorExtras("borrow"));
                 });
             }
         });
@@ -518,10 +521,9 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     // ------------------------------------------------------------------
 
     private void returnContent(final ContentItem item, final String label) {
-        final String contentId = item.getId();
         executor.execute(() -> {
             try {
-                boolean ok = client.returnContent(contentId);
+                boolean ok = client.returnContent(item.getId());
                 runOnUiThread(() -> {
                     String msg = ok ? getString(R.string.sapie_returned)
                             : getString(R.string.sapie_return_failure);
@@ -529,10 +531,12 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                     speakText(msg);
                 });
             } catch (Exception e) {
-                org.androiddaisyreader.utils.LogFile.e(TAG, "Sapie DODP return failed: " + contentId, e);
+                org.androiddaisyreader.utils.LogFile.e(TAG, "Sapie DODP return failed", e);
                 runOnUiThread(() -> {
                     Toast.makeText(DaisyReaderSapieDodpActivity.this,
                             getString(R.string.sapie_return_failure), Toast.LENGTH_LONG).show();
+                    showErrorWithLogSend(R.string.sapie_return_failure, e,
+                            createDodpErrorExtras("return"));
                 });
             }
         });
@@ -643,6 +647,19 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         headerText.setText(text != null ? text : "");
     }
 
+    private Map<String, String> createDodpErrorExtras(String operation) {
+        Map<String, String> extras = new HashMap<>();
+        extras.put("operation", operation != null ? operation : "unknown");
+        extras.put("state", state != null ? state.name() : "null");
+        if (currentMenuQuestionId != null) {
+            extras.put("questionId", currentMenuQuestionId);
+        }
+        if (currentInputQuestionId != null) {
+            extras.put("inputQuestionId", currentInputQuestionId);
+        }
+        return extras;
+    }
+
     private void setInputVisible(boolean visible) {
         inputField.setVisibility(visible ? View.VISIBLE : View.GONE);
         inputSubmit.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -662,6 +679,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         runOnUiThread(() -> {
             Toast.makeText(DaisyReaderSapieDodpActivity.this,
                     getString(R.string.error_cannot_dowload), Toast.LENGTH_LONG).show();
+            showErrorWithLogSend(R.string.error_cannot_dowload, e, createDodpErrorExtras(null));
         });
     }
 

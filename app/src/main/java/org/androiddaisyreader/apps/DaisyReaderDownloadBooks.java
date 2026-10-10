@@ -8,8 +8,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -561,9 +563,10 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                         ? getString(R.string.chattylib_error_not_readable)
                         : getString(R.string.error_cannot_dowload);
                 final String finalMessage = errorMessage;
+                final Map<String, String> extras = createDownloadErrorExtras("chattylib", null, 0, e);
                 runOnUiThread(() -> {
                     speakText(finalMessage);
-                    showErrorWithLogSend(finalMessage);
+                    showErrorWithLogSend(finalMessage, e, extras);
                 });
             }
         });
@@ -641,9 +644,10 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             } catch (Exception e) {
                 Log.e("AozoraDownload", "Download failed", e);
                 org.androiddaisyreader.utils.LogFile.e("AozoraDownload", "Download failed", e);
+                Map<String, String> extras = createDownloadErrorExtras("aozora", bookPath, 0, e);
                 runOnUiThread(() -> {
                     speakText(getString(R.string.error_cannot_dowload));
-                    showErrorWithLogSend(R.string.error_cannot_dowload);
+                    showErrorWithLogSend(R.string.error_cannot_dowload, e, extras);
                 });
             }
         });
@@ -715,9 +719,10 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             } catch (Exception e) {
                 Log.e("MachiiroDownload", "Download failed", e);
                 org.androiddaisyreader.utils.LogFile.e("MachiiroDownload", "Download failed", e);
+                Map<String, String> extras = createDownloadErrorExtras("machiiro", url, 0, e);
                 runOnUiThread(() -> {
                     speakText(getString(R.string.error_cannot_dowload));
-                    showErrorWithLogSend(R.string.error_cannot_dowload);
+                    showErrorWithLogSend(R.string.error_cannot_dowload, e, extras);
                 });
             }
         });
@@ -786,9 +791,11 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             } catch (Exception e) {
                 Log.e("MyKohoDownload", "Download failed", e);
                 org.androiddaisyreader.utils.LogFile.e("MyKohoDownload", "Download failed", e);
+                Map<String, String> extras = createDownloadErrorExtras("mykoho",
+                        "lgCode=" + lgCode + ",myKohoCode=" + myKohoCode, 0, e);
                 runOnUiThread(() -> {
                     speakText(getString(R.string.error_cannot_dowload));
-                    showErrorWithLogSend(R.string.error_cannot_dowload);
+                    showErrorWithLogSend(R.string.error_cannot_dowload, e, extras);
                 });
             }
         });
@@ -827,9 +834,10 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             } catch (Exception e) {
                 Log.e("VoicePageDownload", "Download failed", e);
                 org.androiddaisyreader.utils.LogFile.e("VoicePageDownload", "Download failed", e);
+                Map<String, String> extras = createDownloadErrorExtras("voicepage", url, 0, e);
                 runOnUiThread(() -> {
                     speakText(getString(R.string.error_cannot_dowload));
-                    showErrorWithLogSend(R.string.error_cannot_dowload);
+                    showErrorWithLogSend(R.string.error_cannot_dowload, e, extras);
                 });
             }
         });
@@ -946,9 +954,26 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             } catch (Exception e) {
                 Log.e("DirectUrlDownload", "Download failed", e);
                 org.androiddaisyreader.utils.LogFile.e("DirectUrlDownload", "Download failed", e);
+                int responseCode = 0;
+                String contentType = null;
+                try {
+                    if (connection != null) {
+                        responseCode = connection.getResponseCode();
+                        contentType = connection.getContentType();
+                    }
+                } catch (Exception ignored) {
+                }
+                Map<String, String> extras = createDownloadErrorExtras("directUrl",
+                        org.androiddaisyreader.utils.LogFile.sanitizeUrl(bookPath), responseCode, e);
+                if (contentType != null) {
+                    extras.put("contentType", contentType);
+                }
+                if (mDaisyBook != null && mDaisyBook.getTitle() != null) {
+                    extras.put("title", mDaisyBook.getTitle());
+                }
                 runOnUiThread(() -> {
                     speakText(getString(R.string.error_cannot_dowload));
-                    showErrorWithLogSend(R.string.error_cannot_dowload);
+                    showErrorWithLogSend(R.string.error_cannot_dowload, e, extras);
                 });
             } finally {
                 if (connection != null) {
@@ -1139,6 +1164,7 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
      */
     private void downloadUrlToFile(String urlStr, java.io.File destFile) throws java.io.IOException {
         HttpURLConnection conn = null;
+        String sanitizedUrl = org.androiddaisyreader.utils.LogFile.sanitizeUrl(urlStr);
         try {
             URL url = new URL(urlStr);
             conn = (HttpURLConnection) url.openConnection();
@@ -1149,8 +1175,20 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
             conn.connect();
 
             int responseCode = conn.getResponseCode();
+            String contentType = conn.getContentType();
+            long contentLength = conn.getContentLengthLong();
             if (responseCode < 200 || responseCode >= 300) {
-                throw new java.io.IOException("Download failed: HTTP " + responseCode);
+                Map<String, String> extras = new HashMap<>();
+                extras.put("url", sanitizedUrl);
+                extras.put("responseCode", String.valueOf(responseCode));
+                if (contentType != null) {
+                    extras.put("contentType", contentType);
+                }
+                extras.put("contentLength", String.valueOf(contentLength));
+                org.androiddaisyreader.utils.LogFile.logContext("downloadUrlToFile",
+                        "HTTP error", extras);
+                throw new java.io.IOException("Download failed: HTTP " + responseCode
+                        + " url=" + sanitizedUrl);
             }
 
             try (InputStream in = conn.getInputStream();
@@ -1166,6 +1204,26 @@ public class DaisyReaderDownloadBooks extends DaisyEbookReaderBaseActivity {
                 conn.disconnect();
             }
         }
+    }
+
+    /**
+     * ダウンロードエラー時のスナップショット用追加情報を作成する。
+     * URL はクエリ文字列を除去してプライバシーを保護する。
+     */
+    private Map<String, String> createDownloadErrorExtras(String source, String url,
+                                                           int responseCode, Exception e) {
+        Map<String, String> extras = new HashMap<>();
+        extras.put("downloadSource", source);
+        if (url != null) {
+            extras.put("url", org.androiddaisyreader.utils.LogFile.sanitizeUrl(url));
+        }
+        if (responseCode != 0) {
+            extras.put("responseCode", String.valueOf(responseCode));
+        }
+        if (e != null && e.getMessage() != null) {
+            extras.put("errorMessage", e.getMessage());
+        }
+        return extras;
     }
 
     /**
