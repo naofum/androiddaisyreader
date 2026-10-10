@@ -220,6 +220,7 @@ public class Constants {
     public static final String TYPE_SAPIE_BOOK = "10";
     public static final String SAPIE_SITE_NAME = "サピエ図書館";
     public static final String SAPIE_SITE_URL = "sapie://library";
+    public static final String SAPIE_DODP_ENDPOINT = "https://ptx.sapie.or.jp/DaisyOnlineService/DaisyOnlineService";
 
     // All node in metadata.xml file.
     public static final String ATT_BOOKS = "books";

@@ -73,6 +73,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         findViewById(R.id.btnRecentBooks).setOnClickListener(this);
         findViewById(R.id.btnScanBooks).setOnClickListener(this);
         findViewById(R.id.btnDownloadBooks).setOnClickListener(this);
+        findViewById(R.id.btnSapie).setOnClickListener(this);
         findViewById(R.id.btnOpenBooks).setOnClickListener(this);
 
 // 20180710
@@ -123,6 +124,7 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
                 androidx.work.ExistingWorkPolicy.KEEP,
                 machiiroWork);
 
+        updateSapieButtonVisibility();
     }
 
     @Override
@@ -356,6 +358,9 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
             // push to Download Books Screen.
         } else if (activityID == R.id.btnDownloadBooks) {
             intent = new Intent(this, DaisyReaderDownloadSiteActivity.class);
+            // push to Sapie Library (DODP) Screen.
+        } else if (activityID == R.id.btnSapie) {
+            intent = new Intent(this, DaisyReaderSapieDodpActivity.class);
             // open a book from device
         } else if (activityID == R.id.btnOpenBooks) {
             openBookPicker();
@@ -400,6 +405,20 @@ public class DaisyReaderLibraryActivity extends DaisyEbookReaderBaseActivity {
         speakText(getString(R.string.title_activity_daisy_reader_library));
         createFolderContainXml();
         deleteCurrentInformation();
+        updateSapieButtonVisibility();
+    }
+
+    /**
+     * サピエ図書館ボタンの表示制御。ID/password が設定されている場合のみ表示する。
+     */
+    private void updateSapieButtonVisibility() {
+        View sapieButton = findViewById(R.id.btnSapie);
+        if (sapieButton == null) {
+            return;
+        }
+        boolean hasCredentials =
+                org.androiddaisyreader.utils.SapiePreferences.hasCredentials(this);
+        sapieButton.setVisibility(hasCredentials ? View.VISIBLE : View.GONE);
     }
 
     /**

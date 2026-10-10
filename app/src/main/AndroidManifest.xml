@@ -115,6 +115,12 @@
             android:label="@string/sapie_books"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name="org.androiddaisyreader.apps.DaisyReaderSapieDodpActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|locale"
+            android:label="@string/sapie_books"
+            android:screenOrientation="portrait" >
+        </activity>
 
         <uses-library android:name="android.test.runner" />
 

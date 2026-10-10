@@ -29,3 +29,4 @@ rootProject.name = "AndroidDaisyReader"
 include ':app'
 include ':daisy-engine'
 include ':daisy-libraries'
+include ':daisy-dodp'

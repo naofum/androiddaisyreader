@@ -65,10 +65,26 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/btnOpenBooks"
+            android:id="@+id/btnSapie"
             android:layout_width="fill_parent"
             android:layout_height="72dp"
             android:layout_below="@+id/btnDownloadBooks"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp"
+            android:drawableLeft="@raw/ic_download_48x48"
+            android:text="@string/sapie_books"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnOpenBooks"
+            android:layout_width="fill_parent"
+            android:layout_height="72dp"
+            android:layout_below="@+id/btnSapie"
             android:layout_gravity="center"
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="20dp"

@@ -41,6 +41,7 @@ android {
 dependencies {
     implementation project(':daisy-engine')
     implementation project(':daisy-libraries')
+    implementation project(':daisy-dodp')
     implementation libs.library
     implementation libs.option
     implementation libs.commons.io.v27

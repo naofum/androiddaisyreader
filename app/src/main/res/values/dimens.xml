@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- テキスト入力欄の共通寸法。アクセシビリティのため最小タップターゲット(48dp)より大きめにする。 -->
+    <dimen name="input_field_height">56dp</dimen>
+    <dimen name="input_field_text_size">18sp</dimen>
+
+    <!-- サピエ図書館 DODP メニュー一覧用の行・ボタン寸法 -->
+    <dimen name="sapie_list_item_height">56dp</dimen>
+    <dimen name="sapie_list_item_padding">16dp</dimen>
+    <dimen name="sapie_button_height">56dp</dimen>
+    <dimen name="sapie_button_margin">16dp</dimen>
+</resources>

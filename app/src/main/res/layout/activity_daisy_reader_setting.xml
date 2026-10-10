@@ -463,7 +463,9 @@
         <EditText
             android:id="@+id/edt_sapie_login_id"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/input_field_height"
+            android:textSize="@dimen/input_field_text_size"
+            android:gravity="center_vertical"
             android:inputType="text"
             android:hint="@string/sapie_login_id_hint"
             android:singleLine="true" />
@@ -477,7 +479,9 @@
         <EditText
             android:id="@+id/edt_sapie_password"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/input_field_height"
+            android:textSize="@dimen/input_field_text_size"
+            android:gravity="center_vertical"
             android:inputType="textPassword"
             android:hint="@string/sapie_password_hint"
             android:singleLine="true" />
