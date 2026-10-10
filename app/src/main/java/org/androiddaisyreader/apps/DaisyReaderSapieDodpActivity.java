@@ -36,12 +36,17 @@ import org.androiddaisyreader.utils.DaisyBookUtil;
 import org.androiddaisyreader.utils.SapiePreferences;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * サピエ図書館 DODP 専用メニュー画面。
@@ -458,36 +463,136 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     }
 
     /**
-     * リソース一覧から DAISY 本体（zip 等）をキャッシュへダウンロードする。
-     * 複数リソースがある場合は最初のダウンロード可能なものを対象とする。
+     * リソース一覧からすべてのファイルをダウンロードし、localURI の相対パス構造を保って
+     * 1 つの zip に圧縮して返す。1 件の場合も zip にまとめる。
      */
     private File downloadResources(String contentId, Resources resources) throws java.io.IOException {
         if (resources == null || resources.getResources() == null || resources.getResources().isEmpty()) {
             return null;
         }
+
+        org.androiddaisyreader.utils.LogFile.d(TAG, "Downloading " + resources.getResources().size()
+                + " resource(s) for contentId=" + contentId);
+        for (Resource r : resources.getResources()) {
+            org.androiddaisyreader.utils.LogFile.d(TAG, "Resource: uri="
+                    + org.androiddaisyreader.utils.LogFile.sanitizeUrl(r.getUri())
+                    + " localURI=" + r.getLocalUri()
+                    + " mimeType=" + r.getMimeType()
+                    + " size=" + r.getSize());
+        }
+
         File tempDir = new File(getCacheDir(), "sapie");
         if (!tempDir.exists()) {
             tempDir.mkdirs();
         }
+        String safeContentId = sanitizeFileName(contentId);
+        File contentDir = new File(tempDir, safeContentId);
+        if (contentDir.exists()) {
+            deleteDirectory(contentDir);
+        }
+        contentDir.mkdirs();
 
         com.github.library.dodp.download.ContentDownloader downloader =
                 new com.github.library.dodp.download.ContentDownloader();
 
-        // localURI があればそれをファイル名に、無ければ contentId ベース。
-        Resource target = resources.getResources().get(0);
-        String localName = target.getLocalUri();
-        if (localName == null || localName.isEmpty()) {
-            localName = contentId + ".zip";
+        // 全リソースを localURI の相対パス構造を保ってダウンロード
+        for (Resource resource : resources.getResources()) {
+            String localName = resource.getLocalUri();
+            if (localName == null || localName.isEmpty()) {
+                localName = fallbackResourceName(resource);
+            }
+            File dest = new File(contentDir, sanitizePath(localName));
+            File parent = dest.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+            java.nio.file.Path result = downloader.download(resource, dest.toPath());
+            if (result == null || !result.toFile().exists()) {
+                throw new java.io.IOException("Failed to download resource: "
+                        + org.androiddaisyreader.utils.LogFile.sanitizeUrl(resource.getUri()));
+            }
         }
-        File dest = new File(tempDir, sanitizeFileName(localName));
-        java.nio.file.Path result = downloader.download(target, dest.toPath());
-        return result != null ? result.toFile() : dest;
+
+        // ダウンロードしたファイルを 1 つの zip に圧縮
+        File zipFile = new File(tempDir, safeContentId + ".zip");
+        createZipFromDirectory(contentDir, zipFile);
+
+        // 一時ディレクトリを削除
+        deleteDirectory(contentDir);
+
+        return zipFile;
+    }
+
+    private String fallbackResourceName(Resource resource) {
+        String uri = resource.getUri();
+        if (uri != null && !uri.isEmpty()) {
+            int slash = Math.max(uri.lastIndexOf('/'), uri.lastIndexOf('\\'));
+            String name = slash >= 0 ? uri.substring(slash + 1) : uri;
+            if (!name.isEmpty()) {
+                return sanitizeFileName(name);
+            }
+        }
+        return "resource";
     }
 
     private String sanitizeFileName(String name) {
         String base = name.replaceAll("[\\\\/:*?\"<>|]", "_");
         int slash = Math.max(base.lastIndexOf('/'), base.lastIndexOf('\\'));
         return slash >= 0 ? base.substring(slash + 1) : base;
+    }
+
+    private String sanitizePath(String path) {
+        if (path == null) {
+            return "";
+        }
+        return path.replaceAll("[\\\\*?\"<>|]", "_");
+    }
+
+    /**
+     * ディレクトリ内のファイルを再帰的に zip に圧縮する。
+     */
+    private void createZipFromDirectory(File sourceDir, File zipFile) throws IOException {
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+            zipDirectory(sourceDir, sourceDir, zos);
+        }
+    }
+
+    private void zipDirectory(File rootDir, File currentDir, ZipOutputStream zos) throws IOException {
+        File[] files = currentDir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (file.isDirectory()) {
+                zipDirectory(rootDir, file, zos);
+            } else {
+                String entryName = rootDir.toPath().relativize(file.toPath()).toString()
+                        .replace("\\", "/");
+                zos.putNextEntry(new ZipEntry(entryName));
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        zos.write(buffer, 0, bytesRead);
+                    }
+                }
+                zos.closeEntry();
+            }
+        }
+    }
+
+    private void deleteDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+        dir.delete();
     }
 
     private String resolveTitle(ContentMetadata metadata, String fallback) {
