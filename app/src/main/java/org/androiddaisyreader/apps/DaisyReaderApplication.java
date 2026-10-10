@@ -5,6 +5,7 @@ import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 
 import org.androiddaisyreader.model.RubyConfig;
+import org.androiddaisyreader.model.SkippableConfig;
 import org.androiddaisyreader.utils.Constants;
 
 import java.util.Locale;
@@ -40,6 +41,11 @@ public class DaisyReaderApplication extends Application implements TextToSpeech.
         String rubyMode = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(Constants.RUBY_DISPLAY_MODE, Constants.RUBY_MODE_RUBY);
         RubyConfig.setMode(rubyMode);
+
+        // スキッパブル構造の読み飛ばし設定を読み込み（デフォルト: 読み飛ばす）
+        boolean skipSkippable = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(Constants.SKIP_SKIPPABLE, true);
+        SkippableConfig.setSkipEnabled(skipSkippable);
     }
 
     @Override

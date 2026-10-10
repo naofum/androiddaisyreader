@@ -173,6 +173,10 @@ public class Smil30Specification extends DefaultHandler {
         newPart();
         String id = ParserUtilities.getValueForName("id", attributes);
         partBuilder.setId(id);
+        String customTest = ParserUtilities.getValueForName("customTest", attributes);
+        if (customTest != null && !customTest.isEmpty()) {
+            partBuilder.setCustomTest(customTest);
+        }
         if (getClass(attributes) != null && getClass(attributes).equals("prodnote")) {
             isProdNote = true;
         }

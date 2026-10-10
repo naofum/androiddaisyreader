@@ -13,6 +13,7 @@ public class Part implements Navigable {
     private Image image;
     private String id;
     private String timingMode;
+    private String customTest;
 
     private Part() {
     }
@@ -23,6 +24,10 @@ public class Part implements Navigable {
 
     public String getId() {
         return id;
+    }
+
+    public String getCustomTest() {
+        return customTest;
     }
 
     public Image getImage() {
@@ -90,6 +95,11 @@ public class Part implements Navigable {
 
         public Builder setTimingMode(String mode) {
             newInstance.timingMode = mode;
+            return this;
+        }
+
+        public Builder setCustomTest(String customTest) {
+            newInstance.customTest = customTest;
             return this;
         }
 

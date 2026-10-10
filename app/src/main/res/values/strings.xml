@@ -38,6 +38,7 @@
     <string name="message_downloading_file">Downloading file &#x2026;</string>
     <string name="message_confirm_exit_download">Are you sure you want to exit download?</string>
     <string name="night_mode">Night Mode</string>
+    <string name="skippable_structures">Skip skippable structures (page numbers, etc.)</string>
     <string name="next_section">Next section</string>
     <string name="next_sentence">Next sentence</string>
     <string name="ok">OK</string>

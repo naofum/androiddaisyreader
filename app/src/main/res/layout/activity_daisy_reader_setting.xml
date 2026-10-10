@@ -231,6 +231,31 @@
             android:layout_marginTop="16dp" >
 
             <TextView
+                android:id="@+id/textViewSkippable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="@string/skippable_structures"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <ToggleButton
+                android:id="@+id/toggleSkippable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="5dp"
+                android:textOff="@string/toggle_turn_off"
+                android:textOn="@string/toggle_turn_on" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" >
+
+            <TextView
                 android:id="@+id/textViewTtsLanguage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

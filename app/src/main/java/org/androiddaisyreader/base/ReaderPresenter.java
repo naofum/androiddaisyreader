@@ -12,6 +12,7 @@ import org.androiddaisyreader.model.Navigable;
 import org.androiddaisyreader.model.Navigator;
 import org.androiddaisyreader.model.Part;
 import org.androiddaisyreader.model.Section;
+import org.androiddaisyreader.model.SkippableConfig;
 import org.androiddaisyreader.model.Snippet;
 import org.androiddaisyreader.apps.PrivateException;
 import org.androiddaisyreader.sqlite.SQLiteCurrentInformationHelper;
@@ -627,7 +628,26 @@ public class ReaderPresenter {
         }
     }
 
+    /**
+     * スキッパブル構造（ページ番号など）を読み飛ばす設定が有効な場合、
+     * 対象の Part を除外した配列を返す。
+     */
+    private Part[] filterSkippableParts(Part[] parts) {
+        if (!SkippableConfig.isSkipEnabled()) {
+            return parts;
+        }
+        List<Part> filtered = new ArrayList<>();
+        for (Part part : parts) {
+            if (SkippableConfig.isPageNumberCustomTest(part.getCustomTest())) {
+                continue;
+            }
+            filtered.add(part);
+        }
+        return filtered.toArray(new Part[0]);
+    }
+
     private void loadSnippetsAndAudio(Part[] parts) {
+        parts = filterSkippableParts(parts);
         listStringText = new ArrayList<>();
         listTimeBegin = new ArrayList<>();
         listTimeEnd = new ArrayList<>();

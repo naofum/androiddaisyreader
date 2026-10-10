@@ -117,6 +117,8 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
         settingCurrentBookmark();
         // setting night mode
         settingNightmode();
+        // setting skippable structures (ページ番号などの読み飛ばし)
+        settingSkippable();
         // TTS言語・速度設定はTTS初期化完了後に構築する（onInitで呼ばれる）
         // setting TTS read aloud speed (TTS不要なのでここで設定)
         settingTtsSpeed();
@@ -290,6 +292,27 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
             public void onClick(View v) {
                 mEditor.putBoolean(Constants.NIGHT_MODE, toogleNightMode.isChecked());
                 mEditor.commit();
+            }
+        });
+    }
+
+    /**
+     * Setting skippable structures (ページ番号などの読み飛ばし).
+     */
+    private void settingSkippable() {
+        final ToggleButton toggleSkippable = (ToggleButton) findViewById(R.id.toggleSkippable);
+        if (toggleSkippable == null) {
+            return;
+        }
+        boolean isSkip = mPreferences.getBoolean(Constants.SKIP_SKIPPABLE, true);
+        toggleSkippable.setChecked(isSkip);
+        toggleSkippable.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean enabled = toggleSkippable.isChecked();
+                mEditor.putBoolean(Constants.SKIP_SKIPPABLE, enabled);
+                mEditor.commit();
+                org.androiddaisyreader.model.SkippableConfig.setSkipEnabled(enabled);
             }
         });
     }

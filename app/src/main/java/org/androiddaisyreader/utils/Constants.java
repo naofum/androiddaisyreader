@@ -273,4 +273,7 @@ public class Constants {
     public static final String RUBY_DISPLAY_MODE = "rubyDisplayMode";
     public static final String RUBY_MODE_RUBY = "ruby";
     public static final String RUBY_MODE_BASE = "base";
+
+    /** スキッパブル構造（ページ番号など）の読み飛ばし設定キー */
+    public static final String SKIP_SKIPPABLE = "skipSkippable";
 }
