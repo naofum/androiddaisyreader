@@ -27,12 +27,13 @@ import java.util.Deque;
 public final class MenuController {
 
     public static final String QUESTION_DEFAULT = "default";
-    public static final String QUESTION_BACK = "back";
 
     private final SapieDodpClient client;
 
-    // 端末側の遷移履歴（questionID）。ルートは QUESTION_DEFAULT。
+    // 端末側の遷移履歴（デバッグ・参照用）。
     private final Deque<String> history = new ArrayDeque<>();
+    // 取得済みメニュー結果の履歴。戻る処理はサーバー通信せずにこのスタックを使う。
+    private final Deque<QuestionResult> resultHistory = new ArrayDeque<>();
 
     public MenuController(SapieDodpClient client) {
         this.client = client;
@@ -41,8 +42,11 @@ public final class MenuController {
     /** メインメニューを開く。履歴はリセットされる。 */
     public QuestionResult openRoot() throws DodpException {
         history.clear();
+        resultHistory.clear();
+        QuestionResult result = request(UserResponses.of(QUESTION_DEFAULT, null));
         history.push(QUESTION_DEFAULT);
-        return request(UserResponses.of(QUESTION_DEFAULT, null));
+        resultHistory.push(result);
+        return result;
     }
 
     /**
@@ -57,8 +61,9 @@ public final class MenuController {
      */
     public QuestionResult select(String questionId, String choiceId) throws DodpException {
         QuestionResult result = request(UserResponses.of(questionId, choiceId));
-        // 端末側履歴には「どのメニューで何を選んだか」を積む（back 用）。
+        // 端末側履歴には「どのメニューで何を選んだか」を積む。
         history.push(questionId + "\u0000" + choiceId);
+        resultHistory.push(result);
         return result;
     }
 
@@ -71,26 +76,28 @@ public final class MenuController {
     public QuestionResult submitInput(String questionId, String value) throws DodpException {
         QuestionResult result = request(UserResponses.of(questionId, value));
         history.push(questionId);
+        resultHistory.push(result);
         return result;
     }
 
     /**
-     * 1階層戻る。サーバーが serverSideBack 対応のため {@code questionID=back} を送る。
-     * 端末側履歴も1つ戻す。履歴がルートのみの場合は戻れない（null を返す）。
+     * 1階層戻る。サーバー側 {@code back} ではなく、取得済みメニュー結果の履歴を使う。
+     * 履歴がルートのみの場合は戻れない（null を返す）。
      *
      * @return 戻った先のメニュー。これ以上戻れない場合は null。
      */
-    public QuestionResult back() throws DodpException {
-        if (history.size() <= 1) {
+    public QuestionResult back() {
+        if (resultHistory.size() <= 1) {
             return null;
         }
+        resultHistory.pop();
         history.pop();
-        return request(UserResponses.of(QUESTION_BACK, null));
+        return resultHistory.peek();
     }
 
     /** これ以上戻れるか（ルートより上位があるか）。 */
     public boolean canGoBack() {
-        return history.size() > 1;
+        return resultHistory.size() > 1;
     }
 
     private QuestionResult request(UserResponses responses) throws DodpException {
