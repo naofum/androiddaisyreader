@@ -139,6 +139,14 @@ public final class SapieDodpClient implements AutoCloseable {
         return client.getContentList(id);
     }
 
+    /**
+     * 貸出中（閲覧リスト）の一覧を取得する。
+     */
+    public ContentList getIssued() throws DodpException {
+        ensureInitialized();
+        return client.getContentList(ContentList.LIST_ISSUED);
+    }
+
     public ContentMetadata getContentMetadata(String contentId) throws DodpException {
         ensureInitialized();
         return client.getContentMetadata(contentId);

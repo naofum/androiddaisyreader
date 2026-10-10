@@ -60,7 +60,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
 
     private static final String TAG = "SapieDodp";
 
-    private enum ViewState { MENU, INPUT, CONTENT_LIST }
+    private enum ViewState { MENU, INPUT, CONTENT_LIST, ISSUED_LIST }
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -74,6 +74,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     private ListView listView;
     private EditText inputField;
     private Button inputSubmit;
+    private Button issuedListButton;
     private Button backButton;
 
     // 動的メニュー用の現在の選択肢
@@ -84,6 +85,8 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     private final List<ContentItem> currentItems = new ArrayList<>();
     // 入力質問の questionId
     private String currentInputQuestionId;
+    // 現在表示中の検索結果一覧の listId（返却後の再取得用）
+    private String currentContentListRef;
     private ViewState state = ViewState.MENU;
 
     @Override
@@ -124,6 +127,12 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         headerText.setTextSize(18);
         headerText.setPadding(0, 0, 0, pad);
         root.addView(headerText);
+
+        issuedListButton = new Button(this);
+        issuedListButton.setText(R.string.sapie_list_issued);
+        issuedListButton.setOnClickListener(v -> loadIssuedList());
+        issuedListButton.setLayoutParams(createButtonLayoutParams());
+        root.addView(issuedListButton);
 
         // 入力欄（INPUT 状態でのみ表示）
         inputField = new EditText(this);
@@ -216,6 +225,10 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     }
 
     private void goBack() {
+        if (state == ViewState.ISSUED_LIST) {
+            openRootMenu();
+            return;
+        }
         showLoading();
         executor.execute(() -> {
             try {
@@ -298,6 +311,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     // ------------------------------------------------------------------
 
     private void loadContentList(final String listId) {
+        currentContentListRef = listId;
         showLoading();
         executor.execute(() -> {
             try {
@@ -324,6 +338,42 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         String header = (list != null && list.getLabel() != null && list.getLabel().getText() != null)
                 ? list.getLabel().getText()
                 : getString(R.string.sapie_books);
+        showHeader(header);
+        if (labels.isEmpty()) {
+            labels.add(getString(R.string.sapie_no_items));
+        }
+        listView.setAdapter(new ArrayAdapter<>(this,
+                R.layout.sapie_list_item, R.id.text1, labels));
+        speakText(header);
+    }
+
+    private void loadIssuedList() {
+        showLoading();
+        executor.execute(() -> {
+            try {
+                ContentList list = client.getIssued();
+                runOnUiThread(() -> renderIssuedList(list));
+            } catch (Exception e) {
+                reportError(e);
+            }
+        });
+    }
+
+    private void renderIssuedList(ContentList list) {
+        state = ViewState.ISSUED_LIST;
+        setInputVisible(false);
+        currentItems.clear();
+        List<String> labels = new ArrayList<>();
+        if (list != null && list.getItems() != null) {
+            for (ContentItem item : list.getItems()) {
+                currentItems.add(item);
+                String label = item.getLabel() != null ? item.getLabel().getText() : null;
+                labels.add(label != null ? label : item.getId());
+            }
+        }
+        String header = (list != null && list.getLabel() != null && list.getLabel().getText() != null)
+                ? list.getLabel().getText()
+                : getString(R.string.sapie_list_issued);
         showHeader(header);
         if (labels.isEmpty()) {
             labels.add(getString(R.string.sapie_no_items));
@@ -360,6 +410,17 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
             } else {
                 speakTextOnHandler(label);
             }
+        } else if (state == ViewState.ISSUED_LIST) {
+            if (position < 0 || position >= currentItems.size()) {
+                return;
+            }
+            ContentItem item = currentItems.get(position);
+            String label = item.getLabel() != null ? item.getLabel().getText() : item.getId();
+            if (isDoubleTap) {
+                confirmReturnAction(item, label);
+            } else {
+                speakTextOnHandler(label);
+            }
         }
     }
 
@@ -367,18 +428,32 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
      * 一覧項目のアクション選択（貸出 or 返却）。
      */
     private void confirmItemAction(final ContentItem item, final String label) {
+        CharSequence[] actions = new CharSequence[]{
+                getString(R.string.sapie_borrow),
+                getString(R.string.sapie_return)
+        };
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this,
+                R.layout.sapie_dialog_item, R.id.dialogItemText, actions);
         new android.app.AlertDialog.Builder(this)
                 .setTitle(label)
-                .setItems(new CharSequence[]{
-                        getString(R.string.sapie_borrow),
-                        getString(R.string.sapie_return)
-                }, (dialog, which) -> {
+                .setAdapter(adapter, (dialog, which) -> {
                     if (which == 0) {
                         borrowAndDownload(item, label);
                     } else {
                         returnContent(item, label);
                     }
                 })
+                .setNegativeButton(R.string.cancel_bookmark, null)
+                .show();
+    }
+
+    /**
+     * 貸出中一覧（閲覧リスト）項目の返却確認。
+     */
+    private void confirmReturnAction(final ContentItem item, final String label) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(label)
+                .setPositiveButton(getString(R.string.sapie_return), (dialog, which) -> returnContent(item, label))
                 .setNegativeButton(R.string.cancel_bookmark, null)
                 .show();
     }
@@ -634,6 +709,9 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                             : getString(R.string.sapie_return_failure);
                     Toast.makeText(DaisyReaderSapieDodpActivity.this, msg, Toast.LENGTH_SHORT).show();
                     speakText(msg);
+                    if (ok) {
+                        refreshCurrentList();
+                    }
                 });
             } catch (Exception e) {
                 org.androiddaisyreader.utils.LogFile.e(TAG, "Sapie DODP return failed", e);
@@ -645,6 +723,17 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                 });
             }
         });
+    }
+
+    /**
+     * 返却成功後に現在表示中の一覧を再取得する。
+     */
+    private void refreshCurrentList() {
+        if (state == ViewState.ISSUED_LIST) {
+            loadIssuedList();
+        } else if (state == ViewState.CONTENT_LIST && currentContentListRef != null) {
+            loadContentList(currentContentListRef);
+        }
     }
 
     // ------------------------------------------------------------------
