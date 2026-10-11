@@ -61,6 +61,35 @@ class SapieLibraryClientTest {
     }
 
     @Test
+    void testParseSearchResult_buttonSubmitForm() {
+        String html = "<html><body>"
+                + "<strong>該当件数：2件</strong>"
+                + "<table class=\"FULL\"><tbody>"
+                + row("1831603", "怪盗ジバコ（文春文庫　き１－８）", "北杜夫著", "音声デイジー",
+                        "7時間50分", "2009年", "延岡ラ点図")
+                + buttonRow("4237354", "怪盗ジバコの復活", "北杜夫　著", "音声デイジー",
+                        "6時間52分", "1989年", "三島市立図")
+                + "</tbody></table>"
+                + "</body></html>";
+
+        SearchResult result = client.parseSearchResult(html, 1);
+
+        assertEquals(2, result.getBooks().size());
+
+        Book first = result.getBooks().get(0);
+        assertEquals("1831603", first.getId());
+        assertEquals("1831603", first.getDownloadForm().get("S00224"));
+
+        // <button type="submit"> の行でもフォームが抽出されること
+        Book second = result.getBooks().get(1);
+        assertEquals("4237354", second.getId());
+        assertFalse(second.getDownloadForm().isEmpty(),
+                "button[type=submit] のフォームも抽出されること");
+        assertEquals("4237354", second.getDownloadForm().get("S00224"));
+        assertEquals("5", second.getDownloadForm().get("S00215"));
+    }
+
+    @Test
     void testParseSearchResult_lastPage_noNext() {
         String html = "<html><body>"
                 + "<strong>該当件数：50件<br>1ページに50件まで表示します</strong>"
@@ -113,6 +142,35 @@ class SapieLibraryClientTest {
                 + "<input type=\"hidden\" name=\"S00224\" value=\"" + bookId + "\">"
                 + "<input type=\"hidden\" name=\"S00263\" value=\"J01LST11\">"
                 + "<input type=\"submit\" value=\"ダウン\">"
+                + "</form></td>"
+                + "</tr>";
+    }
+
+    /**
+     * 送信ボタンが {@code <button type="submit">} の行（例:「国会からダウン」）を表すHTML。
+     */
+    private String buttonRow(String bookId, String title, String author, String type,
+                             String time, String publisher, String library) {
+        return "<tr>"
+                + "<td class=\"RIGHT\">3</td>"
+                + "<td><a href=\"CN1MN1?S00101=J00DTL14&amp;S00102=ASaTW4QRir2&amp;S00103=7op3EJ!0MN"
+                + "&amp;S00221=139348240&amp;S00222=" + bookId + "&amp;RTNTME=121048300\">"
+                + title + "</a></td>"
+                + "<td>" + author + "</td>"
+                + "<td>図書<span class=\"BR2\">" + type + "</span></td>"
+                + "<td>" + time + "</td>"
+                + "<td>" + publisher + "</td>"
+                + "<td>" + library + "</td>"
+                + "<td><form method=\"post\" action=\"https://cntdwn.sapie.or.jp/download/download.aspx\">"
+                + "<input type=\"hidden\" name=\"S00101\" value=\"J31DWN21\">"
+                + "<input type=\"hidden\" name=\"S00102\" value=\"ASaTW4QRir2\">"
+                + "<input type=\"hidden\" name=\"S00103\" value=\"7op3EJ!0MN\">"
+                + "<input type=\"hidden\" name=\"RTNTME\" value=\"061249381\">"
+                + "<input type=\"hidden\" name=\"S00202\" value=\"22\">"
+                + "<input type=\"hidden\" name=\"S00215\" value=\"5\">"
+                + "<input type=\"hidden\" name=\"S00224\" value=\"" + bookId + "\">"
+                + "<input type=\"hidden\" name=\"S00263\" value=\"J01LST11\">"
+                + "<button type=\"submit\" class=\"DBTN\">国会からダウン</button>"
                 + "</form></td>"
                 + "</tr>";
     }

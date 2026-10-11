@@ -329,9 +329,11 @@ public class SapieLibraryClient implements Closeable {
     private Map<String, String> extractDownloadForm(Element row) {
         Map<String, String> params = new LinkedHashMap<>();
         // 「ダウン」submit を含むフォームを探す（行には他のフォームが無い前提だが堅牢に）
+        // 送信ボタンは input[type=submit] だけでなく button[type=submit] の場合もある
+        // （例:「国会からダウン」ボタン）。
         Element form = null;
         for (Element f : row.select("form")) {
-            if (f.selectFirst("input[type=submit]") != null) {
+            if (findSubmitElement(f) != null) {
                 form = f;
                 break;
             }
@@ -359,6 +361,37 @@ public class SapieLibraryClient implements Closeable {
             params.put(name, input.attr("value"));
         }
         return params;
+    }
+
+    /**
+     * フォームの送信ボタンを返す。{@code input[type=submit]} だけでなく
+     * {@code button[type=submit]}（例:「国会からダウン」ボタン）にも対応する。
+     *
+     * @param form 対象フォーム
+     * @return 送信ボタン要素。無ければ null。
+     */
+    private Element findSubmitElement(Element form) {
+        if (form == null) {
+            return null;
+        }
+        Element submit = form.selectFirst("input[type=submit]");
+        if (submit != null) {
+            return submit;
+        }
+        return form.selectFirst("button[type=submit]");
+    }
+
+    /**
+     * 送信ボタンの表示ラベルを返す（{@code input} は value 属性、{@code button} はテキスト）。
+     */
+    private String submitLabel(Element submit) {
+        if (submit == null) {
+            return "";
+        }
+        if ("button".equalsIgnoreCase(submit.tagName())) {
+            return submit.text();
+        }
+        return submit.attr("value");
     }
 
     private String extractQueryParam(String url, String name) {
@@ -505,10 +538,10 @@ public class SapieLibraryClient implements Closeable {
         Map<String, String> params = new LinkedHashMap<>();
         Element form = null;
         for (Element f : doc.select("form")) {
-            if (f.selectFirst("input[type=submit]") != null) {
+            Element submit = findSubmitElement(f);
+            if (submit != null) {
                 // ダウンロードらしきフォームを優先（action に download を含む、または submit値がダウン）
-                Element submit = f.selectFirst("input[type=submit]");
-                String submitVal = submit != null ? submit.attr("value") : "";
+                String submitVal = submitLabel(submit);
                 String action = f.attr("action");
                 if ((action != null && action.contains("download"))
                         || (submitVal != null && submitVal.contains("ダウン"))) {
