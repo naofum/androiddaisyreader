@@ -1,5 +1,6 @@
 package org.androiddaisyreader.sapieconvert;
 
+import okhttp3.Call;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.FormBody;
@@ -66,6 +67,9 @@ public class SapieLibraryClient implements Closeable {
     private final OkHttpClient httpClient;
     private boolean loggedIn;
 
+    /** 実行中の検索 Call（{@link #cancelSearch()} によるキャンセル用）。 */
+    private volatile Call currentSearchCall;
+
     public SapieLibraryClient(String loginId, String password) {
         this.loginId = loginId;
         this.password = password;
@@ -104,6 +108,8 @@ public class SapieLibraryClient implements Closeable {
                 .cookieJar(cookieJar)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(120, TimeUnit.SECONDS)
+                // 1回の呼び出し全体の上限。サーバー側のスタール時に長時間待たない。
+                .callTimeout(30, TimeUnit.SECONDS)
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .build();
@@ -188,7 +194,9 @@ public class SapieLibraryClient implements Closeable {
 
         Request request = new Request.Builder().url(url).get().build();
         String html;
-        try (Response response = httpClient.newCall(request).execute()) {
+        Call call = httpClient.newCall(request);
+        currentSearchCall = call;
+        try (Response response = call.execute()) {
             if (!response.isSuccessful()) {
                 throw new SapieLibraryException("検索に失敗しました: HTTP " + response.code());
             }
@@ -198,10 +206,32 @@ public class SapieLibraryClient implements Closeable {
             }
             html = decodeResponseBody(body);
         } catch (IOException e) {
+            if (call.isCanceled()) {
+                throw new SapieLibraryException("検索がキャンセルされました", e);
+            }
             throw new SapieLibraryException("検索中にネットワークエラーが発生しました", e);
+        } finally {
+            if (currentSearchCall == call) {
+                currentSearchCall = null;
+            }
         }
 
         return parseSearchResult(html, page);
+    }
+
+    /**
+     * 実行中の検索をキャンセルする。
+     *
+     * <p>ユーザーが続けて入力した場合など、新しい検索条件を優先するために呼ぶ。
+     * {@link #search} は {@code synchronized} だが、キャンセルは別スレッド（UI）から
+     * 実行中の呼び出しを中断できる必要があるため、このメソッドは意図的に
+     * {@code synchronized} にしていない。</p>
+     */
+    public void cancelSearch() {
+        Call call = currentSearchCall;
+        if (call != null) {
+            call.cancel();
+        }
     }
 
     private String buildSearchQuery(String query, int page,

@@ -25,9 +25,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
+import android.text.Spannable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -35,13 +40,18 @@ import com.github.naofum.androiddaisyreader.R;
 
 /**
  * サピエ図書館のデイジーデータ検索・ダウンロード画面。
- * タイトル・著者の2つの検索窓と、ページング対応の一覧を提供する。
+ * タイトル・著者を1語で検索する簡易検索（1つの検索窓）と、ページング対応の一覧を提供する。
+ * 検索は2文字以上を対象とし、IME変換中は自動検索を抑止する。
  */
 @SuppressLint("NewApi")
 public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity {
 
     private static final String TAG = "SapieBooks";
     private static final int PAGE_SIZE = 50;
+    /** 検索を実行する最小文字数。1文字はサーバー側でも重く対象が絞れないため行わない。 */
+    private static final int MIN_QUERY_LENGTH = 2;
+    /** 検索入力のデバウンス（ms）。 */
+    private static final long SEARCH_DEBOUNCE_MS = 800;
 
     private SQLiteDaisyBookHelper mSql;
     private DaisyBookPagingAdapter mPagingAdapter;
@@ -179,16 +189,59 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchHandler.removeCallbacksAndMessages(null);
-                // デバウンス: Web検索なので入力が落ち着くまで待つ（連打でAPIを叩かない）
-                searchHandler.postDelayed(() -> loadPagingData(), 800);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                // 入力が変わるたびに前回の予約をキャンセルする
+                searchHandler.removeCallbacksAndMessages(null);
+                // IME 変換中は自動検索しない（変換確定後に発火させる）
+                if (isComposing(s)) {
+                    return;
+                }
+                // デバウンス: Web検索なので入力が落ち着くまで待つ（連打でAPIを叩かない）
+                searchHandler.postDelayed(() -> loadPagingData(), SEARCH_DEBOUNCE_MS);
             }
         };
         mTextSearch.addTextChangedListener(watcher);
+
+        // IME の「検索」アクションで即検索する
+        mTextSearch.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+        mTextSearch.setOnEditorActionListener((v, actionId, event) -> {
+            boolean isSearch = actionId == EditorInfo.IME_ACTION_SEARCH
+                    || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                        && event.getAction() == KeyEvent.ACTION_DOWN);
+            if (!isSearch) {
+                return false;
+            }
+            // 変換中は確定操作を優先し、ここでは検索しない
+            if (isComposing(mTextSearch.getText())) {
+                return false;
+            }
+            searchHandler.removeCallbacksAndMessages(null);
+            loadPagingData();
+            hideKeyboard();
+            return true;
+        });
+    }
+
+    /**
+     * IME の変換中かどうか（変換中は自動検索を抑止する）。
+     */
+    private boolean isComposing(CharSequence text) {
+        if (!(text instanceof Spannable)) {
+            return false;
+        }
+        Spannable spannable = (Spannable) text;
+        return BaseInputConnection.getComposingSpanStart(spannable) != -1
+                || BaseInputConnection.getComposingSpanEnd(spannable) != -1;
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(mTextSearch.getWindowToken(), 0);
+        }
     }
 
     /**
@@ -196,8 +249,31 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
      */
     private void loadPagingData() {
         final String query = mTextSearch.getText().toString().trim();
+        // 新しい条件を優先するため、先に世代を進めてから実行中の検索をキャンセルする
         final int generation = ++searchGeneration;
+        cancelInFlightSearch();
+
+        if (query.length() < MIN_QUERY_LENGTH) {
+            // 2文字未満は検索しない（初期は何も表示しない）
+            if (query.length() == 1) {
+                Toast.makeText(DaisyReaderSapieBooksActivity.this,
+                        getString(R.string.sapie_search_min_length), Toast.LENGTH_SHORT).show();
+            }
+            mPagingAdapter.submitList(new ArrayList<>());
+            return;
+        }
+
         pagingExecutor.execute(() -> doSearch(query, true, generation));
+    }
+
+    /**
+     * 実行中の検索があればキャンセルする（新しい検索条件を優先するため）。
+     */
+    private void cancelInFlightSearch() {
+        SapieLibraryClient client = sharedClient;
+        if (client != null) {
+            client.cancelSearch();
+        }
     }
 
     /**

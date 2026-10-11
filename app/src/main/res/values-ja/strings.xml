@@ -141,6 +141,7 @@
     <string name="sapie_search_title">タイトル</string>
     <string name="sapie_search_author">著者</string>
     <string name="sapie_search_no_result">該当する資料がありません</string>
+    <string name="sapie_search_min_length">検索は2文字以上入力してください</string>
     <string name="sapie_books">サピエ図書館</string>
     <string name="sapie_menu_back">戻る</string>
     <string name="sapie_menu_root">メインメニュー</string>
