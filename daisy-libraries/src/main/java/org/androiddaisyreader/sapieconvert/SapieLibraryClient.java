@@ -268,15 +268,24 @@ public class SapieLibraryClient implements Closeable {
                 // フォームの action も含めてそのまま保持し、ダウンロード時に辿る。
                 Map<String, String> downloadForm = extractDownloadForm(row);
 
-                // 図書IDは詳細リンク(J00DTL14)の S00222 から取得する。
-                // ダウンロードフォームの S00222/S00224 はセッション状態で意味が変わる
-                // （ゲストでは行番号など）ため当てにしない。
-                String bookId = null;
+                // 図書IDはダウンロードフォームの S00224（サーバがダウンロードに使うID）を
+                // 正規IDとする。フォームが無い、または S00224 が無い場合は詳細リンク
+                // (例: J00DTL14)の S00222 にフォールバックする。
+                String titleLinkId = null;
                 if (titleLink != null) {
-                    bookId = extractQueryParam(titleLink.attr("href"), "S00222");
+                    titleLinkId = extractQueryParam(titleLink.attr("href"), "S00222");
                 }
+                String formId = downloadForm.get("S00224");
+                String bookId = (formId != null && !formId.isEmpty()) ? formId : titleLinkId;
                 if (bookId == null || bookId.isEmpty()) {
                     continue;
+                }
+                // 取り違え切り分け用: 行ごとの ID マッピングを記録する。
+                logger.info("検索行: S00222={}, S00224={}, 採用ID={}, title={}",
+                        titleLinkId, formId, bookId, title);
+                if (titleLinkId != null && !titleLinkId.equals(bookId)) {
+                    logger.warn("図書ID不一致: 詳細リンク S00222={}, フォーム S00224={} → フォームを採用 (title={})",
+                            titleLinkId, formId, title);
                 }
                 String author = cells.get(2).text().trim();
                 String type = extractType(cells.get(3));
@@ -459,7 +468,9 @@ public class SapieLibraryClient implements Closeable {
             builder.add(e.getKey(), e.getValue() != null ? e.getValue() : "");
         }
 
-        logger.info("ダウンロードフォーム送信(hop={}): url={}, params={}", hop, actionUrl, form.keySet());
+        logger.info("ダウンロードフォーム送信(hop={}): url={}, S00224={}, S00215={}, RTNTME={}, params={}",
+                hop, actionUrl, form.get("S00224"), form.get("S00215"), form.get("RTNTME"),
+                form.keySet());
 
         Request request = new Request.Builder()
                 .url(actionUrl)

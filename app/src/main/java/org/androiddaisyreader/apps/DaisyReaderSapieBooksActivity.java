@@ -362,6 +362,12 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
             showErrorWithLogSend(R.string.error_cannot_dowload);
             return;
         }
+        // 取り違え切り分け用: どの本を、どのフォームで落とすのかを記録する。
+        Log.i(TAG, "download: bookId=" + bookId + ", title=" + mDaisyBook.getTitle()
+                + ", formS00224=" + downloadForm.get("S00224")
+                + ", formS00215=" + downloadForm.get("S00215")
+                + ", formRTNTME=" + downloadForm.get("RTNTME")
+                + ", bookIdMatch=" + bookId.equals(downloadForm.get("S00224")));
 
         Toast.makeText(this, getString(R.string.message_downloading_file), Toast.LENGTH_SHORT).show();
         speakText(getString(R.string.message_downloading_file));

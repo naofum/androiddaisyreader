@@ -90,6 +90,37 @@ class SapieLibraryClientTest {
     }
 
     @Test
+    void testParseSearchResult_prefersFormS00224AsBookId() {
+        String html = "<html><body>"
+                + "<strong>該当件数：1件</strong>"
+                + "<table class=\"FULL\"><tbody>"
+                + "<tr>"
+                + "<td class=\"RIGHT\">1</td>"
+                + "<td><a href=\"CN1MN1?S00101=J00DTL14&amp;S00102=X&amp;S00103=Y"
+                + "&amp;S00221=1&amp;S00222=1111111&amp;RTNTME=9\">タイトル</a></td>"
+                + "<td>著者</td>"
+                + "<td>図書<span class=\"BR2\">音声デイジー</span></td>"
+                + "<td>1時間</td>"
+                + "<td>2000年</td>"
+                + "<td>図書館</td>"
+                + "<td><form method=\"post\" action=\"https://cntdwn.sapie.or.jp/download/download.aspx\">"
+                + "<input type=\"hidden\" name=\"S00101\" value=\"J31DWN21\">"
+                + "<input type=\"hidden\" name=\"S00224\" value=\"2222222\">"
+                + "<input type=\"submit\" value=\"ダウン\">"
+                + "</form></td>"
+                + "</tr>"
+                + "</tbody></table>"
+                + "</body></html>";
+
+        SearchResult result = client.parseSearchResult(html, 1);
+
+        assertEquals(1, result.getBooks().size());
+        // 詳細リンクの S00222=1111111 ではなく、ダウンロードフォームの S00224=2222222 を採用すること
+        assertEquals("2222222", result.getBooks().get(0).getId());
+        assertEquals("2222222", result.getBooks().get(0).getDownloadForm().get("S00224"));
+    }
+
+    @Test
     void testParseSearchResult_lastPage_noNext() {
         String html = "<html><body>"
                 + "<strong>該当件数：50件<br>1ページに50件まで表示します</strong>"
