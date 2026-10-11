@@ -47,8 +47,7 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
     private DaisyBookPagingAdapter mPagingAdapter;
     private DaisyBookInfo mDaisyBook;
 
-    private EditText mTextSearchTitle;
-    private EditText mTextSearchAuthor;
+    private EditText mTextSearch;
 
     // Paging
     private final ExecutorService pagingExecutor = Executors.newSingleThreadExecutor();
@@ -112,8 +111,7 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sapie_books);
 
-        mTextSearchTitle = findViewById(R.id.edit_text_sapie_title);
-        mTextSearchAuthor = findViewById(R.id.edit_text_sapie_author);
+        mTextSearch = findViewById(R.id.edit_text_search);
 
         String websiteName = getIntent().getStringExtra(Constants.NAME_WEBSITE);
 
@@ -182,45 +180,43 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 searchHandler.removeCallbacksAndMessages(null);
-                // デバウンス: 入力が落ち着いてから検索する（連打でAPIを叩かない）
-                searchHandler.postDelayed(() -> loadPagingData(), 500);
+                // デバウンス: Web検索なので入力が落ち着くまで待つ（連打でAPIを叩かない）
+                searchHandler.postDelayed(() -> loadPagingData(), 800);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         };
-        mTextSearchTitle.addTextChangedListener(watcher);
-        mTextSearchAuthor.addTextChangedListener(watcher);
+        mTextSearch.addTextChangedListener(watcher);
     }
 
     /**
      * 初回/検索条件変更時のデータロード（1ページ目）。
      */
     private void loadPagingData() {
-        final String title = mTextSearchTitle.getText().toString().trim();
-        final String author = mTextSearchAuthor.getText().toString().trim();
+        final String query = mTextSearch.getText().toString().trim();
         final int generation = ++searchGeneration;
-        pagingExecutor.execute(() -> doSearch(title, author, true, generation));
+        pagingExecutor.execute(() -> doSearch(query, true, generation));
     }
 
     /**
      * スクロール時の追加ページロード。
      */
     private void loadMoreData() {
-        final String title = mTextSearchTitle.getText().toString().trim();
-        final String author = mTextSearchAuthor.getText().toString().trim();
+        final String query = mTextSearch.getText().toString().trim();
         final int generation = searchGeneration;
-        pagingExecutor.execute(() -> doSearch(title, author, false, generation));
+        pagingExecutor.execute(() -> doSearch(query, false, generation));
     }
 
     /**
      * 検索を実行して一覧を更新する。
      * ページング状態はすべてこの単一スレッド上でのみ更新する。
      *
+     * @param query タイトル・著者の検索語（空可）
      * @param reset true の場合は1ページ目から検索し直す
      */
-    private void doSearch(String title, String author, boolean reset, int generation) {
+    private void doSearch(String query, boolean reset, int generation) {
         // 既に新しい検索が始まっていれば、この(古い)検索は破棄する
         if (generation != searchGeneration) {
             return;
@@ -244,11 +240,11 @@ public class DaisyReaderSapieBooksActivity extends DaisyEbookReaderBaseActivity 
         int page = reset ? 1 : currentPage + 1;
         try {
             // 検索とダウンロードで同一セッションを共有する（クライアントは閉じない）
-            Log.i(TAG, "doSearch: start title='" + title + "' author='" + author
+            Log.i(TAG, "doSearch: start query='" + query
                     + "' page=" + page + " reset=" + reset + " gen=" + generation);
             SapieLibraryClient client = getSharedClient();
             long t0 = System.currentTimeMillis();
-            SearchResult result = client.search(title, author, page,
+            SearchResult result = client.search(query, page,
                     currentSessionToken, currentRtnme);
             Log.i(TAG, "doSearch: search returned " + result.getBooks().size()
                     + " books (total=" + result.getTotalCount() + ", hasNext="

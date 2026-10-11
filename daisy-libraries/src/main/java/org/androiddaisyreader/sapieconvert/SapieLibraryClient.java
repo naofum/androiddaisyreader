@@ -56,6 +56,8 @@ public class SapieLibraryClient implements Closeable {
 
     // CN1MN1 のアクションコード
     private static final String ACT_LIST = "J01LST11"; // 検索結果一覧
+    // 簡易検索（タイトル・著者）の検索種別コード
+    private static final String SIMPLE_SEARCH_TYPE = "5";
 
     private static final int PAGE_SIZE = 50;
 
@@ -167,23 +169,22 @@ public class SapieLibraryClient implements Closeable {
     // ========== 検索処理 ==========
 
     /**
-     * デイジーデータを検索する。
+     * デイジーデータを簡易検索（タイトル・著者を1語で検索）する。
      *
-     * @param title        タイトル検索語（空可）
-     * @param author       著者検索語（空可）
+     * @param query        検索語（タイトル・著者。空可）
      * @param page         取得ページ（1始まり）
      * @param sessionToken 検索セッショントークン（S00221）。初回は null / 空でよい
      * @param rtnme        RTNTME トークン。初回は null / 空でよい
      * @return 検索結果
      * @throws SapieLibraryException 検索失敗時
      */
-    public synchronized SearchResult search(String title, String author, int page,
+    public synchronized SearchResult search(String query, int page,
                                             String sessionToken, String rtnme)
             throws SapieLibraryException {
-        logger.info("サピエ図書館を検索します: title={}, author={}, page={}", title, author, page);
+        logger.info("サピエ図書館を検索します: query={}, page={}", query, page);
 
-        String query = buildSearchQuery(title, author, page, sessionToken, rtnme);
-        String url = CN1MN1_URL + "?" + query;
+        String queryString = buildSearchQuery(query, page, sessionToken, rtnme);
+        String url = CN1MN1_URL + "?" + queryString;
 
         Request request = new Request.Builder().url(url).get().build();
         String html;
@@ -203,19 +204,16 @@ public class SapieLibraryClient implements Closeable {
         return parseSearchResult(html, page);
     }
 
-    private String buildSearchQuery(String title, String author, int page,
+    private String buildSearchQuery(String query, int page,
                                     String sessionToken, String rtnme) {
         StringBuilder sb = new StringBuilder();
         sb.append("S00101=").append(ACT_LIST);
         sb.append("&S00102=").append(GUEST_S00102);
         sb.append("&S00103=").append(GUEST_S00103);
-        if (title != null && !title.trim().isEmpty()) {
-            sb.append("&S00251=").append(encodeMs932(title));
+        sb.append("&S00262=").append(SIMPLE_SEARCH_TYPE);
+        if (query != null && !query.trim().isEmpty()) {
+            sb.append("&S00261=").append(encodeMs932(query));
         }
-        if (author != null && !author.trim().isEmpty()) {
-            sb.append("&S00252=").append(encodeMs932(author));
-        }
-        sb.append("&S00212=O");
         if (page > 1) {
             sb.append("&S00222=").append(page);
         }
