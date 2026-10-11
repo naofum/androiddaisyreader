@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         android:minHeight="@dimen/sapie_list_item_height"
         android:gravity="center"
-        android:background="@drawable/border"
+        android:background="@drawable/sapie_dialog_item_bg"
         android:padding="12dp"
+        android:textColor="#FFFFFF"
         android:textSize="18sp" />
 </LinearLayout>

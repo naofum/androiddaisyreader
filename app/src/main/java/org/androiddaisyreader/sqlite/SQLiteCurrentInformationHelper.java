@@ -68,6 +68,25 @@ public class SQLiteCurrentInformationHelper extends SQLiteHandler {
     }
 
     /**
+     * Delete current information of a book (identified by path).
+     *
+     * @param path path of the book
+     * @return number of deleted rows
+     */
+    public int deleteCurrentInformationByPath(String path) {
+        int count = 0;
+        try {
+            SQLiteDatabase mdb = getWritableDatabase();
+            count = mdb.delete(TABLE_NAME_CURRENT_INFORMATION,
+                    PATH_KEY_CURRENT_INFORMATION + "=?", new String[] { path });
+        } catch (Exception e) {
+            PrivateException ex = new PrivateException(e, mContext);
+            ex.writeLogException();
+        }
+        return count;
+    }
+
+    /**
      * Update current information to sqlite
      * 
      * @param current

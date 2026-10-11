@@ -78,6 +78,25 @@ public class SQLiteBookmarkHelper extends SQLiteHandler {
     }
 
     /**
+     * Delete all bookmarks of a book (identified by path).
+     *
+     * @param path path of the book
+     * @return number of deleted rows
+     */
+    public int deleteBookmarksByPath(String path) {
+        int count = 0;
+        try {
+            SQLiteDatabase mdb = getWritableDatabase();
+            count = mdb.delete(TABLE_NAME_BOOKMARK, PATH_KEY_BOOKMARK + "=?",
+                    new String[] { path });
+        } catch (Exception e) {
+            PrivateException ex = new PrivateException(e, mContext);
+            ex.writeLogException();
+        }
+        return count;
+    }
+
+    /**
      * Update bookmark to sqlite
      * 
      * @param bookmark

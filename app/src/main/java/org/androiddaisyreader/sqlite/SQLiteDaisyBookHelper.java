@@ -78,6 +78,95 @@ public class SQLiteDaisyBookHelper extends SQLiteHandler {
     }
 
     /**
+     * 同じタイトル・同じタイプの既存レコードをすべて削除してから、明示的な {@code _id} で追加する。
+     * DODP のダウンロード書籍など、外部キー（content ID）を {@code _id} として保持したい場合に使う。
+     *
+     * @param daisyBook 追加する書籍（{@link DaisyBookInfo#getId()} を {@code _id} として使用）
+     * @param type      メタデータ種別
+     */
+    public boolean addOrReplaceDaisyBookWithId(DaisyBookInfo daisyBook, String type) {
+        if (daisyBook != null && daisyBook.getTitle() != null) {
+            deleteDaisyBookByTitle(daisyBook.getTitle(), type);
+        }
+        return addDaisyBookWithId(daisyBook, type, daisyBook != null ? daisyBook.getId() : null);
+    }
+
+    /**
+     * 指定の {@code _id} でレコードを追加する。{@code id} が空の場合は UUID を採番する。
+     */
+    public boolean addDaisyBookWithId(DaisyBookInfo daisyBook, String type, String id) {
+        boolean result = false;
+        if (daisyBook == null) {
+            return false;
+        }
+        String bookId = (id != null && !id.isEmpty()) ? id : UUID.randomUUID().toString();
+        ContentValues mValue = new ContentValues();
+        mValue.put(ID_KEY_DAISY_BOOK, bookId);
+        mValue.put(TITLE_KEY_DAISY_BOOK, daisyBook.getTitle());
+        mValue.put(PATH_KEY_DAISY_BOOK, daisyBook.getPath());
+        mValue.put(AUTHOR_KEY_DAISY_BOOK, daisyBook.getAuthor());
+        mValue.put(PUBLISHER_KEY_DAISY_BOOK, daisyBook.getPublisher());
+        mValue.put(DATE_DAISY_BOOK, daisyBook.getDate());
+        mValue.put(TYPE_OF_METADATA_DAISY_BOOK, type);
+        mValue.put(SORT_KEY_DAISY_BOOK, daisyBook.getSort());
+        try {
+            SQLiteDatabase mdb = getWritableDatabase();
+            long i = mdb.insert(TABLE_NAME_DAISY_BOOK, null, mValue);
+            if (i != -1) {
+                result = true;
+            }
+        } catch (Exception e) {
+            PrivateException ex = new PrivateException(e, mContext);
+            ex.writeLogException();
+        }
+        return result;
+    }
+
+    /**
+     * {@code _id} で1件取得する。
+     *
+     * @param id 図書レコードの {@code _id}
+     * @return 見つからなければ null
+     */
+    public DaisyBookInfo getDaisyBookById(String id) {
+        DaisyBookInfo daisyBook = null;
+        SQLiteDatabase mdb = null;
+        Cursor mCursor = null;
+        try {
+            mdb = getReadableDatabase();
+            mCursor = mdb.query(TABLE_NAME_DAISY_BOOK, new String[] { ID_KEY_DAISY_BOOK,
+                    TITLE_KEY_DAISY_BOOK, PATH_KEY_DAISY_BOOK, AUTHOR_KEY_DAISY_BOOK,
+                    PUBLISHER_KEY_DAISY_BOOK, DATE_DAISY_BOOK, SORT_KEY_DAISY_BOOK },
+                    ID_KEY_DAISY_BOOK + "=?", new String[] { id }, null, null, null);
+            if (mCursor != null && mCursor.moveToFirst()) {
+                String valueId = mCursor.getString(mCursor.getColumnIndex(ID_KEY_DAISY_BOOK));
+                String title = mCursor.getString(mCursor.getColumnIndex(TITLE_KEY_DAISY_BOOK));
+                String path = mCursor.getString(mCursor.getColumnIndex(PATH_KEY_DAISY_BOOK));
+                String author = mCursor.getString(mCursor.getColumnIndex(AUTHOR_KEY_DAISY_BOOK));
+                String publisher = mCursor.getString(mCursor
+                        .getColumnIndex(PUBLISHER_KEY_DAISY_BOOK));
+                String date = mCursor.getString(mCursor.getColumnIndex(DATE_DAISY_BOOK));
+                int sort = parseSort(mCursor.getString(mCursor.getColumnIndex(SORT_KEY_DAISY_BOOK)));
+                daisyBook = new DaisyBookInfo(valueId, title, path, author, publisher, date, sort);
+            }
+        } catch (Exception e) {
+            PrivateException ex = new PrivateException(e, mContext);
+            ex.writeLogException();
+        } finally {
+            if (mCursor != null) mCursor.close();
+        }
+        return daisyBook;
+    }
+
+    private static int parseSort(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /**
      * 指定タイトル・タイプのレコードをすべて削除する。
      */
     public boolean deleteDaisyBookByTitle(String title, String type) {

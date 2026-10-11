@@ -6,9 +6,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,7 +32,10 @@ import org.androiddaisyreader.sapie.SapieDodpClient;
 import org.androiddaisyreader.sapie.menu.Choice;
 import org.androiddaisyreader.sapie.menu.MenuController;
 import org.androiddaisyreader.sapie.menu.QuestionResult;
+import org.androiddaisyreader.sqlite.SQLiteBookmarkHelper;
+import org.androiddaisyreader.sqlite.SQLiteCurrentInformationHelper;
 import org.androiddaisyreader.sqlite.SQLiteDaisyBookHelper;
+import org.androiddaisyreader.utils.CacheHelper;
 import org.androiddaisyreader.utils.Constants;
 import org.androiddaisyreader.utils.DaisyBookUtil;
 import org.androiddaisyreader.utils.SapiePreferences;
@@ -59,6 +64,11 @@ import java.util.zip.ZipOutputStream;
 public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
 
     private static final String TAG = "SapieDodp";
+
+    // ボタンのダブルタップ判定に使う位置キー（リスト項目の position と衝突しない大きな値）
+    private static final int CLICK_ID_ISSUED_LIST = 100001;
+    private static final int CLICK_ID_INPUT_SUBMIT = 100002;
+    private static final int CLICK_ID_BACK = 100003;
 
     private enum ViewState { MENU, INPUT, CONTENT_LIST, ISSUED_LIST }
 
@@ -130,7 +140,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
 
         issuedListButton = new Button(this);
         issuedListButton.setText(R.string.sapie_list_issued);
-        issuedListButton.setOnClickListener(v -> loadIssuedList());
+        setDoubleClickButton(issuedListButton, CLICK_ID_ISSUED_LIST, this::loadIssuedList);
         issuedListButton.setLayoutParams(createButtonLayoutParams());
         root.addView(issuedListButton);
 
@@ -145,12 +155,24 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         inputField.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                 getResources().getDimension(R.dimen.input_field_text_size));
         inputField.setGravity(Gravity.CENTER_VERTICAL);
+        // IME の「検索」アクションで確定できるようにする
+        inputField.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+        inputField.setOnEditorActionListener((v, actionId, event) -> {
+            boolean isSearch = actionId == EditorInfo.IME_ACTION_SEARCH
+                    || (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                        && event.getAction() == KeyEvent.ACTION_DOWN);
+            if (isSearch) {
+                submitInput();
+                return true;
+            }
+            return false;
+        });
         root.addView(inputField);
 
         inputSubmit = new Button(this);
         inputSubmit.setText(R.string.sapie_input_submit);
         inputSubmit.setVisibility(View.GONE);
-        inputSubmit.setOnClickListener(v -> submitInput());
+        setDoubleClickButton(inputSubmit, CLICK_ID_INPUT_SUBMIT, this::submitInput);
         inputSubmit.setLayoutParams(createButtonLayoutParams());
         root.addView(inputSubmit);
 
@@ -163,11 +185,30 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
 
         backButton = new Button(this);
         backButton.setText(R.string.sapie_menu_back);
-        backButton.setOnClickListener(v -> goBack());
+        setDoubleClickButton(backButton, CLICK_ID_BACK, this::goBack);
         backButton.setLayoutParams(createButtonLayoutParams());
         root.addView(backButton);
 
         setContentView(root);
+    }
+
+    /**
+     * ボタンをダブルタップで実行、シングルタップでラベル読み上げにする。
+     * アプリ全体の操作感（ダブルタップで実行・シングルで読み上げ）と合わせる。
+     *
+     * @param button  対象ボタン
+     * @param clickId ダブルタップ判定に使う一意の位置キー（リスト position と衝突しない値）
+     * @param action  ダブルタップで実行する処理
+     */
+    private void setDoubleClickButton(final Button button, final int clickId,
+                                      final Runnable action) {
+        button.setOnClickListener(v -> {
+            if (handleClickItem(clickId)) {
+                action.run();
+            } else {
+                speakTextOnHandler(button.getText().toString());
+            }
+        });
     }
 
     @Override
@@ -289,6 +330,9 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         showHeader(result.getText());
         setInputVisible(true);
         inputField.setText("");
+        // 入力欄にフォーカスする（キーボードは自動表示しない）。GONE→VISIBLE 直後は
+        // requestFocus が効かないことがあるため post でレイアウト後に実行する。
+        inputField.post(() -> inputField.requestFocus());
         listView.setAdapter(new ArrayAdapter<>(this,
                 R.layout.sapie_list_item, R.id.text1, new ArrayList<String>()));
         speakText(result.getText());
@@ -425,12 +469,12 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     }
 
     /**
-     * 一覧項目のアクション選択（貸出 or 返却）。
+     * 一覧項目のアクション選択（貸出）。
+     * 返却は閲覧リスト（貸出中一覧）からのみ行う。
      */
     private void confirmItemAction(final ContentItem item, final String label) {
         CharSequence[] actions = new CharSequence[]{
-                getString(R.string.sapie_borrow),
-                getString(R.string.sapie_return)
+                getString(R.string.sapie_borrow)
         };
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this,
                 R.layout.sapie_dialog_item, R.id.dialogItemText, actions);
@@ -439,8 +483,6 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                 .setAdapter(adapter, (dialog, which) -> {
                     if (which == 0) {
                         borrowAndDownload(item, label);
-                    } else {
-                        returnContent(item, label);
                     }
                 })
                 .setNegativeButton(R.string.cancel_bookmark, null)
@@ -504,15 +546,16 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                 Uri savedUri = saveToDownloadsAndMediaStore(downloadedFile, fileName, mimeType);
                 String savedPath = (savedUri != null) ? savedUri.toString() : downloadedFile.getAbsolutePath();
 
+                // 図書IDとして Sapie の content ID を _id に採用する（返却時に厳密に特定できるように）。
                 DaisyBookInfo info = new DaisyBookInfo(
-                        contentId,
+                        "sapie:" + contentId,
                         title,
                         savedPath,
                         resolveAuthor(metadata),
                         "",
                         "",
                         0);
-                mSql.addOrReplaceDaisyBook(info, Constants.TYPE_DOWNLOADED_BOOK);
+                mSql.addOrReplaceDaisyBookWithId(info, Constants.TYPE_DOWNLOADED_BOOK);
                 DaisyBookUtil.addRecentBookToSQLite(info,
                         Constants.NUMBER_OF_RECENTBOOK_DEFAULT, mSql);
 
@@ -704,6 +747,11 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         executor.execute(() -> {
             try {
                 boolean ok = client.returnContent(item.getId());
+                if (ok) {
+                    // 返却成功: ローカルのファイル・ダウンロード済一覧・最近の本・
+                    // ブックマーク・現在位置・キャッシュを後始末する（失敗は無視）。
+                    cleanupReturnedBook(item.getId());
+                }
                 runOnUiThread(() -> {
                     String msg = ok ? getString(R.string.sapie_returned)
                             : getString(R.string.sapie_return_failure);
@@ -723,6 +771,98 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                 });
             }
         });
+    }
+
+    /**
+     * 返却された書籍のローカルデータを削除する。
+     *
+     * <p>対象: ファイル（MediaStore エントリ or ローカルファイル）、ダウンロード済一覧、
+     * 最近の本、ブックマーク、現在位置、アプリキャッシュ。</p>
+     *
+     * <p>各処理はベストエフォート。失敗しても返却自体は成功として扱い、ログのみ残す。</p>
+     *
+     * @param contentId 返却した書籍の Sapie content ID
+     */
+    private void cleanupReturnedBook(String contentId) {
+        final String bookId = "sapie:" + contentId;
+        String path = null;
+        String title = null;
+
+        // ダウンロード済エントリを content ID で特定
+        try {
+            DaisyBookInfo dl = mSql.getDaisyBookById(bookId);
+            if (dl != null) {
+                path = dl.getPath();
+                title = dl.getTitle();
+            }
+        } catch (Exception e) {
+            org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: get book failed", e);
+        }
+
+        // ブックマーク/現在位置の照合に使うパス集合（元パス + キャッシュパス）を先に確定する
+        final List<String> paths = new ArrayList<>();
+        if (path != null && !path.isEmpty()) {
+            paths.add(path);
+            if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                try {
+                    String cached = CacheHelper.getCachedPath(this, path);
+                    if (cached != null && !cached.isEmpty()) {
+                        paths.add(cached);
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
+
+        // ファイル削除（MediaStore エントリなら実体も削除される）
+        if (path != null && !path.isEmpty()) {
+            try {
+                if (path.startsWith(Constants.PREFIX_CONTENT_SCHEME)) {
+                    getContentResolver().delete(Uri.parse(path), null, null);
+                } else {
+                    new File(path).delete();
+                }
+            } catch (Exception e) {
+                org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: delete file failed", e);
+            }
+
+            // アプリキャッシュ削除
+            try {
+                CacheHelper.deleteCache(this, path);
+            } catch (Exception e) {
+                org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: delete cache failed", e);
+            }
+        }
+
+        // DB: ダウンロード済 + 最近の本
+        try {
+            mSql.deleteDaisyBook(bookId);
+        } catch (Exception e) {
+            org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: delete downloaded failed", e);
+        }
+        if (title != null && !title.isEmpty()) {
+            try {
+                mSql.deleteDaisyBookByTitle(title, Constants.TYPE_RECENT_BOOK);
+            } catch (Exception e) {
+                org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: delete recent failed", e);
+            }
+        }
+
+        // ブックマーク・現在位置
+        for (String p : paths) {
+            try {
+                SQLiteBookmarkHelper.getInstance(this).deleteBookmarksByPath(p);
+            } catch (Exception e) {
+                org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: delete bookmarks failed", e);
+            }
+            try {
+                SQLiteCurrentInformationHelper.getInstance(this)
+                        .deleteCurrentInformationByPath(p);
+            } catch (Exception e) {
+                org.androiddaisyreader.utils.LogFile.e(TAG, "return cleanup: delete current info failed", e);
+            }
+        }
     }
 
     /**

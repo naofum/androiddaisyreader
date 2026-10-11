@@ -116,6 +116,28 @@ public class CacheHelper {
     }
 
     /**
+     * 指定された content:// URI に対応するキャッシュファイルを削除する。
+     *
+     * @param context    アプリケーションコンテキスト
+     * @param contentUri content:// URI文字列
+     */
+    public static void deleteCache(Context context, String contentUri) {
+        if (contentUri == null || contentUri.isEmpty()) {
+            return;
+        }
+        try {
+            File cacheDir = getCacheDir(context);
+            String cacheFileName = generateCacheFileName(context, Uri.parse(contentUri));
+            File cacheFile = new File(cacheDir, cacheFileName);
+            if (cacheFile.exists() && cacheFile.delete()) {
+                Log.d(TAG, "Cache deleted: " + cacheFile.getName());
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to delete cache for: " + contentUri, e);
+        }
+    }
+
+    /**
      * 書籍キャッシュディレクトリ内の全ファイルを削除する。
      *
      * @param context アプリケーションコンテキスト
