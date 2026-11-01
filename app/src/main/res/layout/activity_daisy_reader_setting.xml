@@ -400,125 +400,129 @@
         android:id="@+id/textViewExperimentalHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="0dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="16dp"
         android:text="@string/experimental_settings_title"
         android:textStyle="bold"
-        android:textSize="16sp" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
         android:id="@+id/layoutExperimentalContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
-    <!-- ChattyLib 認証情報 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/chattylib_settings_title"
-            android:textStyle="bold"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/chattylib_login_id" />
-
-        <EditText
-            android:id="@+id/edt_chattylib_login_id"
+        <!-- サピエ図書館 認証情報 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:hint="@string/chattylib_login_id_hint"
-            android:singleLine="true" />
+            android:layout_margin="10dp"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/chattylib_password" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sapie_settings_title"
+                android:textStyle="bold"
+                android:textSize="16sp" />
 
-        <EditText
-            android:id="@+id/edt_chattylib_password"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/sapie_login_id" />
+
+            <EditText
+                android:id="@+id/edt_sapie_login_id"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_field_height"
+                android:textSize="@dimen/input_field_text_size"
+                android:gravity="center_vertical"
+                android:inputType="text"
+                android:hint="@string/sapie_login_id_hint"
+                android:singleLine="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/sapie_password" />
+
+            <EditText
+                android:id="@+id/edt_sapie_password"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_field_height"
+                android:textSize="@dimen/input_field_text_size"
+                android:gravity="center_vertical"
+                android:inputType="textPassword"
+                android:hint="@string/sapie_password_hint"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/btn_sapie_login_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/sapie_login_check"
+                style="?android:attr/buttonStyleSmall" />
+        </LinearLayout>
+
+        <!-- ChattyLib 認証情報 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="@string/chattylib_password_hint"
-            android:singleLine="true" />
+            android:layout_margin="10dp"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_chattylib_login_check"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/chattylib_login_check"
-            style="?android:attr/buttonStyleSmall" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/chattylib_settings_title"
+                android:textStyle="bold"
+                android:textSize="16sp" />
 
-    <!-- サピエ図書館 認証情報 -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/chattylib_login_id" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/sapie_settings_title"
-            android:textStyle="bold"
-            android:textSize="16sp" />
+            <EditText
+                android:id="@+id/edt_chattylib_login_id"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_field_height"
+                android:textSize="@dimen/input_field_text_size"
+                android:gravity="center_vertical"
+                android:inputType="text"
+                android:hint="@string/chattylib_login_id_hint"
+                android:singleLine="true" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/sapie_login_id" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/chattylib_password" />
 
-        <EditText
-            android:id="@+id/edt_sapie_login_id"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/input_field_height"
-            android:textSize="@dimen/input_field_text_size"
-            android:gravity="center_vertical"
-            android:inputType="text"
-            android:hint="@string/sapie_login_id_hint"
-            android:singleLine="true" />
+            <EditText
+                android:id="@+id/edt_chattylib_password"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_field_height"
+                android:textSize="@dimen/input_field_text_size"
+                android:gravity="center_vertical"
+                android:inputType="textPassword"
+                android:hint="@string/chattylib_password_hint"
+                android:singleLine="true" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/sapie_password" />
-
-        <EditText
-            android:id="@+id/edt_sapie_password"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/input_field_height"
-            android:textSize="@dimen/input_field_text_size"
-            android:gravity="center_vertical"
-            android:inputType="textPassword"
-            android:hint="@string/sapie_password_hint"
-            android:singleLine="true" />
-
-        <Button
-            android:id="@+id/btn_sapie_login_check"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/sapie_login_check"
-            style="?android:attr/buttonStyleSmall" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/btn_chattylib_login_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/chattylib_login_check"
+                style="?android:attr/buttonStyleSmall" />
+        </LinearLayout>
 
     </LinearLayout>
 

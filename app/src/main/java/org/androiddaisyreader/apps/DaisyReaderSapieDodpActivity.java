@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.library.dodp.model.Announcements;
 import com.github.library.dodp.model.ContentItem;
 import com.github.library.dodp.model.ContentList;
 import com.github.library.dodp.model.ContentMetadata;
@@ -45,6 +46,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,11 +68,15 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     private static final String TAG = "SapieDodp";
 
     // ボタンのダブルタップ判定に使う位置キー（リスト項目の position と衝突しない大きな値）
+    private static final int CLICK_ID_ANNOUNCEMENTS = 100000;
     private static final int CLICK_ID_ISSUED_LIST = 100001;
     private static final int CLICK_ID_INPUT_SUBMIT = 100002;
     private static final int CLICK_ID_BACK = 100003;
 
-    private enum ViewState { MENU, INPUT, CONTENT_LIST, ISSUED_LIST }
+    /** お知らせのプレビューの最大文字数。 */
+    private static final int ANNOUNCEMENT_PREVIEW_MAX = 40;
+
+    private enum ViewState { MENU, INPUT, CONTENT_LIST, ISSUED_LIST, ANNOUNCEMENTS }
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -84,6 +90,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     private ListView listView;
     private EditText inputField;
     private Button inputSubmit;
+    private Button announcementsButton;
     private Button issuedListButton;
     private Button backButton;
 
@@ -93,6 +100,8 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     private String currentMenuQuestionId;
     // 一覧用の現在アイテム
     private final List<ContentItem> currentItems = new ArrayList<>();
+    // お知らせ一覧用の現在アイテム
+    private final List<Announcements.Announcement> currentAnnouncements = new ArrayList<>();
     // 入力質問の questionId
     private String currentInputQuestionId;
     // 現在表示中の検索結果一覧の listId（返却後の再取得用）
@@ -137,6 +146,12 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
         headerText.setTextSize(18);
         headerText.setPadding(0, 0, 0, pad);
         root.addView(headerText);
+
+        announcementsButton = new Button(this);
+        announcementsButton.setText(R.string.sapie_announcements);
+        setDoubleClickButton(announcementsButton, CLICK_ID_ANNOUNCEMENTS, this::loadAnnouncements);
+        announcementsButton.setLayoutParams(createButtonLayoutParams());
+        root.addView(announcementsButton);
 
         issuedListButton = new Button(this);
         issuedListButton.setText(R.string.sapie_list_issued);
@@ -266,7 +281,7 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     }
 
     private void goBack() {
-        if (state == ViewState.ISSUED_LIST) {
+        if (state == ViewState.ISSUED_LIST || state == ViewState.ANNOUNCEMENTS) {
             openRootMenu();
             return;
         }
@@ -428,6 +443,104 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
     }
 
     // ------------------------------------------------------------------
+    // お知らせ（Announcement）
+    // ------------------------------------------------------------------
+
+    private void loadAnnouncements() {
+        showLoading();
+        executor.execute(() -> {
+            try {
+                Announcements announcements = client.getServiceAnnouncements();
+                runOnUiThread(() -> renderAnnouncements(announcements));
+            } catch (Exception e) {
+                // お知らせは非対応/取得失敗でも致命的ではないので空表示にする
+                org.androiddaisyreader.utils.LogFile.e(TAG, "Sapie DODP announcements failed", e);
+                runOnUiThread(() -> renderAnnouncements(
+                        new Announcements(Collections.<Announcements.Announcement>emptyList())));
+            }
+        });
+    }
+
+    private void renderAnnouncements(Announcements announcements) {
+        state = ViewState.ANNOUNCEMENTS;
+        setInputVisible(false);
+        currentItems.clear();
+        currentAnnouncements.clear();
+        List<String> labels = new ArrayList<>();
+        if (announcements != null && announcements.getAnnouncements() != null) {
+            // 重要（priority が小さいほど重要）が上に来るように並べる
+            List<Announcements.Announcement> list =
+                    new ArrayList<>(announcements.getAnnouncements());
+            Collections.sort(list, (a, b) -> Integer.compare(a.getPriority(), b.getPriority()));
+            for (Announcements.Announcement a : list) {
+                currentAnnouncements.add(a);
+                labels.add(previewOf(a));
+            }
+        }
+        // ヘッダーを「n件のお知らせがあります」/「新しいお知らせはありません」にし、
+        // speakText(header) でそのまま読み上げる。
+        final String header;
+        if (labels.isEmpty()) {
+            header = getString(R.string.sapie_announcements_none);
+            labels.add(header);
+        } else {
+            header = getString(R.string.sapie_announcements_count, labels.size());
+        }
+        showHeader(header);
+        listView.setAdapter(new ArrayAdapter<>(this,
+                R.layout.sapie_list_item, R.id.text1, labels));
+        speakText(header);
+    }
+
+    /**
+     * お知らせのプレビュー（先頭1行、長ければ最大 {@value #ANNOUNCEMENT_PREVIEW_MAX} 文字＋…）を作る。
+     * priority==1 は重要として接頭辞を付ける。
+     */
+    private String previewOf(Announcements.Announcement a) {
+        String text = (a.getLabel() != null && a.getLabel().getText() != null)
+                ? a.getLabel().getText() : "";
+        String firstLine = text;
+        int nl = firstLine.indexOf('\n');
+        if (nl >= 0) {
+            firstLine = firstLine.substring(0, nl);
+        }
+        firstLine = firstLine.replaceAll("\\s+", " ").trim();
+        if (firstLine.length() > ANNOUNCEMENT_PREVIEW_MAX) {
+            firstLine = firstLine.substring(0, ANNOUNCEMENT_PREVIEW_MAX) + "…";
+        }
+        if (firstLine.isEmpty()) {
+            firstLine = a.getId() != null ? a.getId() : "";
+        }
+        String prefix = (a.getPriority() == 1) ? getString(R.string.sapie_important_prefix) : "";
+        return prefix + firstLine;
+    }
+
+    /**
+     * お知らせの全文をダイアログ表示＋TTSで読み上げ、既読にする。
+     */
+    private void showAnnouncement(final Announcements.Announcement a) {
+        final String text = (a.getLabel() != null && a.getLabel().getText() != null)
+                ? a.getLabel().getText() : "";
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.sapie_announcements)
+                .setMessage(text)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+        speakText(text);
+        // 既読マーク（失敗は無視）
+        final String id = a.getId();
+        if (id != null && !id.isEmpty()) {
+            executor.execute(() -> {
+                try {
+                    client.markAnnouncementsAsRead(Collections.singletonList(id));
+                } catch (Exception e) {
+                    org.androiddaisyreader.utils.LogFile.e(TAG, "markAnnouncementsAsRead failed", e);
+                }
+            });
+        }
+    }
+
+    // ------------------------------------------------------------------
     // リスト項目クリック
     // ------------------------------------------------------------------
 
@@ -464,6 +577,16 @@ public class DaisyReaderSapieDodpActivity extends DaisyEbookReaderBaseActivity {
                 confirmReturnAction(item, label);
             } else {
                 speakTextOnHandler(label);
+            }
+        } else if (state == ViewState.ANNOUNCEMENTS) {
+            if (position < 0 || position >= currentAnnouncements.size()) {
+                return;
+            }
+            Announcements.Announcement announcement = currentAnnouncements.get(position);
+            if (isDoubleTap) {
+                showAnnouncement(announcement);
+            } else {
+                speakTextOnHandler(previewOf(announcement));
             }
         }
     }

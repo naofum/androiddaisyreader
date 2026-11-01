@@ -142,6 +142,10 @@
     <string name="sapie_search_author">著者</string>
     <string name="sapie_search_no_result">該当する資料がありません</string>
     <string name="sapie_search_min_length">検索は2文字以上入力してください</string>
+    <string name="sapie_announcements">お知らせ</string>
+    <string name="sapie_announcements_none">新しいお知らせはありません</string>
+    <string name="sapie_announcements_count">%1$d件のお知らせがあります</string>
+    <string name="sapie_important_prefix">【重要】</string>
     <string name="sapie_books">サピエ図書館</string>
     <string name="sapie_menu_back">戻る</string>
     <string name="sapie_menu_root">メインメニュー</string>
@@ -158,7 +162,7 @@
     <string name="sapie_login_required">設定画面でサピエIDとパスワードを設定してください</string>
     <string name="sapie_limit_reached">閲覧リストが上限（最大30冊）に達しています。図書を返却してください。</string>
     <string name="sapie_no_items">項目がありません</string>
-    <string name="experimental_settings_title">実験的機能</string>
+    <string name="experimental_settings_title">外部サービス</string>
     <string name="send_log">ログを送信</string>
     <string name="send_log_no_log">ログがありません</string>
     <string name="send_log_subject">DaisyReader ログ</string>

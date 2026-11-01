@@ -3,15 +3,19 @@ package org.androiddaisyreader.sapie;
 import com.github.library.dodp.client.DodpClient;
 import com.github.library.dodp.client.DodpConfiguration;
 import com.github.library.dodp.exception.DodpException;
+import com.github.library.dodp.model.Announcements;
 import com.github.library.dodp.model.ContentList;
 import com.github.library.dodp.model.ContentMetadata;
 import com.github.library.dodp.model.InputType;
+import com.github.library.dodp.model.OptionalOperation;
 import com.github.library.dodp.model.ReadingSystemAttributes;
 import com.github.library.dodp.model.Resources;
 import com.github.library.dodp.model.ServiceAttributes;
 
 import org.androiddaisyreader.utils.Constants;
 import org.w3c.dom.Element;
+
+import java.util.List;
 
 /**
  * サピエ DAISY Online サービス（DODP）へのアプリ側ファサード。
@@ -34,6 +38,8 @@ public final class SapieDodpClient implements AutoCloseable {
     private final String username;
     private final String password;
     private boolean initialized;
+    /** 直近の初期化で取得したサービス能力（対応オペレーション判定に使う）。 */
+    private ServiceAttributes serviceAttributes;
 
     public SapieDodpClient(String username, String password) {
         this(username, password, resolveEndpoint());
@@ -91,8 +97,38 @@ public final class SapieDodpClient implements AutoCloseable {
             }
         }
         ServiceAttributes attributes = client.initialize(buildReadingSystemAttributes());
+        this.serviceAttributes = attributes;
         initialized = true;
         return attributes;
+    }
+
+    /**
+     * お知らせ（Service Announcements）に対応しているか。
+     */
+    public boolean supportsAnnouncements() throws DodpException {
+        ensureInitialized();
+        return serviceAttributes != null
+                && serviceAttributes.supports(OptionalOperation.SERVICE_ANNOUNCEMENTS);
+    }
+
+    // ------------------------------------------------------------------
+    // お知らせ（Service Announcements）
+    // ------------------------------------------------------------------
+
+    /**
+     * 未読のお知らせを取得する。非対応のサービスの場合は障害（fault）が返る。
+     */
+    public Announcements getServiceAnnouncements() throws DodpException {
+        ensureInitialized();
+        return client.getServiceAnnouncements();
+    }
+
+    /**
+     * お知らせを既読としてマークする。
+     */
+    public boolean markAnnouncementsAsRead(List<String> announcementIds) throws DodpException {
+        ensureInitialized();
+        return client.markAnnouncementsAsRead(announcementIds);
     }
 
     private void ensureInitialized() throws DodpException {

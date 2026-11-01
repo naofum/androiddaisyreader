@@ -132,8 +132,6 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
         settingChattyLib();
         // setting Sapie credentials
         settingSapie();
-        // setting experimental section (折りたたみ)
-        settingExperimentalSection();
 
         // TTSがsuper.onCreate内で既にready状態になった場合、
         // onTtsReady時点ではまだViewが無いのでここで再呼び出し
@@ -707,24 +705,6 @@ public class DaisyReaderSettingActivity extends DaisyEbookReaderBaseActivity {
                 .setMessage(message)
                 .setPositiveButton(R.string.ok, null)
                 .show();
-    }
-
-    /**
-     * 実験的機能セクション（ChattyLib / サピエ図書館）の折りたたみを設定する。
-     * デフォルトは折りたたみ（非表示）。
-     */
-    private void settingExperimentalSection() {
-        View header = findViewById(R.id.textViewExperimentalHeader);
-        View content = findViewById(R.id.layoutExperimentalContent);
-        if (header == null || content == null) return;
-
-        header.setOnClickListener(v -> {
-            if (content.getVisibility() == View.VISIBLE) {
-                content.setVisibility(View.GONE);
-            } else {
-                content.setVisibility(View.VISIBLE);
-            }
-        });
     }
 
     @Override

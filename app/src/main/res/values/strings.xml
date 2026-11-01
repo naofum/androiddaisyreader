@@ -144,6 +144,10 @@
     <string name="sapie_search_author">Author</string>
     <string name="sapie_search_no_result">No results found</string>
     <string name="sapie_search_min_length">Enter at least 2 characters to search</string>
+    <string name="sapie_announcements">Announcements</string>
+    <string name="sapie_announcements_none">No new announcements</string>
+    <string name="sapie_announcements_count">%1$d announcement(s)</string>
+    <string name="sapie_important_prefix">[Important] </string>
     <string name="sapie_books">Sapie Library</string>
     <string name="sapie_menu_back">Back</string>
     <string name="sapie_menu_root">Main menu</string>
